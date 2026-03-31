@@ -27,6 +27,8 @@ public class LobbyCreationScene extends PixelScene{
 
     StyledButton btnCreate = null;
 
+    @Override
+    protected void onBackPressed() {}
 
     @Override
     public void create() {
@@ -54,10 +56,10 @@ public class LobbyCreationScene extends PixelScene{
 
 
 
-        TextInput nameInput = new TextInput(Chrome.get(Chrome.Type.TOAST_WHITE), false, 3,  uiCamera.zoom);
+        TextInput nameInput = new TextInput(Chrome.get(Chrome.Type.TOAST_WHITE), false, 8,  uiCamera.zoom);
         add(nameInput);
 
-        TextInput passwordInput = new TextInput(Chrome.get(Chrome.Type.TOAST_WHITE), false, 3,  uiCamera.zoom);
+        TextInput passwordInput = new TextInput(Chrome.get(Chrome.Type.TOAST_WHITE), false, 8,  uiCamera.zoom);
         add(passwordInput);
 
 
@@ -79,6 +81,19 @@ public class LobbyCreationScene extends PixelScene{
         btnCreate.icon(Icons.STAIRS.get());
         btnCreate.setSize( WIDTH, 20 );
         add(btnCreate);
+
+
+        StyledButton btnTemp = new StyledButton(Chrome.Type.GREY_BUTTON_TR, Messages.get(this, "create") ) {
+            @Override
+            protected void onClick() {
+
+
+            }
+        };
+        btnTemp.icon(Icons.STAIRS.get());
+        btnTemp.setSize( WIDTH, 20 );
+        add(btnTemp);
+
 
 
 

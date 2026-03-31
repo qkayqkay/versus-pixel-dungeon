@@ -2,12 +2,14 @@ package com.shatteredpixel.shatteredpixeldungeon.networking;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.HeroSelectScene;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.InLobbyScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.function.Consumer;
 
@@ -22,10 +24,18 @@ public enum NetworkManager {
     private PrintWriter out;
     private BufferedReader in;
     private boolean isListening = false;
-    private Consumer<LinkedHashMap<String, Lobby>> lobbyCallback;
-    private LinkedHashMap<String, Lobby> lobbies = new LinkedHashMap<>();
+    private Consumer<LinkedHashMap<String, Lobby>> lobbyListCallback;
+    private Runnable onChatReceived;
+    private Runnable onJoinError;
+    private Runnable onLevelChanged;
 
-    public String playerID;
+
+    private Consumer<Lobby> lobbyInfoCallback;
+    private LinkedHashMap<String, Lobby> lobbies = new LinkedHashMap<>();
+    public ArrayList<ChatMessage> chat = new ArrayList<>();
+
+    public Player self; //self. Basically this represents the player of the client itself.
+    public ArrayList<Player> players = new ArrayList<>();
 
     public void connect(String ip) throws Exception {
         System.out.println("Connecting...");
@@ -42,7 +52,9 @@ public enum NetworkManager {
                  heading = parts[0];
                  data = parts[1];
                  if(heading.equals("PLAYERID")){
-                     playerID = data;
+                     String playerID = data;
+                     self = new Player(data, "temp");
+                     players.add(self);
                      System.out.println("Connected to Server! Player ID is: "+data);
                      startListening();
                      break;
@@ -71,32 +83,209 @@ public enum NetworkManager {
         listenerThread.start();
     }
 
-    private void handleIncomingMessage(String message) {
-        System.out.println("Caught incoming data: "+message);
+    private void handleIncomingMessage(String message) { // im ngl this got so boring to write that some of this is just AI. Serialization booo.
         String[] headerData = message.split(":", 2);
         String header = headerData[0];
         String data = headerData[1];
+        System.out.println("Caught incoming data: "+message+", header is: "+header);
 
-        if (header.equals("BROADCAST")) {
-            this.broadcast(data);
+        if (header.equals("EVENT")) {
+            System.out.println("SERVER EVENT: " + data);
+        }
+
+        else if (header.equals("CHAT")) {
+            String[] chatEntries = data.split("=", 2);
+            String chatterID = chatEntries[0];
+            String msg = chatEntries[1];
+
+            Player chatter = null;
+            for (Player player : players) {
+                if (player.getID().equals(chatterID)) {
+                    chatter = player;
+                    break;
+                }
+            }
+
+            if (chatter == null) {
+                //chatter = new Player(chatterID, "unknown");
+                //players.add(chatter);
+                System.out.println("\n\nERROR TO FIX : Check network manager! In theory this should never happen.\n\n");
+            }
+
+            chat.add(new ChatMessage(chatter, msg));
+            if (onChatReceived != null) {
+                onChatReceived.run();
+            }
+        }
+        else if (header.equals("SERVERCHAT")){
+            chat.add(new ChatMessage(data));
+            if (onChatReceived != null) {
+                onChatReceived.run();
+            }
+        }
+
+        else if (header.equals("JOINNOTIFY")) {
+            if (data.equals("canenter")) {
+                Gdx.app.postRunnable(new Runnable() {
+                    @Override
+                    public void run() {
+                        System.out.println("Correct password!");
+                        Game.switchScene(InLobbyScene.class);
+                    }
+                });
+            } else {
+                if (onJoinError != null) {
+                    onJoinError.run();
+                }
+            }
         }
         else if (header.equals("LISTLOBBY")) {
             System.out.println("Caught lobby list: " + data);
-            LinkedHashMap<String, Lobby> parsedLobbies = new LinkedHashMap<>();
-            String[] lobbyPairs = data.split(";");
-            for (String pair : lobbyPairs) {
-                String[] keyValue = pair.split("=", 2);
-                if (keyValue.length < 2) continue;
-                String lobbyID = keyValue[0];
-                String[] lobbyData = keyValue[1].split(",", 2);
-                String lobbyName = lobbyData[0];
-                boolean hasPassword = lobbyData.length > 1 && lobbyData[1].equals("true");
-                parsedLobbies.put(lobbyID, new Lobby(lobbyName, hasPassword));
+            LinkedHashMap<String, Lobby> parsedLobbies = new LinkedHashMap();
+            String[] lobbyEntries = data.split(";");
+
+            for (String entry : lobbyEntries) {
+                if (entry.isEmpty()) continue;
+
+                String lobbyID = null;
+                String lobbyName = null;
+                boolean hasPassword = false;
+                ArrayList<String> admins = new ArrayList<String>();
+                ArrayList<String> superAdmins = new ArrayList<String>();
+                int numPlayers = 0;
+
+                String[] fields = entry.split(",");
+                for (String field : fields) {
+                    String[] kv = field.split("=", 2);
+                    if (kv.length < 2) continue;
+                    String key = kv[0];
+                    String value = kv[1];
+
+                    if (key.equals("lobbyid"))       lobbyID = value;
+                    else if (key.equals("lobbyname")) lobbyName = value;
+                    else if (key.equals("haspassword")) hasPassword = value.equals("true");
+                    else if (key.equals("admins")) {
+                        if (!value.isEmpty()) {
+                            for (String id : value.split("\\|")) {
+                                admins.add(id);
+                            }
+                        }
+                    }
+                    else if (key.equals("superadmins")) {
+                        if (!value.isEmpty()) {
+                            for (String id : value.split("\\|")) {
+                                superAdmins.add(id);
+                            }
+                        }
+                    }
+                    else if (key.equals("numplayers"))  numPlayers = Integer.parseInt(value);
+                }
+
+                if (lobbyID != null && lobbyName != null) {
+                    parsedLobbies.put(lobbyID, new Lobby(lobbyName, hasPassword, admins, superAdmins, numPlayers));
+                }
             }
-            if (lobbyCallback != null) {
-                lobbyCallback.accept(parsedLobbies);
+
+            if (this.lobbyListCallback != null) {
+                this.lobbyListCallback.accept(parsedLobbies);
             }
+
             System.out.println("LOBBIES: " + parsedLobbies);
+        }
+        else if (header.equals("INFOLOBBY")) {
+            String lobbyID = null;
+            String lobbyName = null;
+            boolean inGame = false;
+            int maxPlayers = 0;
+            ArrayList<Player> players = new ArrayList<Player>();
+            ArrayList<String> admins = new ArrayList<String>();
+            ArrayList<String> superAdmins = new ArrayList<String>();
+
+
+            String[] fields = data.split(",");
+            for (String field : fields) {
+                String[] kv = field.split("=", 2);
+                if (kv.length < 2) continue;
+                String key = kv[0];
+                String value = kv[1];
+
+                if (key.equals("id"))               lobbyID = value;
+                else if (key.equals("name"))        lobbyName = value;
+                else if (key.equals("ingame"))      inGame = value.equals("True");
+                else if (key.equals("maxplayers"))  maxPlayers = Integer.parseInt(value);
+                else if (key.equals("admins")) {
+                    if (!value.isEmpty()) {
+                        for (String id : value.split("\\|")) {
+                            admins.add(id);
+                        }
+                    }
+                }
+                else if (key.equals("superadmins")) {
+                    if (!value.isEmpty()) {
+                        for (String id : value.split("\\|")) {
+                            superAdmins.add(id);
+                        }
+                    }
+                }
+                else if (key.equals("players")) {
+                    if (!value.isEmpty()) {
+                        for (String id : value.split("\\|")) {
+                            System.out.println("Parsing player ID from INFOLOBBY: " + id);
+                            System.out.println("Current this.players size: " + this.players.size());
+                            Player found = null;
+                            for (Player existing : this.players) {
+                                if (existing.getID().equals(id)) {
+                                    found = existing;
+                                    break;
+                                }
+                            }
+                            if (found == null) {
+                                found = new Player(id, "unknown");
+                                this.players.add(found);
+                            }
+                            players.add(found); // add to lobby's player list
+                        }
+                    }
+                }
+            }
+
+            if (lobbyID != null && lobbies.containsKey(lobbyID)) {
+                Lobby lobby = lobbies.get(lobbyID);
+                lobby.setID(lobbyID);
+                lobby.setInGame(inGame);
+                lobby.setMaxPlayers(maxPlayers);
+                lobby.setPlayers(players);
+                lobby.setAdmins(admins);
+                System.out.println("Superadmins is "+superAdmins);
+                lobby.setSuperAdmins(superAdmins);
+
+
+                if (this.lobbyInfoCallback != null) {
+                    this.lobbyInfoCallback.accept(lobby);
+                }
+                System.out.println("Got LOBBYINFO for lobby ID: " + lobbyID);
+            }
+        }
+        else if (header.equals("CHANGELEVEL")){
+            String[] dataList = data.split("=", 2);
+            String target = dataList[0];
+            int l = Integer.parseInt(dataList[1]);
+            for(Player p : this.players){
+                if(p.getID().equals(target)){
+                    p.changeLevel(l);
+                }
+            }
+            if (onLevelChanged != null) {
+                onLevelChanged.run();
+            }
+        }
+        else if (header.equals("ISREADY")) {
+            for (Player p : players) {
+                if (p.getID().equals(data)) {
+                    p.isReadied = !p.isReadied;
+                    break;
+                }
+            }
         }
         else if (header.equals("READYGAME")) {
             String[] dataList = data.split("=");
@@ -105,23 +294,29 @@ public enum NetworkManager {
             System.out.println("Server is starting the game! Seed: " + seed);
             Dungeon.initSeed(seed);
 
-            Gdx.app.postRunnable(new Runnable() {
-                @Override
-                public void run() {
-                    Game.switchScene(HeroSelectScene.class);
-                }
-            });
+            this.send("READYSTART:");
         }
 
         else if (header.equals("STARTGAME")) {
-            Gdx.app.postRunnable(new Runnable() {
-                @Override
-                public void run() {
-                    Game.switchScene(InterlevelScene.class);
+            long startTimeMs = Long.parseLong(data); // data is milliseconds
+
+            new Thread(() -> {
+                while (true) {
+                    long currentTimeMs = System.currentTimeMillis();
+                    if (currentTimeMs >= startTimeMs) {
+                        Gdx.app.postRunnable(() -> Game.switchScene(InterlevelScene.class));
+                        break;
+                    }
+                    try {
+                        Thread.sleep(1); // 1 ms delay is fine
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
-            });
+            }).start();
         }
     }
+
 
     private void broadcast(String message){
         System.out.println("SERVER BROADCAST: " + message);
@@ -135,6 +330,7 @@ public enum NetworkManager {
         this.send("ISREADY:");
     }
 
+
     public void disconnect() {
         try {
             isListening = false;
@@ -142,8 +338,14 @@ public enum NetworkManager {
         } catch (Exception e) { /* ignore */ }
     }
 
+    public void requestLobbyInfo(Consumer<Lobby> callback) {
+        this.lobbyInfoCallback = callback;
+        this.send("INFOLOBBY:");
+    }
+
+
     public void listLobbies(Consumer<LinkedHashMap<String, Lobby>> callback) {
-        this.lobbyCallback = new Consumer<LinkedHashMap<String, Lobby>>() {
+        this.lobbyListCallback = new Consumer<LinkedHashMap<String, Lobby>>() {
             @Override
             public void accept(LinkedHashMap<String, Lobby> result) {
                 lobbies = result;
@@ -153,6 +355,16 @@ public enum NetworkManager {
         this.send("LISTLOBBY:");
     }
         // TODO, maybe add data values like playercount = true to include the playercount?
+
+    public void setChatCallback(Runnable callback) {
+        this.onChatReceived = callback;
+    }
+    public void setJoinErrorCallback(Runnable callback) {
+        this.onJoinError = callback;
+    }
+    public void setLevelChangedCallback(Runnable callback) {
+        this.onLevelChanged = callback;
+    }
 
 
     public void createLobby(String lobbyName, String lobbyPassword){
@@ -167,6 +379,9 @@ public enum NetworkManager {
     public void joinLobby(String lobbyID, String lobbyPassword){
         StringBuilder msg = new StringBuilder("JOINLOBBY:");
         msg.append("id="+lobbyID+";password="+lobbyPassword);
+        if (!lobbies.containsKey(lobbyID)) {
+            System.out.println("ERROR AGAIN CHECK NETMANAGER");
+        }
         this.send(msg.toString());
     }
     public void joinLobby(String lobbyID){ // if there's no password in the server we're trying to join
@@ -175,6 +390,14 @@ public enum NetworkManager {
 
     public LinkedHashMap<String, Lobby> getLobbies() {
         return lobbies;
+    }
+
+    public void initiateStart() {
+        this.send("INITIATESTART:");
+    }
+
+    public void sendMessage(String msg){
+        send("CHAT:"+self.getID()+"="+msg);
     }
 
 }

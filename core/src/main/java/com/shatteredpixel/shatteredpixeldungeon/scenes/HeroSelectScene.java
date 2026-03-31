@@ -160,7 +160,7 @@ public class HeroSelectScene extends PixelScene {
 				//Dungeon.initSeed(); // qkay note: generated seed
 				ActionIndicator.clearAction();
 				InterlevelScene.mode = InterlevelScene.Mode.DESCEND;
-				Game.switchScene(LobbyWaitScene.class);
+				Game.switchScene(InLobbyScene.class);
 
 				//Game.switchScene( InterlevelScene.class ); we only switch scene when the server tells us to!
 			}

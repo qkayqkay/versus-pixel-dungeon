@@ -21,6 +21,7 @@ import com.watabou.noosa.Image;
 import com.watabou.noosa.TextInput;
 import com.watabou.noosa.audio.Music;
 import com.watabou.noosa.tweeners.Delayer;
+import com.watabou.noosa.ui.Component;
 import com.watabou.utils.Random;
 import com.watabou.utils.RectF;
 
@@ -47,6 +48,8 @@ public class JoinScene extends PixelScene{
     StyledButton btnConnect = null;
     StyledButton btnCreate = null;
     StyledButton btnReturn = null;
+
+    ScrollPane lobbyList = null;
 
     RectF insets = getCommonInsets();
     int w = (int) (Camera.main.width - insets.left + insets.right);
@@ -86,7 +89,7 @@ public class JoinScene extends PixelScene{
         btnCreate = new StyledButton(Chrome.Type.GREY_BUTTON_TR, Messages.get(this, "create_server") ) {
             @Override
             protected void onClick() {
-                System.out.println("Create lobby button pressed(no functionality exists yet dum dum)");
+                System.out.println("Create lobby button pressed");
                 Game.switchScene(LobbyCreationScene.class);
 
             }
@@ -120,20 +123,43 @@ public class JoinScene extends PixelScene{
         btnConnect.setPos(w/2-btnConnect.width()/2, h-30);
         btnReturn.setPos(5*w/6-btnConnect.width()/2, h-30);
 
+        lobbyList = new ScrollPane(new Component());
+        add(lobbyList);
+
+// Position it between the title and the bottom buttons
+// title is at y=30, buttons are at h-30, so the space between is roughly:
+        lobbyList.setRect(
+                insets.left,       // x
+                50,                // y (just below title)
+                w - insets.left - insets.right,  // width
+                h - 80             // height (leaves room for title above and buttons below)
+        );
+        lobbyList.scrollTo(0, 0);
 
 
+        NetworkManager.INSTANCE.setJoinErrorCallback(new Runnable() {
+            @Override
+            public void run() {
+                Gdx.app.postRunnable(new Runnable() {
+                    @Override
+                    public void run() {
+                        System.out.println("Wrong password!"); // replace with your popup later
+                    }
+                });
+            }
+        });
 
         fadeIn();
+
     }
+
 
     public void addLobby(String id, Lobby lobby) {
         this.lobbies.put(id, lobby);
         LobbyButton newLobbyButton = new LobbyButton(id, lobby.getName(), lobby.hasPassword());
-        newLobbyButton.setRect(0, 0, w - insets.right - insets.left - 50, 30);
-        add(newLobbyButton);
+        lobbyList.content().add(newLobbyButton);  // add to content, not scene
         lobbyButtons.put(id, newLobbyButton);
     }
-
 
     private void refreshLobbyMenu(LinkedHashMap<String, Lobby> result) {
         for (Map.Entry<String, Lobby> entry : result.entrySet()) {
@@ -163,15 +189,19 @@ public class JoinScene extends PixelScene{
         while (it.hasNext()) {
             Map.Entry<String, LobbyButton> entry = it.next();
             if (!this.lobbies.containsKey(entry.getKey())) {
-                entry.getValue().destroy(); // remove from scene
+                entry.getValue().destroy();
                 it.remove();
             }
         }
-        int y = 50;
+
+        float y = 0;  // y=0 now, because positions are relative to the content, not the screen
         for (Map.Entry<String, LobbyButton> button : lobbyButtons.entrySet()) {
-            button.getValue().realign(y, w);
-            y+=40;
+            button.getValue().setRect(0, y, lobbyList.width(), 30);
+            y += 32;  // 30 height + 2 gap
         }
+
+        // This is the critical line that enables scrolling
+        lobbyList.content().setSize(lobbyList.width(), y);
     }
 
 

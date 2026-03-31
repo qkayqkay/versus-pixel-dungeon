@@ -358,6 +358,10 @@ public class TextInput extends Component {
 		return textField.getText();
 	}
 
+	public void clearText(){
+		textField.clear();
+	}
+
 	public void copyToClipboard(){
 		if (textField.getSelection().isEmpty()) {
 			textField.selectAll();
