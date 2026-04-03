@@ -236,7 +236,7 @@ public class Dungeon {
 
 	public static void initSeed(long inputSeed){
 		seed = inputSeed;
-	}
+	} // im overriding the seed
 	
 	public static void init() {
 

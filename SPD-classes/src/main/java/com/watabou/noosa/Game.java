@@ -271,6 +271,7 @@ public class Game implements ApplicationListener {
 		float frameDelta = Math.min(0.2f, Gdx.graphics.getDeltaTime());
 		Game.elapsed = Game.timeScale * frameDelta;
 		Game.timeTotal += Game.elapsed;
+
 		
 		Game.realTime = TimeUtils.millis();
 

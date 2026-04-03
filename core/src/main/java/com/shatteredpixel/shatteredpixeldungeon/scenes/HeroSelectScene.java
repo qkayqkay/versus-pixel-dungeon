@@ -29,9 +29,12 @@ import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
 import com.shatteredpixel.shatteredpixeldungeon.Rankings;
 import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.StartFreeze;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Journal;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.networking.NetworkManager;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ActionIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.CheckBox;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ExitButton;
@@ -160,9 +163,10 @@ public class HeroSelectScene extends PixelScene {
 				//Dungeon.initSeed(); // qkay note: generated seed
 				ActionIndicator.clearAction();
 				InterlevelScene.mode = InterlevelScene.Mode.DESCEND;
-				Game.switchScene(InLobbyScene.class);
+				Game.switchScene( InterlevelScene.class);
 
-				//Game.switchScene( InterlevelScene.class ); we only switch scene when the server tells us to!
+				NetworkManager.INSTANCE.send("READYSTART:");
+
 			}
 		};
 		startBtn.icon(Icons.get(Icons.ENTER));
@@ -415,6 +419,7 @@ public class HeroSelectScene extends PixelScene {
 
 	private void setSelectedHero(HeroClass cl){
 		GamesInProgress.selectedClass = cl;
+		NetworkManager.INSTANCE.updateClass();
 		GamesInProgress.randomizedClass = false;
 
 		try {
@@ -794,8 +799,8 @@ public class HeroSelectScene extends PixelScene {
 			};
 			dailyButton.leftJustify = true;
 			dailyButton.icon(Icons.get(Icons.CALENDAR));
-			add(dailyButton);
-			buttons.add(dailyButton);
+			//add(dailyButton); lol no. Don't even try
+			//buttons.add(dailyButton);
 
 			challengeButton = new StyledButton(Chrome.Type.BLANK, Messages.get(WndChallenges.class, "title"), 6){
 				@Override
@@ -820,8 +825,8 @@ public class HeroSelectScene extends PixelScene {
 			};
 			challengeButton.leftJustify = true;
 			challengeButton.icon(Icons.get(SPDSettings.challenges() > 0 ? Icons.CHALLENGE_COLOR : Icons.CHALLENGE_GREY));
-			add(challengeButton);
-			buttons.add(challengeButton);
+			//add(challengeButton); nuh uh!
+			//buttons.add(challengeButton);
 
 			int unlockedCount = 0;
 			for (HeroClass cls : HeroClass.values()){

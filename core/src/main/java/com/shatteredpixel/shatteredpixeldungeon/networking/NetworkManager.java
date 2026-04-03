@@ -1,6 +1,10 @@
 package com.shatteredpixel.shatteredpixeldungeon.networking;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.StartFreeze;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.HeroSelectScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InLobbyScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
@@ -14,6 +18,8 @@ import java.util.LinkedHashMap;
 import java.util.function.Consumer;
 
 import com.badlogic.gdx.Gdx;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
+import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.watabou.noosa.Game;
 
 public enum NetworkManager {
@@ -29,6 +35,8 @@ public enum NetworkManager {
     private Runnable onJoinError;
     private Runnable onLevelChanged;
 
+    public long countdownUntil = -1;
+
 
     private Consumer<Lobby> lobbyInfoCallback;
     private LinkedHashMap<String, Lobby> lobbies = new LinkedHashMap<>();
@@ -36,6 +44,8 @@ public enum NetworkManager {
 
     public Player self; //self. Basically this represents the player of the client itself.
     public ArrayList<Player> players = new ArrayList<>();
+
+    public long freezeUntil = -1;
 
     public void connect(String ip) throws Exception {
         System.out.println("Connecting...");
@@ -136,6 +146,17 @@ public enum NetworkManager {
             } else {
                 if (onJoinError != null) {
                     onJoinError.run();
+                }
+            }
+        }
+        else if (header.equals("CLASSUPDATE")){
+            String[] entries = data.split("=");
+            String id = entries[0];
+            String cl = entries[1];
+            HeroClass heroClass = HeroClass.valueOf(cl);
+            for(Player p : players){
+                if(p.getID().equals(id)){
+                    p.cl = heroClass;
                 }
             }
         }
@@ -256,7 +277,6 @@ public enum NetworkManager {
                 lobby.setMaxPlayers(maxPlayers);
                 lobby.setPlayers(players);
                 lobby.setAdmins(admins);
-                System.out.println("Superadmins is "+superAdmins);
                 lobby.setSuperAdmins(superAdmins);
 
 
@@ -283,6 +303,15 @@ public enum NetworkManager {
             for (Player p : players) {
                 if (p.getID().equals(data)) {
                     p.isReadied = !p.isReadied;
+                    if(p.isReadied){
+                        chat.add(new ChatMessage(p.getID()+" is ready!"));
+                    }
+                    if(!p.isReadied){
+                        chat.add(new ChatMessage(p.getID()+" unchecked."));
+                    }
+                    if (onChatReceived != null) {
+                        onChatReceived.run();
+                    }
                     break;
                 }
             }
@@ -290,36 +319,23 @@ public enum NetworkManager {
         else if (header.equals("READYGAME")) {
             String[] dataList = data.split("=");
             Long seed = Long.parseLong(dataList[1]);
-
+            Game.switchScene(HeroSelectScene.class);
             System.out.println("Server is starting the game! Seed: " + seed);
             Dungeon.initSeed(seed);
 
-            this.send("READYSTART:");
         }
 
         else if (header.equals("STARTGAME")) {
-            long startTimeMs = Long.parseLong(data); // data is milliseconds
-
-            new Thread(() -> {
-                while (true) {
-                    long currentTimeMs = System.currentTimeMillis();
-                    if (currentTimeMs >= startTimeMs) {
-                        Gdx.app.postRunnable(() -> Game.switchScene(InterlevelScene.class));
-                        break;
-                    }
-                    try {
-                        Thread.sleep(1); // 1 ms delay is fine
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }).start();
+            long startTimeMs = (long) Double.parseDouble(data);
+            freezeUntil = startTimeMs;
+            countdownUntil = startTimeMs;
         }
+
     }
 
 
     private void broadcast(String message){
-        System.out.println("SERVER BROADCAST: " + message);
+        System.out.println(message);
     }
 
     public void send(String msg) {
@@ -328,6 +344,11 @@ public enum NetworkManager {
 
     public void isReady(){
         this.send("ISREADY:");
+    }
+
+    public void updateClass(){
+        self.cl = GamesInProgress.selectedClass;
+        this.send("CLASSUPDATE:"+self.cl.name());
     }
 
 

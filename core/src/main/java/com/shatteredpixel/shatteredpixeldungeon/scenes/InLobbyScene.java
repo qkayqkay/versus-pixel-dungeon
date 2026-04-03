@@ -158,7 +158,9 @@ public class InLobbyScene extends PixelScene {
                 Gdx.app.postRunnable(new Runnable() {
                     @Override
                     public void run() {
-                        updateChat();
+                        if (ShatteredPixelDungeon.scene() instanceof InLobbyScene) {
+                            updateChat();
+                        }
                     }
                 });
             }
@@ -196,6 +198,7 @@ public class InLobbyScene extends PixelScene {
     }
 
     private void updateChat() {
+
         Component content = chatScroll.content();
         content.clear();
 

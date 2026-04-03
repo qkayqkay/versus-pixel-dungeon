@@ -466,6 +466,7 @@ public class InterlevelScene extends PixelScene {
 
 	@Override
 	public void update() {
+		System.out.println("INTERLEVEL EXISTS");
 		super.update();
 
 		if (btnContinue == null || !btnContinue.isActive()) {

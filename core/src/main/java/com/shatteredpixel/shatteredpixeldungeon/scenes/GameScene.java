@@ -36,7 +36,9 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AscensionChallenge;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ChampionEnemy;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.StartFreeze;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DemonSpawner;
@@ -75,6 +77,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.secret.SecretRoom;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.networking.DataFetcher;
+import com.shatteredpixel.shatteredpixeldungeon.networking.NetworkManager;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.DiscardedItemSprite;
@@ -90,26 +93,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tiles.GridTileMap;
 import com.shatteredpixel.shatteredpixeldungeon.tiles.RaisedTerrainTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.tiles.TerrainFeaturesTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.tiles.WallBlockingTilemap;
-import com.shatteredpixel.shatteredpixeldungeon.ui.ActionIndicator;
-import com.shatteredpixel.shatteredpixeldungeon.ui.AttackIndicator;
-import com.shatteredpixel.shatteredpixeldungeon.ui.Banner;
-import com.shatteredpixel.shatteredpixeldungeon.ui.BossHealthBar;
-import com.shatteredpixel.shatteredpixeldungeon.ui.CharHealthIndicator;
-import com.shatteredpixel.shatteredpixeldungeon.ui.GameLog;
-import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
-import com.shatteredpixel.shatteredpixeldungeon.ui.InventoryPane;
-import com.shatteredpixel.shatteredpixeldungeon.ui.LootIndicator;
-import com.shatteredpixel.shatteredpixeldungeon.ui.MenuPane;
-import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
-import com.shatteredpixel.shatteredpixeldungeon.ui.ResumeIndicator;
-import com.shatteredpixel.shatteredpixeldungeon.ui.RightClickMenu;
-import com.shatteredpixel.shatteredpixeldungeon.ui.StatusPane;
-import com.shatteredpixel.shatteredpixeldungeon.ui.StyledButton;
-import com.shatteredpixel.shatteredpixeldungeon.ui.Tag;
-import com.shatteredpixel.shatteredpixeldungeon.ui.TargetHealthIndicator;
-import com.shatteredpixel.shatteredpixeldungeon.ui.Toast;
-import com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar;
-import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
+import com.shatteredpixel.shatteredpixeldungeon.ui.*;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndBag;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndGame;
@@ -217,6 +201,8 @@ public class GameScene extends PixelScene {
 	private int x;
 	private int y;
 	private int depth;
+
+	public WndMessage countdown;
 
 // ================================================================================
 	{
@@ -774,6 +760,15 @@ public class GameScene extends PixelScene {
 			}
 		}
 
+		if (NetworkManager.INSTANCE.freezeUntil > 0) {
+			StartFreeze freeze = Buff.affect(Dungeon.hero, StartFreeze.class);
+			freeze.setEndTime(NetworkManager.INSTANCE.freezeUntil);
+			NetworkManager.INSTANCE.freezeUntil = -1; // reset so it doesn't reapply
+		}
+
+		countdown = new WndMessage("");
+		add(countdown);
+
 	}
 	
 	public void destroy() {
@@ -921,11 +916,28 @@ public class GameScene extends PixelScene {
 
 		if (!data.equals(oldData)) {
 			Dungeon.dataFetcher.depositData(data, "PLAYERDATA");
-			oldData = new HashMap<>(data);
-			System.out.println(depth);
+			oldData = new HashMap<>(data);}
+
+		if (Dungeon.hero != null) {
+			StartFreeze freeze = Dungeon.hero.buff(StartFreeze.class);
+			if (freeze != null && freeze.shouldDetach()) {
+				freeze.detach();
+				System.out.println("Detaching!");
+			}
 		}
 
-
+		if (NetworkManager.INSTANCE.countdownUntil > 0) {
+			if(countdown != null){
+				countdown.destroy();
+			}
+			long remaining = NetworkManager.INSTANCE.countdownUntil - System.currentTimeMillis();
+			if (remaining > 0) {
+				countdown = new WndMessage("Game starts in: " + (remaining / 1000));
+				add(countdown);
+			} else {
+				NetworkManager.INSTANCE.countdownUntil = -1;
+			}
+		}
 
 
 		//=============================================================

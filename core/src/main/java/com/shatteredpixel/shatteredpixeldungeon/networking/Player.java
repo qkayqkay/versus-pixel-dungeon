@@ -1,12 +1,14 @@
 package com.shatteredpixel.shatteredpixeldungeon.networking;
 
-public class Player {
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 
+public class Player {
     private String ID;
     public String name;
     public boolean inGame;
     public Lobby lobby; // what lobby im currently in
     public boolean isReadied = false;
+    public HeroClass cl;
     private int level = 0; // touch this and system32 implodes.
 
 
