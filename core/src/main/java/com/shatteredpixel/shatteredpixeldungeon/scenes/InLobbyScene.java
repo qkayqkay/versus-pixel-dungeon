@@ -13,6 +13,7 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ScrollPane;
 import com.shatteredpixel.shatteredpixeldungeon.ui.StyledButton;
+import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.*;
 import com.watabou.noosa.ui.Component;
 import com.watabou.utils.PlatformSupport;
@@ -22,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public class InLobbyScene extends PixelScene {
+public class  InLobbyScene extends PixelScene {
 
     private RectF insets;
     private StyledButton btnReturn;
@@ -42,7 +43,6 @@ public class InLobbyScene extends PixelScene {
     protected void onBackPressed() {}
 
     private void updatePlayerImages() {
-
     }
 
     @Override
@@ -158,9 +158,7 @@ public class InLobbyScene extends PixelScene {
                 Gdx.app.postRunnable(new Runnable() {
                     @Override
                     public void run() {
-                        if (ShatteredPixelDungeon.scene() instanceof InLobbyScene) {
-                            updateChat();
-                        }
+                        updateChat();
                     }
                 });
             }
@@ -198,29 +196,29 @@ public class InLobbyScene extends PixelScene {
     }
 
     private void updateChat() {
+        if (ShatteredPixelDungeon.scene() instanceof InLobbyScene) {
+            Component content = chatScroll.content();
+            content.clear();
 
-        Component content = chatScroll.content();
-        content.clear();
+            float y = 0;
+            for (ChatMessage entry : NetworkManager.INSTANCE.chat) {
+                RenderedTextBlock message;
+                if (!entry.isServerMessage) {
+                    message = PixelScene.renderTextBlock(
+                            entry.player.getID() + ": " + entry.message, 6);
+                } else {
+                    message = PixelScene.renderTextBlock(
+                            "SERVER: " + entry.message, 6);
+                }
+                message.maxWidth((int) chatScroll.width());
+                message.setPos(0, y);
+                content.add(message);
+                y += message.height() + 2;
+            }
 
-        float y = 0;
-        for (ChatMessage entry : NetworkManager.INSTANCE.chat) {
-            RenderedTextBlock message;
-            if (!entry.isServerMessage) {
-                message = PixelScene.renderTextBlock(
-                        entry.player.getID() + ": " + entry.message, 6);
-            }
-            else{
-                 message = PixelScene.renderTextBlock(
-                        "SERVER: " + entry.message, 6);
-            }
-            message.maxWidth((int) chatScroll.width());
-            message.setPos(0, y);
-            content.add(message);
-            y += message.height() + 2;
+            content.setSize(chatScroll.width(), y);
+            chatScroll.scrollTo(0, y);
         }
-
-        content.setSize(chatScroll.width(), y);
-        chatScroll.scrollTo(0, y);
     }
 
     @Override

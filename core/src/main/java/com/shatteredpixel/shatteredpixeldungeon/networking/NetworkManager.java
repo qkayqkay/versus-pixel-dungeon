@@ -119,7 +119,7 @@ public enum NetworkManager {
             if (chatter == null) {
                 //chatter = new Player(chatterID, "unknown");
                 //players.add(chatter);
-                System.out.println("\n\nERROR TO FIX : Check network manager! In theory this should never happen.\n\n");
+                System.out.println("\n\nERROR TO FIX : Check network manager! \n\n");
             }
 
             chat.add(new ChatMessage(chatter, msg));
