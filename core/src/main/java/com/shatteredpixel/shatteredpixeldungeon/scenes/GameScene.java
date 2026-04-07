@@ -21,6 +21,7 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
+import com.badlogic.gdx.Gdx;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Challenges;
@@ -76,6 +77,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.secret.SecretRoom;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.networking.ChatMessage;
 import com.shatteredpixel.shatteredpixeldungeon.networking.DataFetcher;
 import com.shatteredpixel.shatteredpixeldungeon.networking.NetworkManager;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
@@ -112,6 +114,7 @@ import com.watabou.gltextures.TextureCache;
 import com.watabou.glwrap.Blending;
 import com.watabou.input.ControllerHandler;
 import com.watabou.input.KeyBindings;
+import com.watabou.input.KeyEvent;
 import com.watabou.input.PointerEvent;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.Game;
@@ -126,13 +129,8 @@ import com.watabou.noosa.Visual;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.particles.Emitter;
 import com.watabou.noosa.tweeners.Tweener;
-import com.watabou.utils.Callback;
-import com.watabou.utils.GameMath;
-import com.watabou.utils.PlatformSupport;
-import com.watabou.utils.Point;
-import com.watabou.utils.PointF;
+import com.watabou.utils.*;
 import com.watabou.utils.Random;
-import com.watabou.utils.RectF;
 
 import java.io.IOException;
 import java.util.*;
@@ -202,15 +200,24 @@ public class GameScene extends PixelScene {
 	private int y;
 	private int depth;
 
-	public WndMessage countdown;
+	public RenderedTextBlock countdown;
+	private long lastDisplayedSecond = -1;
+	public StartFreeze freeze;
 
-// ================================================================================
+	private Signal.Listener<KeyEvent> chatKeyListener;
+	static ChatTab chatTab;
+	public static Boolean chatOpen = false;
+
+	private int lastChatIndex = 0;
+
+	// ================================================================================
 	{
 		inGameScene = true;
 	}
 
 	@Override
 	public void create() {
+
 		
 		if (Dungeon.hero == null || Dungeon.level == null){
 			ShatteredPixelDungeon.switchNoFade(TitleScene.class);
@@ -760,19 +767,79 @@ public class GameScene extends PixelScene {
 			}
 		}
 
-		if (NetworkManager.INSTANCE.freezeUntil > 0) {
-			StartFreeze freeze = Buff.affect(Dungeon.hero, StartFreeze.class);
-			freeze.setEndTime(NetworkManager.INSTANCE.freezeUntil);
-			NetworkManager.INSTANCE.freezeUntil = -1; // reset so it doesn't reapply
+		if(NetworkManager.INSTANCE.shouldFreeze) {
+			freeze = Buff.affect(Dungeon.hero, StartFreeze.class);
+			NetworkManager.INSTANCE.shouldFreeze = false;
 		}
 
-		countdown = new WndMessage("");
-		add(countdown);
+		int w = (int) (Camera.main.width - insets.left + insets.right);
+		int h = (int) (Camera.main.height - insets.top + insets.bottom);
 
+		KeyEvent.addKeyListener( chatKeyListener = new Signal.Listener<KeyEvent>() {
+			@Override
+			public boolean onSignal( KeyEvent event ) {
+				if ( event.pressed && KeyBindings.getActionForKey( event ) == SPDAction.OPEN_CHAT ) {
+					scene.chatOpen = true;
+					System.out.println("Chat opened!");
+					chatTab = new ChatTab(5, uiCamera.zoom);
+					chatTab.camera = uiCamera;
+					add(chatTab);
+
+					float[] d = log.getDims();
+					chatTab.setRect(d[0]-12, d[1], d[2], 12);
+
+					log.layout(); // this moves the existing singleplayer "chat"(with stuff like game events) up or down
+					return true;
+				}
+				return false;
+			}
+		});
+
+		ArrayList<ChatMessage> chat = NetworkManager.INSTANCE.chat;
+		while (lastChatIndex < chat.size()) {
+			ChatMessage msg = chat.get(lastChatIndex);
+			if (msg.isServerMessage) {
+				GLog.h("[Server]: " + msg.getMessage());
+			} else {
+				GLog.h(msg.getAuthor().getID() + ": " + msg.getMessage());
+			}
+			lastChatIndex++;
+		}
+
+
+		NetworkManager.INSTANCE.setChatCallback(new Runnable() {
+			@Override
+			public void run() {
+				Gdx.app.postRunnable(new Runnable() {
+					@Override
+					public void run() {
+						ArrayList<ChatMessage> chat = NetworkManager.INSTANCE.chat;
+						while (lastChatIndex < chat.size()) {
+							ChatMessage msg = chat.get(lastChatIndex);
+							if (msg.isServerMessage) {
+								GLog.h("[Server]: " + msg.getMessage());
+							} else {
+								GLog.h(msg.getAuthor().getID() + ": " + msg.getMessage());
+							}
+							lastChatIndex++;
+						}
+					}
+				});
+			}
+		});
 	}
-	
+	public static void destroyChatTab(){
+		if(chatTab != null){
+			chatTab.destroy();
+			chatTab = null;
+			scene.chatOpen = false;
+			scene.log.layout();
+		}
+	}
+
+
 	public void destroy() {
-		
+
 		//tell the actor thread to finish, then wait for it to complete any actions it may be doing.
 		if (!waitForActorThread( 4500, true )){
 			Throwable t = new Throwable();
@@ -781,14 +848,16 @@ public class GameScene extends PixelScene {
 		}
 
 		Emitter.freezeEmitters = false;
-		
+
 		scene = null;
 		Badges.saveGlobal();
 		Journal.saveGlobal();
-		
+
+		KeyEvent.removeKeyListener( chatKeyListener );
+
 		super.destroy();
 	}
-	
+
 	public static void endActorThread(){
 		if (actorThread != null && actorThread.isAlive()){
 			Actor.keepActorThreadAlive = false;
@@ -810,7 +879,7 @@ public class GameScene extends PixelScene {
 			return !Actor.processing();
 		}
 	}
-	
+
 	@Override
 	public synchronized void onPause() {
 		try {
@@ -824,7 +893,7 @@ public class GameScene extends PixelScene {
 	}
 
 	private static Thread actorThread;
-	
+
 	//sometimes UI changes can be prompted by the actor thread.
 	// We queue any removed element destruction, rather than destroying them in the actor thread.
 	private ArrayList<Gizmo> toDestroy = new ArrayList<>();
@@ -870,7 +939,7 @@ public class GameScene extends PixelScene {
 
 		if (!Actor.processing() && Dungeon.hero.isAlive()) {
 			if (actorThread == null || !actorThread.isAlive()) {
-				
+
 				actorThread = new Thread() {
 					@Override
 					public void run() {
@@ -918,6 +987,13 @@ public class GameScene extends PixelScene {
 			Dungeon.dataFetcher.depositData(data, "PLAYERDATA");
 			oldData = new HashMap<>(data);}
 
+
+
+		if (NetworkManager.INSTANCE.freezeUntil > 0) {
+			freeze.setEndTime(NetworkManager.INSTANCE.freezeUntil);
+			NetworkManager.INSTANCE.freezeUntil = -1; // reset so it doesn't reapply
+		}
+
 		if (Dungeon.hero != null) {
 			StartFreeze freeze = Dungeon.hero.buff(StartFreeze.class);
 			if (freeze != null && freeze.shouldDetach()) {
@@ -926,18 +1002,50 @@ public class GameScene extends PixelScene {
 			}
 		}
 
-		if (NetworkManager.INSTANCE.countdownUntil > 0) {
-			if(countdown != null){
-				countdown.destroy();
+		if (!NetworkManager.INSTANCE.shouldCountdown) {
+			if (countdown == null) {
+				countdown = PixelScene.renderTextBlock("Waiting for other players...", 12);
+				countdown.maxWidth(120);
+				countdown.align(RenderedTextBlock.CENTER_ALIGN);
+				countdown.setPos(0, 0);
+				add(countdown);
+				countdown.setPos(
+						PixelScene.uiCamera.width / 2f,
+						PixelScene.uiCamera.height / 2f
+				);
 			}
+		} else if (NetworkManager.INSTANCE.countdownUntil > 0) {
 			long remaining = NetworkManager.INSTANCE.countdownUntil - System.currentTimeMillis();
 			if (remaining > 0) {
-				countdown = new WndMessage("Game starts in: " + (remaining / 1000));
-				add(countdown);
+				long secondsLeft = remaining / 1000;
+				if (secondsLeft != lastDisplayedSecond) {
+					lastDisplayedSecond = secondsLeft;
+					if (countdown != null) {
+						remove(countdown);
+						countdown.destroy();
+						countdown = null;
+					}
+					countdown = PixelScene.renderTextBlock("Game starts in: " + secondsLeft, 12);
+					countdown.maxWidth(120);
+					countdown.align(RenderedTextBlock.CENTER_ALIGN);
+					countdown.setPos(0, 0);
+					add(countdown);
+					countdown.setPos(
+							PixelScene.uiCamera.width / 2f,
+							PixelScene.uiCamera.height / 2f
+					);
+				}
 			} else {
 				NetworkManager.INSTANCE.countdownUntil = -1;
+				lastDisplayedSecond = -1;
+				if (countdown != null) {
+					remove(countdown);
+					countdown.destroy();
+					countdown = null;
+				}
 			}
 		}
+
 
 
 		//=============================================================

@@ -21,7 +21,9 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.ui;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
@@ -153,9 +155,13 @@ public class GameLog extends Component implements Signal.Listener<String> {
 		return false;
 	}
 
+	public float[] getDims() {
+		return new float[] { x, y, this.width(), this.height() };
+	}
+
 	@Override
-	protected void layout() {
-		float pos = y;
+	public void layout() { // made public cuz im using it in gamescene
+		float pos = y - (GameScene.chatOpen ? 15 : 0);
 		for (int i=length-1; i >= 0; i--) {
 			RenderedTextBlock entry = (RenderedTextBlock)members.get( i );
 			entry.setHightlighting(false);
@@ -164,6 +170,7 @@ public class GameLog extends Component implements Signal.Listener<String> {
 			pos -= entry.height()+2;
 		}
 	}
+
 
 	private static class Entry {
 		public String text;

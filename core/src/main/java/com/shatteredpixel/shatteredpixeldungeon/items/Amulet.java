@@ -32,6 +32,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.networking.NetworkManager;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.AmuletScene;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.VictoryScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.watabou.noosa.Game;
 
@@ -102,7 +103,8 @@ public class Amulet extends Item {
 	
 	private void showAmuletScene( boolean showText ) {
 		AmuletScene.noText = !showText;
-		Game.switchScene( AmuletScene.class, new Game.SceneChangeCallback() {
+		//Game.switchScene( AmuletScene.class, new Game.SceneChangeCallback() {
+		Game.switchScene( VictoryScene.class, new Game.SceneChangeCallback() {
 			@Override
 			public void beforeCreate() {
 

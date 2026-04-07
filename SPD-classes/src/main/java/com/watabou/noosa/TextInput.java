@@ -71,7 +71,7 @@ public class TextInput extends Component {
 	private TextField.TextFieldStyle style;
 	private int normalCursorColor;
 
-	private NinePatch bg;
+	protected NinePatch bg;
 	private PointerArea catchClicks;
 
 	public Function<String, String> convertStringToValidString;

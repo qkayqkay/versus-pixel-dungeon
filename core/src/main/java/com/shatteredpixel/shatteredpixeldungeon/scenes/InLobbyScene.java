@@ -205,10 +205,10 @@ public class  InLobbyScene extends PixelScene {
                 RenderedTextBlock message;
                 if (!entry.isServerMessage) {
                     message = PixelScene.renderTextBlock(
-                            entry.player.getID() + ": " + entry.message, 6);
+                            entry.getAuthor().getID() + ": " + entry.getMessage(), 6);
                 } else {
                     message = PixelScene.renderTextBlock(
-                            "SERVER: " + entry.message, 6);
+                            "SERVER: " + entry.getMessage(), 6);
                 }
                 message.maxWidth((int) chatScroll.width());
                 message.setPos(0, y);

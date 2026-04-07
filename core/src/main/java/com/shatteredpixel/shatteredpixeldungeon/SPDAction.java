@@ -47,6 +47,8 @@ public class SPDAction extends GameAction {
 	public static final GameAction MIDDLE_CLICK = GameAction.MIDDLE_CLICK;
 	//--
 
+	public static final GameAction OPEN_CHAT            = new SPDAction("openc_chat");
+
 	public static final GameAction N            = new SPDAction("n");
 	public static final GameAction W            = new SPDAction("w");
 	public static final GameAction S            = new SPDAction("s");
@@ -92,6 +94,8 @@ public class SPDAction extends GameAction {
 
 	private static final LinkedHashMap<Integer, GameAction> defaultBindings = new LinkedHashMap<>();
 	static {
+		defaultBindings.put( Input.Keys.T,      SPDAction.OPEN_CHAT );
+
 		defaultBindings.put( Input.Keys.ESCAPE,         SPDAction.BACK );
 		defaultBindings.put( Input.Keys.BACKSPACE,      SPDAction.BACK );
 

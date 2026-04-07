@@ -4,22 +4,23 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.StartFreeze;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
-import com.shatteredpixel.shatteredpixeldungeon.scenes.HeroSelectScene;
-import com.shatteredpixel.shatteredpixeldungeon.scenes.InLobbyScene;
-import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.*;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.function.Consumer;
 
 import com.badlogic.gdx.Gdx;
-import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
+import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.Game;
 
 public enum NetworkManager {
@@ -36,6 +37,8 @@ public enum NetworkManager {
     private Runnable onLevelChanged;
 
     public long countdownUntil = -1;
+    public boolean shouldCountdown = false;
+    public boolean shouldFreeze = true;
 
 
     private Consumer<Lobby> lobbyInfoCallback;
@@ -45,7 +48,7 @@ public enum NetworkManager {
     public Player self; //self. Basically this represents the player of the client itself.
     public ArrayList<Player> players = new ArrayList<>();
 
-    public long freezeUntil = -1;
+    public volatile long freezeUntil = -1;
 
     public void connect(String ip) throws Exception {
         System.out.println("Connecting...");
@@ -117,9 +120,8 @@ public enum NetworkManager {
             }
 
             if (chatter == null) {
-                //chatter = new Player(chatterID, "unknown");
-                //players.add(chatter);
-                System.out.println("\n\nERROR TO FIX : Check network manager! \n\n");
+                chatter = new Player(chatterID, "unknown");
+                players.add(chatter);
             }
 
             chat.add(new ChatMessage(chatter, msg));
@@ -329,6 +331,39 @@ public enum NetworkManager {
             long startTimeMs = (long) Double.parseDouble(data);
             freezeUntil = startTimeMs;
             countdownUntil = startTimeMs;
+            shouldCountdown = true;
+            shouldFreeze = true;
+        }
+
+        else if (header.equals("GAMEEND")) {
+            String[] parts = data.split(",", 2);
+            String[] winners = parts[0].replace("winners=", "").split("\\|");
+            String endType = parts[1].replace("victorytype=", "");
+            System.out.println("Gameend!");
+
+            if (endType.equals("amuletwin")) {
+                if (Arrays.asList(winners).contains(self.getID())) {
+                    Gdx.app.postRunnable(new Runnable() {
+                        @Override
+                        public void run() {
+                            Game.switchScene(VictoryScene.class);
+                            System.out.println("not death");
+                        }
+                    });
+                } else {
+                    Gdx.app.postRunnable(new Runnable() {
+                        @Override
+                        public void run() {
+                            System.out.println("DEATH");
+
+                            Dungeon.hero.die(null);
+                            GameScene.gameOver();
+                            GLog.n(Messages.get("amuletloss"), winners[0]); // I can take the first elements since there should only be 1 in this case.
+                            System.out.println("Someone has acquired the amulet of yendor before you!");
+                        }
+                    });
+                }
+            }
         }
 
     }
