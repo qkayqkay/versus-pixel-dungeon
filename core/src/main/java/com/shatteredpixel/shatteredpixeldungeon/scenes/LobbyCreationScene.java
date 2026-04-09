@@ -83,16 +83,16 @@ public class LobbyCreationScene extends PixelScene{
         add(btnCreate);
 
 
-        StyledButton btnTemp = new StyledButton(Chrome.Type.GREY_BUTTON_TR, Messages.get(this, "create") ) {
+        StyledButton btnBack = new StyledButton(Chrome.Type.GREY_BUTTON_TR, "") {
             @Override
             protected void onClick() {
-
+                Game.switchScene(JoinScene.class);
 
             }
         };
-        btnTemp.icon(Icons.STAIRS.get());
-        btnTemp.setSize( WIDTH, 20 );
-        add(btnTemp);
+        btnBack.icon(Icons.EXIT.get());
+        btnBack.setSize( WIDTH, 20 );
+        add(btnBack);
 
 
 
@@ -112,6 +112,7 @@ public class LobbyCreationScene extends PixelScene{
 
 
         btnCreate.setPos((w- btnCreate.width())/2, h-30);
+        btnBack.setPos(w- btnBack.width()-insets.right, btnBack.height()+insets.top);
 
         fadeIn();
     }

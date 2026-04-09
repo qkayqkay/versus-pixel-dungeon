@@ -62,7 +62,7 @@ public class TextInput extends Component {
 
 	private boolean hasFocus;
 
-	private Stage stage;
+	protected Stage stage;
 	private Container container;
 	protected TextField textField;
 	private final boolean multiline;

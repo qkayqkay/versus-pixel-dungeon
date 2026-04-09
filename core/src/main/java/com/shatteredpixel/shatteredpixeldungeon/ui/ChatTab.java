@@ -15,6 +15,14 @@ public class ChatTab extends TextInput {
         //bg.hardlight(0x000000);
     }
 
+    @Override
+    public void destroy() {
+        if (stage != null) { // crashes when chattab is destroyed if I dont do this bullshit. Dont know why, dont care why.
+            stage.dispose();
+            stage = null;
+        }
+        super.destroy();
+    }
 
 
     @Override

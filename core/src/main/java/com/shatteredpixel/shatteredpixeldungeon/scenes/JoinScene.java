@@ -51,9 +51,10 @@ public class JoinScene extends PixelScene{
 
     ScrollPane lobbyList = null;
 
-    RectF insets = getCommonInsets();
-    int w = (int) (Camera.main.width - insets.left + insets.right);
-    int h = (int) (Camera.main.height - insets.top + insets.bottom);
+    RectF insets;
+    int w;
+    int h;
+
 
     String promptTitle = "Join server";
     String promptText = "Enter the IP of the server.";
@@ -65,6 +66,10 @@ public class JoinScene extends PixelScene{
     @Override
     public void create() {
         super.create();
+
+        insets = getCommonInsets();
+        w = (int) (Camera.main.width - insets.left + insets.right);
+        h = (int) (Camera.main.height - insets.top + insets.bottom);
 
         RenderedTextBlock title = null;
         title = renderTextBlock( Messages.get(this, "text"), 8 );

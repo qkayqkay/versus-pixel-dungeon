@@ -166,7 +166,7 @@ public class GameLog extends Component implements Signal.Listener<String> {
 			RenderedTextBlock entry = (RenderedTextBlock)members.get( i );
 			entry.setHightlighting(false);
 			entry.maxWidth((int)width);
-			entry.setPos(x, pos-entry.height());
+			entry.setPos(x, pos);
 			pos -= entry.height()+2;
 		}
 	}
