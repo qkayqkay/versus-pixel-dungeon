@@ -50,12 +50,12 @@ public enum NetworkManager {
 
     public volatile long freezeUntil = -1;
 
-    public void connect(String ip) throws Exception {
+    public void connect(String ip, int port) throws Exception {
         System.out.println("Connecting...");
         // Only connect if the socket is null or closed
         if (socket == null || socket.isClosed()) {
             Dungeon.dataFetcher = new DataFetcher();
-            socket = new Socket(ip, 6000);
+            socket = new Socket(ip, port);
             out = new PrintWriter(socket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String serverOK, heading, data;
@@ -78,6 +78,8 @@ public enum NetworkManager {
             System.out.println("Failed to connect to server! Format is ip;port");
         }
     }
+
+    public boolean isConnected(){return (socket!=null);}
 
     public void startListening() {
         System.out.println("Now listening!");

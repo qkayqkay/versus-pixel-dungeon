@@ -69,12 +69,6 @@ public class ShatteredPixelDungeon extends Game {
 
 		Sample.INSTANCE.load( Assets.Sounds.all );
 
-		//connect to server upon loading the game
-		try {
-            NetworkManager.INSTANCE.connect("127.0.0.1");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
 
 
     }

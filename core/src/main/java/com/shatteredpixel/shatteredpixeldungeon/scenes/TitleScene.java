@@ -32,18 +32,15 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.BannerSprites;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Fireball;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Languages;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.networking.NetworkManager;
 import com.shatteredpixel.shatteredpixeldungeon.services.news.News;
 import com.shatteredpixel.shatteredpixeldungeon.services.updates.AvailableUpdateData;
 import com.shatteredpixel.shatteredpixeldungeon.services.updates.Updates;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
-import com.shatteredpixel.shatteredpixeldungeon.ui.ExitButton;
-import com.shatteredpixel.shatteredpixeldungeon.ui.IconButton;
-import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
-import com.shatteredpixel.shatteredpixeldungeon.ui.StyledButton;
-import com.shatteredpixel.shatteredpixeldungeon.ui.TitleBackground;
-import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
+import com.shatteredpixel.shatteredpixeldungeon.ui.*;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndOptions;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndSettings;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndTextInput;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndVictoryCongrats;
 import com.watabou.glwrap.Blending;
 import com.watabou.input.PointerEvent;
@@ -147,13 +144,13 @@ public class TitleScene extends PixelScene {
 		btnPlay = new StyledButton(GREY_TR, Messages.get(this, "enter")){
 			@Override
 			protected void onClick() {
-				if (GamesInProgress.checkAll().size() == 0){
+				//if (GamesInProgress.checkAll().size() == 0){
 					GamesInProgress.selectedClass = null;
-					GamesInProgress.curSlot = 1;
+					GamesInProgress.curSlot = 2; //Todo, change this to slot 1.
 					ShatteredPixelDungeon.switchScene(JoinScene.class);
-				} else {
-					ShatteredPixelDungeon.switchNoFade( StartScene.class );
-				}
+				//} else {
+					//ShatteredPixelDungeon.switchNoFade( StartScene.class );
+				//}
 			}
 			
 			@Override
@@ -302,6 +299,30 @@ public class TitleScene extends PixelScene {
 		}
 
 		fadeIn();
+
+		if(!NetworkManager.INSTANCE.isConnected()){
+			WndTextInput ipPortInput = new WndTextInput(
+					Messages.get(this, "ip_port_title"),
+					Messages.get(this, "ip_port_desc"),
+					"",
+					40,
+					false,
+					Messages.get(CustomNoteButton.CustomNoteWindow.class, "confirm"),
+					Messages.get(CustomNoteButton.CustomNoteWindow.class, "cancel")){
+				@Override
+				public void onSelect(boolean positive, String text){
+					String[] parts = text.split(":");
+					String ip = parts[0];
+					int port = Integer.parseInt(parts[1]);
+					try {
+						NetworkManager.INSTANCE.connect(ip, port);
+					} catch (Exception e) {
+						System.err.println("Failed to connect: " + e.getMessage());
+					}
+				}
+			};
+			add(ipPortInput);
+		}
 	}
 
 	private float uiAlpha;
