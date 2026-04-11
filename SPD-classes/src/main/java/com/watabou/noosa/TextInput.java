@@ -467,6 +467,7 @@ public class TextInput extends Component {
 	@Override
 	public void update() {
 		super.update();
+		if (stage == null) return;
 		stage.act(Game.elapsed);
 		layoutContainer(false);
 	}
@@ -474,6 +475,7 @@ public class TextInput extends Component {
 	@Override
 	public void draw() {
 		super.draw();
+		if (stage == null) return;
 		Quad.releaseIndices();
 		Script.unuse();
 		Texture.clear();

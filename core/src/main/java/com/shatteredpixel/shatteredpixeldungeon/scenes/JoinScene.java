@@ -56,9 +56,6 @@ public class JoinScene extends PixelScene{
     int h;
 
 
-    String promptTitle = "Join server";
-    String promptText = "Enter the IP of the server.";
-
     LinkedHashMap<String, Lobby> lobbies = new LinkedHashMap<>();
     LinkedHashMap<String, LobbyButton> lobbyButtons = new LinkedHashMap<>();
 
@@ -162,7 +159,7 @@ public class JoinScene extends PixelScene{
     public void addLobby(String id, Lobby lobby) {
         this.lobbies.put(id, lobby);
         LobbyButton newLobbyButton = new LobbyButton(id, lobby.getName(), lobby.hasPassword());
-        lobbyList.content().add(newLobbyButton);  // add to content, not scene
+        lobbyList.content().add(newLobbyButton);
         lobbyButtons.put(id, newLobbyButton);
     }
 
@@ -179,7 +176,7 @@ public class JoinScene extends PixelScene{
         while (it.hasNext()) {
             Map.Entry<String, Lobby> entry = it.next();
             if (!result.containsKey(entry.getKey())) {
-                System.out.println("Deleting dead lobby: " + entry.getValue().getName() + " - " + entry.getKey());
+                System.out.println("Deleting dead lobby: "+entry.getValue().getName()+" - "+entry.getKey());
                 it.remove();
                 refreshLobbyButtons();
             }

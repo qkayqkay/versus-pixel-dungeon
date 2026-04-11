@@ -786,7 +786,7 @@ public class GameScene extends PixelScene {
 					add(chatTab);
 
 					float[] d = log.getDims();
-					chatTab.setRect(d[0]-12, d[1], d[2], 12);
+					chatTab.setRect(d[0], d[1]-12, d[2], 12);
 
 					log.layout(); // this moves the existing singleplayer "chat"(with stuff like game events) up or down
 					return true;

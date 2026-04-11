@@ -40,8 +40,8 @@ public class LobbyButton extends StyledButton {
     @Override
     protected void onClick() {
         if(this.hasPassword==true) {
-            passwordInput = new WndTextInput(
-                    Messages.get(this, "passwordTitle"), // TODO: Why isn't this working?
+            passwordInput = new WndTextInput( //TODO idfk how to do this :P
+                    Messages.get(this, "passwordTitle"),
                     Messages.get(this, "passwordDescription"),
                     "",
                     20,
@@ -50,7 +50,6 @@ public class LobbyButton extends StyledButton {
                     Messages.get(CustomNoteButton.CustomNoteWindow.class, "cancel")) {
                 @Override
                 public void onSelect(boolean positive, String text) {
-                    System.out.println("text size is: "+passwordInput.textSize);
                     if (positive) {
                         NetworkManager.INSTANCE.joinLobby(LobbyButton.this.ID, text);
 

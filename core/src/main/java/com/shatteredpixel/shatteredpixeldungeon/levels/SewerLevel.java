@@ -142,11 +142,6 @@ public class SewerLevel extends RegularLevel {
 		super.createMobs();
 	}
 
-	@Override
-	protected void createItems() {
-		super.createItems(); // keep normal item generation
-		drop( new Amulet(), entrance() );
-	}
 	
 	@Override
 	public boolean activateTransition(Hero hero, LevelTransition transition) {

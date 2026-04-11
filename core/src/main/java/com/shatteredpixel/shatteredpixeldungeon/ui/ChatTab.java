@@ -11,7 +11,7 @@ public class ChatTab extends TextInput {
 
     public ChatTab(int txtSize, float zoom) {
         super(Chrome.get(Chrome.Type.TOAST_WHITE), false, txtSize, zoom);
-        bg.alpha(0.5f);
+        //bg.alpha(0.5f); thought this would look minecrafty but actually I hate it. Maybe ill improve it some day
         //bg.hardlight(0x000000);
     }
 
@@ -40,7 +40,7 @@ public class ChatTab extends TextInput {
             NetworkManager.INSTANCE.sendMessage(msg);
             clearText();
         }
-        GameScene.chatOpen = false;
         GameScene.destroyChatTab();
+        GameScene.chatOpen = false;
     }
 }

@@ -113,6 +113,7 @@ public class  InLobbyScene extends PixelScene {
             @Override
             protected void onClick() {
                 btnReturn.enable(false);
+                NetworkManager.INSTANCE.sendMessage("LEAVELOBBY:");
                 Game.switchScene(JoinScene.class);
 
             }
