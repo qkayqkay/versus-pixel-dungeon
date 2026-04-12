@@ -2,6 +2,7 @@ package com.shatteredpixel.shatteredpixeldungeon.ui;
 
 import com.shatteredpixel.shatteredpixeldungeon.Chrome;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.networking.Lobby;
 import com.shatteredpixel.shatteredpixeldungeon.networking.NetworkManager;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InLobbyScene;
@@ -11,38 +12,50 @@ import com.watabou.noosa.Camera;
 import com.watabou.noosa.Game;
 import com.watabou.utils.RectF;
 
+import static com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene.uiCamera;
+
 public class LobbyButton extends StyledButton {
     private String name;
     private String ID;
+    private Lobby lobby;
     private boolean hasPassword;
     private RenderedTextBlock playerCount;
     private WndTextInput passwordInput;
 
 
 
-    public LobbyButton(String ID, String name, boolean hasPassword){
-        super(Chrome.Type.GREY_BUTTON_TR, name );
-        this.name = name;
-        this.ID = ID;
-        this.hasPassword = hasPassword;
-        if(hasPassword==true){
-            System.out.println(name+" has password");
-        }
+
+    public LobbyButton(Lobby lobby){
+        super(Chrome.Type.GREY_BUTTON_TR, lobby.getName());
+        this.name = lobby.getName();
+        this.ID = lobby.getID();
+        this.hasPassword = lobby.hasPassword();
+        this.leftJustify = true;
+        this.lobby = lobby;
+
+        this.playerCount = PixelScene.renderTextBlock("", 7);
+        add(playerCount);
     }
 
-    public void realign(int initialY, int screenWidth){ //prob another way to pass in the width but I HATE GUI ARGHHHH
-            this.setRect(
-                    (screenWidth-this.width())/2,
-                    (height()/3f - text.height()/2f) + initialY, this.width(), this.height()
-            );
+
+    @Override
+    public void layout() {
+        super.layout();
+        if (playerCount == null || lobby == null) return;
+        playerCount.text(lobby.getPlayerCount() + "/" + lobby.getMaxPlayers());
+        playerCount.layout();
+        playerCount.setPos(
+                this.left() + this.width() - playerCount.width() - 4,
+                this.top() + (this.height() - playerCount.height())/2
+        );
     }
 
     @Override
     protected void onClick() {
         if(this.hasPassword==true) {
-            passwordInput = new WndTextInput( //TODO idfk how to do this :P
-                    Messages.get(this, "passwordTitle"),
-                    Messages.get(this, "passwordDescription"),
+            passwordInput = new WndTextInput( //TODO why doesnt this work??
+                    Messages.get(LobbyButton.class, "passwordtitle"),
+                    Messages.get(LobbyButton.class, "passworddescription"),
                     "",
                     20,
                     false,

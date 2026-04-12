@@ -180,6 +180,7 @@ public enum NetworkManager {
                 ArrayList<String> admins = new ArrayList<String>();
                 ArrayList<String> superAdmins = new ArrayList<String>();
                 int numPlayers = 0;
+                int maxPlayers = 0;
 
                 String[] fields = entry.split(",");
                 for (String field : fields) {
@@ -206,10 +207,13 @@ public enum NetworkManager {
                         }
                     }
                     else if (key.equals("numplayers"))  numPlayers = Integer.parseInt(value);
+                    else if (key.equals("maxplayers"))  maxPlayers = Integer.parseInt(value);
                 }
 
                 if (lobbyID != null && lobbyName != null) {
-                    parsedLobbies.put(lobbyID, new Lobby(lobbyName, hasPassword, admins, superAdmins, numPlayers));
+                    Lobby newLobby = new Lobby(lobbyName, hasPassword, admins, superAdmins, numPlayers, maxPlayers);
+                    newLobby.setID(lobbyID);
+                    parsedLobbies.put(lobbyID, newLobby);
                 }
             }
 
@@ -340,8 +344,6 @@ public enum NetworkManager {
                     Gdx.app.postRunnable(new Runnable() {
                         @Override
                         public void run() {
-                            System.out.println("DEATH");
-
                             Dungeon.hero.die(null);
                             GameScene.gameOver();
                             GLog.n(Messages.get("amuletloss"), winners[0]); // I can take the first elements since there should only be 1 in this case.
@@ -422,7 +424,7 @@ public enum NetworkManager {
         StringBuilder msg = new StringBuilder("JOINLOBBY:");
         msg.append("id="+lobbyID+";password="+lobbyPassword);
         if (!lobbies.containsKey(lobbyID)) {
-            System.out.println("ERROR AGAIN CHECK NETMANAGER");
+            System.out.println("ERROR AGAIN CHECK NETMANAGER. We got lobbyID: "+lobbyID);
         }
         this.send(msg.toString());
     }

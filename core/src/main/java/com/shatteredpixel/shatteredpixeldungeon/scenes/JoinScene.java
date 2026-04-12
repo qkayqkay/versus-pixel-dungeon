@@ -178,7 +178,7 @@ public class JoinScene extends PixelScene{
 
     public void addLobby(String id, Lobby lobby) {
         this.lobbies.put(id, lobby);
-        LobbyButton newLobbyButton = new LobbyButton(id, lobby.getName(), lobby.hasPassword());
+        LobbyButton newLobbyButton = new LobbyButton(lobby);
         lobbyList.content().add(newLobbyButton);
         lobbyButtons.put(id, newLobbyButton);
     }
@@ -216,18 +216,20 @@ public class JoinScene extends PixelScene{
             }
         }
 
-        float y = 0;  // y=0 now, because positions are relative to the content, not the screen
+        float y = 0;  // y=0 now, because positions are relative to the content(the scrolling thingie), not the screen
         for (Map.Entry<String, LobbyButton> button : lobbyButtons.entrySet()) {
-            button.getValue().setRect(0, y, lobbyList.width(), 30);
+            float width = lobbyList.width() - 20;
+            float x = (lobbyList.width() - width) / 2;
+            button.getValue().setRect(x, y, width, 30);
+            button.getValue().layout();
             y += 32;  // 30 height + 2 gap
         }
 
-        // This is the critical line that enables scrolling
         lobbyList.content().setSize(lobbyList.width(), y);
     }
 
 
-    private static float timer = -5; // is this fine? I just want these to be called immediately basically, and then again every 5secs after.
+    private static float timer = -5;
 
     @Override
     public void update() {

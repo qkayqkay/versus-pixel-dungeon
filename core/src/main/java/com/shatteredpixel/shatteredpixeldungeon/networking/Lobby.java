@@ -3,6 +3,7 @@ package com.shatteredpixel.shatteredpixeldungeon.networking;
 import java.util.ArrayList;
 
 
+
 public class Lobby {
     private String name;
     private boolean hasPassword;
@@ -14,12 +15,13 @@ public class Lobby {
     private int maxPlayers;
     private String id;
 
-    public Lobby(String name, boolean hasPassword, ArrayList<String> admins, ArrayList<String> superAdmins, int numPlayers) {
+    public Lobby(String name, boolean hasPassword, ArrayList<String> admins, ArrayList<String> superAdmins, int numPlayers, int maxPlayers) {
         this.name = name;
         this.hasPassword = hasPassword;
         this.admins = admins;
         this.superAdmins = superAdmins;
         this.numPlayers = numPlayers;
+        this.maxPlayers = maxPlayers;
         this.players = new ArrayList<Player>();
         this.inGame = false;
     }
@@ -35,6 +37,7 @@ public class Lobby {
     public boolean isInGame() { return inGame; }
     public int getMaxPlayers() { return maxPlayers; }
     public ArrayList<Player> getPlayers() { return players; }
+    public int getPlayerCount(){ return this.numPlayers; } // note that this doesn't work when the server stops sending this value(eg with infolobby, altho do I really care then?)
     public String getName() { return name; }
     public void setName(String newName) { this.name = newName; }
     public boolean hasPassword() { return hasPassword; }
@@ -51,5 +54,5 @@ public class Lobby {
         System.out.println("In superAdmins: " + inSuperAdmins);
 
         return inAdmins || inSuperAdmins;
-    }    public int getPlayerCount() { return numPlayers; }
+    }
 }
