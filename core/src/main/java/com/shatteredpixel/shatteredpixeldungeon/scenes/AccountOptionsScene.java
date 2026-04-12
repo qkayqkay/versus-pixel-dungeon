@@ -1,38 +1,24 @@
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
-import com.shatteredpixel.shatteredpixeldungeon.*;
-import com.shatteredpixel.shatteredpixeldungeon.effects.BadgeBanner;
-import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
-import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
-import com.shatteredpixel.shatteredpixeldungeon.items.Amulet;
-import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
+import com.badlogic.gdx.Gdx;
+import com.shatteredpixel.shatteredpixeldungeon.Chrome;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
-import com.shatteredpixel.shatteredpixeldungeon.networking.DataFetcher;
 import com.shatteredpixel.shatteredpixeldungeon.networking.Lobby;
 import com.shatteredpixel.shatteredpixeldungeon.networking.NetworkManager;
-import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
-import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.ui.*;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndTextInput;
-import com.shatteredpixel.shatteredpixeldungeon.windows.WndUseItem;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.Game;
-import com.watabou.noosa.Image;
-import com.watabou.noosa.TextInput;
-import com.watabou.noosa.audio.Music;
-import com.watabou.noosa.tweeners.Delayer;
 import com.watabou.noosa.ui.Component;
-import com.watabou.utils.Random;
 import com.watabou.utils.RectF;
 
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Iterator;
 import java.util.function.Consumer;
 
-import com.badlogic.gdx.Gdx;
-
-public class JoinScene extends PixelScene{
+public class AccountOptionsScene extends PixelScene{
     private static final int WIDTH			= 120;
     private static final int BTN_HEIGHT		= 20;
     private static final float SMALL_GAP	= 2;
@@ -241,7 +227,7 @@ public class JoinScene extends PixelScene{
                     Gdx.app.postRunnable(new Runnable() {
                         @Override
                         public void run() {
-                            if (ShatteredPixelDungeon.scene() == JoinScene.this) {
+                            if (ShatteredPixelDungeon.scene() == AccountOptionsScene.this) {
                                 refreshLobbyMenu(result);
                                 refreshLobbyButtons();
                             }

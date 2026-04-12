@@ -22,6 +22,8 @@ import com.badlogic.gdx.Gdx;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.Game;
+import com.google.gson.*;
+
 
 public enum NetworkManager {
 
@@ -218,71 +220,53 @@ public enum NetworkManager {
             System.out.println("LOBBIES: " + parsedLobbies);
         }
         else if (header.equals("INFOLOBBY")) {
-            String lobbyID = null;
-            String lobbyName = null;
-            boolean inGame = false;
-            int maxPlayers = 0;
-            ArrayList<Player> players = new ArrayList<Player>();
+            JsonObject obj = JsonParser.parseString(data).getAsJsonObject();
+            String lobbyID = obj.get("id").getAsString();
+            String lobbyName = obj.get("name").getAsString();
+            boolean inGame = obj.get("ingame").getAsBoolean();
+            int maxPlayers = obj.get("maxplayers").getAsInt();
+
             ArrayList<String> admins = new ArrayList<String>();
+            for (JsonElement el : obj.getAsJsonArray("admins")) {
+                admins.add(el.getAsString());
+            }
+
             ArrayList<String> superAdmins = new ArrayList<String>();
+            for (JsonElement el : obj.getAsJsonArray("superadmins")) {
+                superAdmins.add(el.getAsString());
+            }
 
+            ArrayList<Player> lobbyPlayers = new ArrayList<Player>();
+            for (JsonElement el : obj.getAsJsonArray("players")) {
+                JsonObject playerObj = el.getAsJsonObject();
+                String id = playerObj.get("id").getAsString();
+                String name = playerObj.get("name").getAsString();
 
-            String[] fields = data.split(",");
-            for (String field : fields) {
-                String[] kv = field.split("=", 2);
-                if (kv.length < 2) continue;
-                String key = kv[0];
-                String value = kv[1];
-
-                if (key.equals("id"))               lobbyID = value;
-                else if (key.equals("name"))        lobbyName = value;
-                else if (key.equals("ingame"))      inGame = value.equals("True");
-                else if (key.equals("maxplayers"))  maxPlayers = Integer.parseInt(value);
-                else if (key.equals("admins")) {
-                    if (!value.isEmpty()) {
-                        for (String id : value.split("\\|")) {
-                            admins.add(id);
-                        }
+                Player found = null;
+                for (Player existing : this.players) {
+                    if (existing.getID().equals(id)) {
+                        found = existing;
+                        break;
                     }
                 }
-                else if (key.equals("superadmins")) {
-                    if (!value.isEmpty()) {
-                        for (String id : value.split("\\|")) {
-                            superAdmins.add(id);
-                        }
-                    }
+                if (found == null) {
+                    found = new Player(id, name);
+                    this.players.add(found);
+                } else {
+                    found.name = name;
                 }
-                else if (key.equals("players")) {
-                    if (!value.isEmpty()) {
-                        for (String id : value.split("\\|")) {
-                            System.out.println("Parsing player ID from INFOLOBBY: " + id);
-                            System.out.println("Current this.players size: " + this.players.size());
-                            Player found = null;
-                            for (Player existing : this.players) {
-                                if (existing.getID().equals(id)) {
-                                    found = existing;
-                                    break;
-                                }
-                            }
-                            if (found == null) {
-                                found = new Player(id, "unknown");
-                                this.players.add(found);
-                            }
-                            players.add(found); // add to lobby's player list
-                        }
-                    }
-                }
+                lobbyPlayers.add(found);
             }
 
             if (lobbyID != null && lobbies.containsKey(lobbyID)) {
                 Lobby lobby = lobbies.get(lobbyID);
                 lobby.setID(lobbyID);
+                lobby.setName(lobbyName);
                 lobby.setInGame(inGame);
                 lobby.setMaxPlayers(maxPlayers);
-                lobby.setPlayers(players);
+                lobby.setPlayers(lobbyPlayers);
                 lobby.setAdmins(admins);
                 lobby.setSuperAdmins(superAdmins);
-
 
                 if (this.lobbyInfoCallback != null) {
                     this.lobbyInfoCallback.accept(lobby);
@@ -334,7 +318,7 @@ public enum NetworkManager {
             freezeUntil = startTimeMs;
             countdownUntil = startTimeMs;
             shouldCountdown = true;
-            shouldFreeze = true;
+            //shouldFreeze = true; I can't bother to figure out why but this doesn't work if I add it with 2+ players but works fine with 1 wtf.
         }
 
         else if (header.equals("GAMEEND")) {

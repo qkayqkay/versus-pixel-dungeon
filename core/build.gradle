@@ -6,4 +6,5 @@ java.sourceCompatibility = java.targetCompatibility = appJavaCompatibility
 dependencies {
     api project(':SPD-classes')
     implementation project(':services')
+    implementation 'com.google.code.gson:gson:2.13.2'
 }

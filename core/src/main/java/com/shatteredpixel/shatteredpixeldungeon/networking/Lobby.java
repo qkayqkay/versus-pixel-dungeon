@@ -36,9 +36,10 @@ public class Lobby {
     public int getMaxPlayers() { return maxPlayers; }
     public ArrayList<Player> getPlayers() { return players; }
     public String getName() { return name; }
+    public void setName(String newName) { this.name = newName; }
     public boolean hasPassword() { return hasPassword; }
     public ArrayList<String> getAdmins() { return admins; }
-    public boolean isAdmin(String playerID) { return admins.contains(playerID); } //TODO UPDATE THIS LIKE LINE UNDERNEATH
+    //public boolean isAdmin(String playerID) { return admins.contains(playerID); } //TODO UPDATE THIS LIKE LINE UNDERNEATH
     public boolean isAdmin() {
         String id = NetworkManager.INSTANCE.self.getID();
 

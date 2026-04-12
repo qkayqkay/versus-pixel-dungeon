@@ -21,6 +21,11 @@ public class Player {
 
     public String getID() { return ID; }
     public String getName() { return name; }
+    public void setName(String newName) {
+        this.name = newName;
+        NetworkManager.INSTANCE.send("CHANGENAME:"+newName);
+    }
+
     public boolean isInGame() { return inGame; }
     public Lobby getLobby() { return lobby; }
 

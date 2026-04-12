@@ -359,7 +359,7 @@ public class TextInput extends Component {
 	}
 
 	public void clearText(){
-		textField.clear();
+		textField.setText("");
 	}
 
 	public void copyToClipboard(){

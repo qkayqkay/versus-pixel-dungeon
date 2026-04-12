@@ -768,6 +768,7 @@ public class GameScene extends PixelScene {
 		}
 
 		if(NetworkManager.INSTANCE.shouldFreeze) {
+			System.out.println("\n\n\nShould freeze!\n\n\n");
 			freeze = Buff.affect(Dungeon.hero, StartFreeze.class);
 			NetworkManager.INSTANCE.shouldFreeze = false;
 		}
@@ -800,8 +801,10 @@ public class GameScene extends PixelScene {
 			ChatMessage msg = chat.get(lastChatIndex);
 			if (msg.isServerMessage) {
 				GLog.h("[Server]: " + msg.getMessage());
+				GLog.newLine();
 			} else {
 				GLog.h(msg.getAuthor().getID() + ": " + msg.getMessage());
+				GLog.newLine();
 			}
 			lastChatIndex++;
 		}

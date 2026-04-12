@@ -112,8 +112,8 @@ public class EntranceRoom extends StandardRoom {
 				pos = level.pointToCell(new Point( Random.IntRange( r.left + 1, r.right - 1 ),
 						Random.IntRange( r.top + 1, r.bottom - 2 )));
 			} while (pos == level.entrance() || level.map[pos] == Terrain.REGION_DECO);
-			level.drop( new Guidebook(), pos );
-			Document.ADVENTURERS_GUIDE.deletePage(Document.GUIDE_INTRO);
+			//level.drop( new Guidebook(), pos ); we dont drop it anymore
+			//Document.ADVENTURERS_GUIDE.deletePage(Document.GUIDE_INTRO);
 		}
 
 		//places the third guidebook page on floor 2

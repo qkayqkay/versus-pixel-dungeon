@@ -136,7 +136,7 @@ public class  InLobbyScene extends PixelScene {
                 String msg = chatField.getText();
                 System.out.println(msg);
                 NetworkManager.INSTANCE.sendMessage(msg);
-                //chatField.clearText(); this breaks the focus system and doesn't do what I intended anyways, TODO
+                chatField.clearText();
             }
         };
         btnSend.icon(Icons.STAIRS.get());
@@ -159,7 +159,9 @@ public class  InLobbyScene extends PixelScene {
                 Gdx.app.postRunnable(new Runnable() {
                     @Override
                     public void run() {
-                        updateChat();
+                        if (ShatteredPixelDungeon.scene() == InLobbyScene.this) {
+                            updateChat();
+                        }
                     }
                 });
             }
@@ -170,13 +172,15 @@ public class  InLobbyScene extends PixelScene {
                 Gdx.app.postRunnable(new Runnable() {
                     @Override
                     public void run() {
-                        updateReadyButton();
+                        if (ShatteredPixelDungeon.scene() == InLobbyScene.this) {
+                            updateReadyButton();
+                        }
                     }
                 });
             }
         });
 
-
+        updateChat();
         fadeIn();
     }
 
@@ -189,15 +193,14 @@ public class  InLobbyScene extends PixelScene {
             btnReady.text(Messages.get(InLobbyScene.class, "ready"));
         }
     }
-    private float timer = -5; // is this fine? I just want these to be called immediately basically, and then again every 5secs after.
+    private static float timer = -5; // is this fine? I just want these to be called immediately basically, and then again every 5secs after.
 
     private void onLobbyLoaded() {
         updateReadyButton();
-        updatePlayerImages();
     }
 
     private void updateChat() {
-        if (ShatteredPixelDungeon.scene() instanceof InLobbyScene) {
+        if (ShatteredPixelDungeon.scene() == this) {
             Component content = chatScroll.content();
             content.clear();
 
@@ -226,6 +229,7 @@ public class  InLobbyScene extends PixelScene {
     public void update() {
         super.update();
         if (Game.timeTotal - timer >= 5) {
+            System.out.println("DOING THE THIGN");
             timer = Game.timeTotal;
             updateChat();
             NetworkManager.INSTANCE.requestLobbyInfo(new Consumer<Lobby>() {
@@ -234,9 +238,11 @@ public class  InLobbyScene extends PixelScene {
                     Gdx.app.postRunnable(new Runnable() {
                         @Override
                         public void run() {
-                            lobby = result;
-                            onLobbyLoaded();
-                            updatePlayerImages();
+                            if (ShatteredPixelDungeon.scene() == InLobbyScene.this) {
+                                lobby = result;
+                                onLobbyLoaded();
+                                updatePlayerImages();
+                            }
                         }
                     });
                 }
