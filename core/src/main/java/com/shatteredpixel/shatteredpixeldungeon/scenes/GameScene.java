@@ -96,6 +96,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tiles.RaisedTerrainTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.tiles.TerrainFeaturesTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.tiles.WallBlockingTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.ui.*;
+import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndBag;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndGame;
@@ -130,8 +131,10 @@ import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.particles.Emitter;
 import com.watabou.noosa.tweeners.Tweener;
 import com.watabou.utils.*;
+import com.watabou.utils.Point;
 import com.watabou.utils.Random;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.*;
 
@@ -1002,20 +1005,26 @@ public class GameScene extends PixelScene {
 			if (freeze != null && freeze.shouldDetach()) {
 				freeze.detach();
 				System.out.println("Detaching!");
+				GameTimer gametimer = new GameTimer();
+				gametimer.setPos(5, 5);
+				gametimer.camera = uiCamera;
+				add(gametimer);
+
+
 			}
 		}
+		RectF insets = Game.platform.getSafeInsets(PlatformSupport.INSET_BLK).scale(1f / defaultZoom);
+
+		float uw = uiCamera.width;
+		float uh = uiCamera.height;
 
 		if (!NetworkManager.INSTANCE.shouldCountdown) {
 			if (countdown == null) {
 				countdown = PixelScene.renderTextBlock("Waiting for other players...", 12);
+				countdown.camera = uiCamera;
 				countdown.maxWidth(120);
-				countdown.align(RenderedTextBlock.CENTER_ALIGN);
-				countdown.setPos(0, 0);
 				add(countdown);
-				countdown.setPos(
-						PixelScene.uiCamera.width / 2f,
-						PixelScene.uiCamera.height / 2f
-				);
+				countdown.setPos((uw-countdown.width()) / 2f, (uh-countdown.height()) / 2);
 			}
 		} else if (NetworkManager.INSTANCE.countdownUntil > 0) {
 			long remaining = NetworkManager.INSTANCE.countdownUntil - System.currentTimeMillis();
@@ -1029,14 +1038,11 @@ public class GameScene extends PixelScene {
 						countdown = null;
 					}
 					countdown = PixelScene.renderTextBlock("Game starts in: " + secondsLeft, 12);
+					countdown.camera = uiCamera;
 					countdown.maxWidth(120);
-					countdown.align(RenderedTextBlock.CENTER_ALIGN);
-					countdown.setPos(0, 0);
 					add(countdown);
-					countdown.setPos(
-							PixelScene.uiCamera.width / 2f,
-							PixelScene.uiCamera.height / 2f
-					);
+					countdown.setPos((uw-countdown.width()) / 2f, (uh-countdown.height()) / 2);
+
 				}
 			} else {
 				NetworkManager.INSTANCE.countdownUntil = -1;

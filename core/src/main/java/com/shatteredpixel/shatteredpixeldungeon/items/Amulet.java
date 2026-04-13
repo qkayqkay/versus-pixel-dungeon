@@ -34,6 +34,7 @@ import com.shatteredpixel.shatteredpixeldungeon.networking.NetworkManager;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.AmuletScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.VictoryScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
+import com.shatteredpixel.shatteredpixeldungeon.ui.GameTimer;
 import com.watabou.noosa.Game;
 
 import java.io.IOException;
@@ -73,8 +74,9 @@ public class Amulet extends Item {
 	@Override
 	public boolean doPickUp(Hero hero, int pos) {
 		if (super.doPickUp( hero, pos )) {
+			float finalTime = GameTimer.instance.stopTimer();
 			NetworkManager.INSTANCE.send("VICTORY:");
-			
+			NetworkManager.INSTANCE.finalTime = finalTime;
 			if (!Statistics.amuletObtained) {
 				Statistics.amuletObtained = true;
 				hero.spend(-hero.cooldown());

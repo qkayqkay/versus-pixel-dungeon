@@ -6,6 +6,7 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.Amulet;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.networking.NetworkManager;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
@@ -73,6 +74,18 @@ public class VictoryScene extends PixelScene {
         text.align(RenderedTextBlock.CENTER_ALIGN);
         text.alpha(0);
         add(text);
+
+        //Final time
+        float finalTime = NetworkManager.INSTANCE.finalTime;
+        int hours = (int)(finalTime / 3600);
+        int minutes = (int)(finalTime / 60);
+        int seconds = (int)(finalTime % 60);
+        String timeStr = String.format("%02dh:%02dm:%02ds", hours, minutes, seconds);
+
+        RenderedTextBlock timeDisplay = renderTextBlock("Final time: " + timeStr, 9);
+        timeDisplay.setPos(5, 5);
+        timeDisplay.camera = uiCamera;
+        add(timeDisplay);
 
         // button
         returnBtn = new StyledButton(Chrome.Type.GREY_BUTTON_TR, "Return to Lobby") {

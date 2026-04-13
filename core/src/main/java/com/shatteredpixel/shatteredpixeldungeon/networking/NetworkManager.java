@@ -51,6 +51,7 @@ public enum NetworkManager {
     public ArrayList<Player> players = new ArrayList<>();
 
     public volatile long freezeUntil = -1;
+    public float finalTime;
 
     public void connect(String ip, int port) throws Exception {
         System.out.println("Connecting...");
