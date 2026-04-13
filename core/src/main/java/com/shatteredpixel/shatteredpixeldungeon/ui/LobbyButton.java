@@ -37,6 +37,10 @@ public class LobbyButton extends StyledButton {
         add(playerCount);
     }
 
+    public void setLobby(Lobby lobby) {
+        this.lobby = lobby;
+    }
+
 
     @Override
     public void layout() {
@@ -49,6 +53,7 @@ public class LobbyButton extends StyledButton {
                 this.top() + (this.height() - playerCount.height())/2
         );
     }
+
 
     @Override
     protected void onClick() {
@@ -78,9 +83,3 @@ public class LobbyButton extends StyledButton {
     }
 }
 
-
-            /*playerCount = new RenderedTextBlock("this is a text!", 10);
-            playerCount.setPos(
-                    30,30
-            );
-            addToFront(playerCount);*/ // isnt fucking working for who knows what reason.

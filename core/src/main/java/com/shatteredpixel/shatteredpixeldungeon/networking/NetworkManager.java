@@ -177,6 +177,7 @@ public enum NetworkManager {
 
                 String lobbyID = null;
                 String lobbyName = null;
+                boolean inGame = false;
                 boolean hasPassword = false;
                 ArrayList<String> admins = new ArrayList<String>();
                 ArrayList<String> superAdmins = new ArrayList<String>();
@@ -192,6 +193,7 @@ public enum NetworkManager {
 
                     if (key.equals("lobbyid"))       lobbyID = value;
                     else if (key.equals("lobbyname")) lobbyName = value;
+                    else if (key.equals("ingame")) inGame = value.equals("true");
                     else if (key.equals("haspassword")) hasPassword = value.equals("true");
                     else if (key.equals("admins")) {
                         if (!value.isEmpty()) {
@@ -212,7 +214,7 @@ public enum NetworkManager {
                 }
 
                 if (lobbyID != null && lobbyName != null) {
-                    Lobby newLobby = new Lobby(lobbyName, hasPassword, admins, superAdmins, numPlayers, maxPlayers);
+                    Lobby newLobby = new Lobby(lobbyName, inGame, hasPassword, admins, superAdmins, numPlayers, maxPlayers);
                     newLobby.setID(lobbyID);
                     parsedLobbies.put(lobbyID, newLobby);
                 }

@@ -39,7 +39,6 @@ public class GameTimer extends Component {
 
     @Override
     public void update() {
-        System.out.println("updating");
         super.update();
         if(!paused) {
             elapsed += Game.elapsed;

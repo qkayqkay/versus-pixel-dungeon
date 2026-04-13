@@ -15,7 +15,7 @@ public class Lobby {
     private int maxPlayers;
     private String id;
 
-    public Lobby(String name, boolean hasPassword, ArrayList<String> admins, ArrayList<String> superAdmins, int numPlayers, int maxPlayers) {
+    public Lobby(String name, boolean inGame, boolean hasPassword, ArrayList<String> admins, ArrayList<String> superAdmins, int numPlayers, int maxPlayers) {
         this.name = name;
         this.hasPassword = hasPassword;
         this.admins = admins;
@@ -23,7 +23,7 @@ public class Lobby {
         this.numPlayers = numPlayers;
         this.maxPlayers = maxPlayers;
         this.players = new ArrayList<Player>();
-        this.inGame = false;
+        this.inGame = inGame;
     }
 
     public void setID(String id) { this.id = id; }

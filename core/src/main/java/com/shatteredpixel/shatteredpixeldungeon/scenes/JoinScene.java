@@ -178,27 +178,56 @@ public class JoinScene extends PixelScene{
 
     public void addLobby(String id, Lobby lobby) {
         this.lobbies.put(id, lobby);
-        LobbyButton newLobbyButton = new LobbyButton(lobby);
-        lobbyList.content().add(newLobbyButton);
-        lobbyButtons.put(id, newLobbyButton);
+        if(!lobby.isInGame()) {
+            LobbyButton newLobbyButton = new LobbyButton(lobby);
+            lobbyList.content().add(newLobbyButton);
+            lobbyButtons.put(id, newLobbyButton);
+        }
     }
 
     private void refreshLobbyMenu(LinkedHashMap<String, Lobby> result) {
         for (Map.Entry<String, Lobby> entry : result.entrySet()) {
             String id = entry.getKey();
+            Lobby updatedLobby = entry.getValue();
+
             if (!this.lobbies.containsKey(id)) {
-                System.out.println("New lobby detected! Adding: " + entry.getValue().getName() + " - " + id);
-                this.addLobby(id, entry.getValue());
+                // Brand new lobby, addLobby handles the inGame check
+                System.out.println("New lobby detected! Adding: " + updatedLobby.getName() + " - " + id);
+                this.addLobby(id, updatedLobby);
+            } else {
+                // Lobby already known — check if inGame status changed
+                Lobby existingLobby = this.lobbies.get(id);
+                System.out.println("Lobby " + id + " - existing inGame: " + existingLobby.isInGame() + ", updated inGame: " + updatedLobby.isInGame());
+
+                if (!existingLobby.isInGame() && updatedLobby.isInGame()) {
+                    // Lobby just started a game, remove its button
+                    System.out.println("Removing button for lobby: " + id);
+                    LobbyButton btn = lobbyButtons.get(id);
+                    if (btn != null) {
+                        btn.destroy();
+                        lobbyButtons.remove(id);
+                    }
+                } else if (existingLobby.isInGame() && !updatedLobby.isInGame()) {
+                    // Lobby just finished a game, add its button back
+                    LobbyButton newBtn = new LobbyButton(updatedLobby);
+                    lobbyList.content().add(newBtn);
+                    lobbyButtons.put(id, newBtn);
+                }
             }
         }
 
+        // Remove lobbies that no longer exist at all
         Iterator<Map.Entry<String, Lobby>> it = this.lobbies.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<String, Lobby> entry = it.next();
             if (!result.containsKey(entry.getKey())) {
-                System.out.println("Deleting dead lobby: "+entry.getValue().getName()+" - "+entry.getKey());
+                System.out.println("Deleting dead lobby: " + entry.getValue().getName() + " - " + entry.getKey());
+                LobbyButton btn = lobbyButtons.get(entry.getKey());
+                if (btn != null) {
+                    btn.destroy();
+                    lobbyButtons.remove(entry.getKey());
+                }
                 it.remove();
-                refreshLobbyButtons();
             }
         }
 
@@ -207,22 +236,20 @@ public class JoinScene extends PixelScene{
     }
 
     public void refreshLobbyButtons() {
-        Iterator<Map.Entry<String, LobbyButton>> it = lobbyButtons.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<String, LobbyButton> entry = it.next();
-            if (!this.lobbies.containsKey(entry.getKey())) {
-                entry.getValue().destroy();
-                it.remove();
-            }
-        }
+        float y = 0;
+        for (Map.Entry<String, LobbyButton> entry : lobbyButtons.entrySet()) {
+            String lobbyID = entry.getKey();
+            LobbyButton button = entry.getValue();
+            Lobby lobby = this.lobbies.get(lobbyID);
 
-        float y = 0;  // y=0 now, because positions are relative to the content(the scrolling thingie), not the screen
-        for (Map.Entry<String, LobbyButton> button : lobbyButtons.entrySet()) {
+            if (lobby == null) continue;
+
             float width = lobbyList.width() - 20;
             float x = (lobbyList.width() - width) / 2;
-            button.getValue().setRect(x, y, width, 30);
-            button.getValue().layout();
-            y += 32;  // 30 height + 2 gap
+            button.setRect(x, y, width, 30);
+            button.setLobby(this.lobbies.get(lobbyID));
+            button.layout();
+            y += 32;
         }
 
         lobbyList.content().setSize(lobbyList.width(), y);
