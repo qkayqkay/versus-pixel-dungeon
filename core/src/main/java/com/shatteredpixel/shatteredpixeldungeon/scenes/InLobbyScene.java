@@ -47,7 +47,7 @@ public class  InLobbyScene extends PixelScene {
 
     @Override
     public void create() {
-        super.create(); // honestly idek what this does but whatever lol
+        super.create();
 
         insets = Game.platform.getSafeInsets(PlatformSupport.INSET_BLK).scale(1f / defaultZoom);
 
@@ -113,7 +113,7 @@ public class  InLobbyScene extends PixelScene {
             @Override
             protected void onClick() {
                 btnReturn.enable(false);
-                NetworkManager.INSTANCE.sendMessage("LEAVELOBBY:");
+                NetworkManager.INSTANCE.leaveLobby();
                 Game.switchScene(JoinScene.class);
 
             }
@@ -181,6 +181,7 @@ public class  InLobbyScene extends PixelScene {
         });
 
         updateChat();
+        updateReadyButton();
         fadeIn();
     }
 

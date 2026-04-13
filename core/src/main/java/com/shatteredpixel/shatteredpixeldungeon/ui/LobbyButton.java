@@ -53,7 +53,7 @@ public class LobbyButton extends StyledButton {
     @Override
     protected void onClick() {
         if(this.hasPassword==true) {
-            passwordInput = new WndTextInput( //TODO why doesnt this work??
+            passwordInput = new WndTextInput(
                     Messages.get(LobbyButton.class, "passwordtitle"),
                     Messages.get(LobbyButton.class, "passworddescription"),
                     "",

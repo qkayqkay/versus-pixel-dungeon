@@ -440,6 +440,11 @@ public enum NetworkManager {
         this.send("INITIATESTART:");
     }
 
+    public void leaveLobby(){
+        this.send("LEAVELOBBY:");
+        this.chat.clear();
+    }
+
     public void sendMessage(String msg){
         send("CHAT:"+self.getID()+"="+msg);
     }
