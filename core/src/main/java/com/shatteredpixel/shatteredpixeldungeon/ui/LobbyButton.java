@@ -74,7 +74,7 @@ public class LobbyButton extends StyledButton {
                     }
                 }
             };
-            add(passwordInput);
+            addToFront(passwordInput);
         }
         else{
             NetworkManager.INSTANCE.joinLobby(this.ID);

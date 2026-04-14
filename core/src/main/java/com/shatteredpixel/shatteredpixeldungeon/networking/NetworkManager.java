@@ -1,5 +1,6 @@
 package com.shatteredpixel.shatteredpixeldungeon.networking;
 
+import com.badlogic.gdx.utils.TimeUtils;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
@@ -21,8 +22,11 @@ import java.util.function.Consumer;
 import com.badlogic.gdx.Gdx;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage;
 import com.watabou.noosa.Game;
 import com.google.gson.*;
+
+import static com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene.add;
 
 
 public enum NetworkManager {
@@ -37,11 +41,14 @@ public enum NetworkManager {
     private Runnable onChatReceived;
     private Runnable onJoinError;
     private Runnable onLevelChanged;
+    private Runnable onDisconnected; // callback for when keepalive detects a timeout
 
     public long countdownUntil = -1;
     public boolean shouldCountdown = false;
     public boolean shouldFreeze = true;
 
+    private static final int PING_INTERVAL_MS = 10000;  // send ping every 10s
+    private static final int PING_TIMEOUT_MS  = 15000;  // disconnect if no pong for 15s
 
     private Consumer<Lobby> lobbyInfoCallback;
     private LinkedHashMap<String, Lobby> lobbies = new LinkedHashMap<>();
@@ -52,10 +59,10 @@ public enum NetworkManager {
 
     public volatile long freezeUntil = -1;
     public float finalTime;
+    public long lastPongReceived;
 
     public void connect(String ip, int port) throws Exception {
         System.out.println("Connecting...");
-        // Only connect if the socket is null or closed
         if (socket == null || socket.isClosed()) {
             Dungeon.dataFetcher = new DataFetcher();
             socket = new Socket(ip, port);
@@ -63,22 +70,29 @@ public enum NetworkManager {
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String serverOK, heading, data;
             String[] parts;
+            final WndMessage wndConnecting = new WndMessage("Connecting...");
+            PixelScene.showWindow(wndConnecting);
+            float startTime = (float)TimeUtils.millis();
             while((serverOK = in.readLine()) != null){
-                 parts = serverOK.split(":", 2);
-                 heading = parts[0];
-                 data = parts[1];
-                 if(heading.equals("PLAYERID")){
-                     String playerID = data;
-                     self = new Player(data, "temp");
-                     players.add(self);
-                     System.out.println("Connected to Server! Player ID is: "+data);
-                     startListening();
-                     break;
-                 }
+                parts = serverOK.split(":", 2);
+                heading = parts[0];
+                data = parts[1];
+                if(heading.equals("PLAYERID")){
+                    self = new Player(data, "temp");
+                    players.add(self);
+                    System.out.println("Connected to Server! Player ID is: "+data);
+                    wndConnecting.destroy();
+                    startListening();
+                    break;
+                }
+                if(TimeUtils.millis() - startTime > 10000){
+                    wndConnecting.destroy();
+                    final WndMessage wndSlow = new WndMessage("Connecting... Server is taking a while. Are you connected to the internet?");
+                    PixelScene.showWindow(wndSlow);
+                }
             }
-        }
-        else{
-            System.out.println("Failed to connect to server! Format is ip;port");
+        } else {
+            System.out.println("Failed to connect to server! Already connected.");
         }
     }
 
@@ -87,18 +101,59 @@ public enum NetworkManager {
     public void startListening() {
         System.out.println("Now listening!");
         isListening = true;
-        Thread listenerThread = new Thread(() -> {
-            try {
-                String serverMessage;
-                while (isListening && (serverMessage = in.readLine()) != null) {
-                    handleIncomingMessage(serverMessage);
+
+        // Initialise lastPongReceived so the keepalive doesn't immediately fire
+        lastPongReceived = System.currentTimeMillis();
+
+        Thread listenerThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String serverMessage;
+                    while (isListening && (serverMessage = in.readLine()) != null) {
+                        handleIncomingMessage(serverMessage);
+                    }
+                } catch (Exception e) {
+                    System.err.println("Lost connection to server: " + e.getMessage());
                 }
-            } catch (Exception e) {
-                System.err.println("Lost connection to server: " + e.getMessage());
             }
         });
         listenerThread.setDaemon(true);
         listenerThread.start();
+
+        lastPongReceived = System.currentTimeMillis();
+
+        Thread keepAlive = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (isListening) {
+                    try {
+                        send("PING:");
+                        Thread.sleep(10000); // wait 10s then check if we got a response
+
+                        long timeSinceLastPong = System.currentTimeMillis() - lastPongReceived;
+                        if (timeSinceLastPong > 15000) {
+                            System.err.println("Keepalive timed out — no PONG in " + timeSinceLastPong + "ms. Disconnecting.");
+                            disconnect();
+                            if (onDisconnected != null) {
+                                Gdx.app.postRunnable(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        onDisconnected.run();
+                                    }
+                                });
+                            }
+                            break;
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Keepalive thread error: " + e.getMessage());
+                        break;
+                    }
+                }
+            }
+        });
+        keepAlive.setDaemon(true);
+        keepAlive.start();
     }
 
     private void handleIncomingMessage(String message) { // im ngl this got so boring to write that some of this is just AI. Serialization booo.
@@ -107,7 +162,12 @@ public enum NetworkManager {
         String data = headerData[1];
         System.out.println("Caught incoming data: "+message+", header is: "+header);
 
-        if (header.equals("EVENT")) {
+        if (header.equals("PONG")) {
+            lastPongReceived = System.currentTimeMillis();
+            System.out.println("Pong received.");
+        }
+
+        else if (header.equals("EVENT")) {
             System.out.println("SERVER EVENT: " + data);
         }
 
@@ -401,7 +461,7 @@ public enum NetworkManager {
         };
         this.send("LISTLOBBY:");
     }
-        // TODO, maybe add data values like playercount = true to include the playercount?
+    // TODO, maybe add data values like playercount = true to include the playercount?
 
     public void setChatCallback(Runnable callback) {
         this.onChatReceived = callback;
@@ -411,6 +471,9 @@ public enum NetworkManager {
     }
     public void setLevelChangedCallback(Runnable callback) {
         this.onLevelChanged = callback;
+    }
+    public void setDisconnectedCallback(Runnable callback) {
+        this.onDisconnected = callback;
     }
 
 

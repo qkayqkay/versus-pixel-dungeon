@@ -21,6 +21,7 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
+import com.badlogic.gdx.Gdx;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Chrome;
@@ -38,17 +39,10 @@ import com.shatteredpixel.shatteredpixeldungeon.services.updates.AvailableUpdate
 import com.shatteredpixel.shatteredpixeldungeon.services.updates.Updates;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.*;
-import com.shatteredpixel.shatteredpixeldungeon.windows.WndOptions;
-import com.shatteredpixel.shatteredpixeldungeon.windows.WndSettings;
-import com.shatteredpixel.shatteredpixeldungeon.windows.WndTextInput;
-import com.shatteredpixel.shatteredpixeldungeon.windows.WndVictoryCongrats;
+import com.shatteredpixel.shatteredpixeldungeon.windows.*;
 import com.watabou.glwrap.Blending;
 import com.watabou.input.PointerEvent;
-import com.watabou.noosa.BitmapText;
-import com.watabou.noosa.Camera;
-import com.watabou.noosa.Game;
-import com.watabou.noosa.Image;
-import com.watabou.noosa.PointerArea;
+import com.watabou.noosa.*;
 import com.watabou.noosa.audio.Music;
 import com.watabou.noosa.tweeners.Tweener;
 import com.watabou.utils.ColorMath;
@@ -315,9 +309,29 @@ public class TitleScene extends PixelScene {
 					String ip = parts[0];
 					int port = Integer.parseInt(parts[1]);
 					try {
+						NetworkManager.INSTANCE.setDisconnectedCallback(new Runnable() {
+							@Override
+							public void run() {
+								Scene currentScene = Game.scene();
+								System.out.println("DISCONNECTED!");
+								if (currentScene != null) {
+									currentScene.add(new WndDisconnected("Lost connection to the server!"));
+								}							}
+
+						});
 						NetworkManager.INSTANCE.connect(ip, port);
 					} catch (Exception e) {
 						System.err.println("Failed to connect: " + e.getMessage());
+						final String errorMsg = "Failed to connect: " + e.getMessage();
+						Gdx.app.postRunnable(new Runnable() {
+							@Override
+							public void run() {
+								Scene currentScene = Game.scene();
+								if (currentScene != null) {
+									currentScene.add(new WndDisconnected(errorMsg));
+								}
+							}
+						});
 					}
 				}
 			};

@@ -499,4 +499,27 @@ public class PixelScene extends Scene {
 			
 		}
 	}
+	public static void showWindow(Window window) {
+		Game.runOnRenderThread(new Callback() {
+			@Override
+			public void call() {
+				Scene s = Game.scene();
+				if (s != null) {
+					s.add(window);
+				}
+			}
+		});
+	}
+
+	public static void removeWindow(Window window) {
+		Game.runOnRenderThread(new Callback() {
+			@Override
+			public void call() {
+				Scene s = Game.scene();
+				if (s != null) {
+					s.remove(window);
+				}
+			}
+		});
+	}
 }
