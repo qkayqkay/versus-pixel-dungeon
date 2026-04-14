@@ -224,6 +224,7 @@ public class GameScene extends PixelScene {
 		
 		if (Dungeon.hero == null || Dungeon.level == null){
 			ShatteredPixelDungeon.switchNoFade(TitleScene.class);
+
 			return;
 		}
 

@@ -51,6 +51,7 @@ public enum NetworkManager {
     private static final int PING_TIMEOUT_MS  = 15000;  // disconnect if no pong for 15s
 
     private Consumer<Lobby> lobbyInfoCallback;
+    private Consumer<Lobby> onLoginRegisterCallback;
     private LinkedHashMap<String, Lobby> lobbies = new LinkedHashMap<>();
     public ArrayList<ChatMessage> chat = new ArrayList<>();
 
@@ -450,6 +451,10 @@ public enum NetworkManager {
         this.send("INFOLOBBY:");
     }
 
+    public void login(String username, String password, Consumer<Lobby> callback){
+        this.onLoginRegisterCallback = callback;
+        this.send("LOGIN:"+username+","+password); //MAKE SURE PASSWORDS CANT HAVE COMMAS!
+    }
 
     public void listLobbies(Consumer<LinkedHashMap<String, Lobby>> callback) {
         this.lobbyListCallback = new Consumer<LinkedHashMap<String, Lobby>>() {

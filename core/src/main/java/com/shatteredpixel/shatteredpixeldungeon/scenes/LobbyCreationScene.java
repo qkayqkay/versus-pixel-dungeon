@@ -16,14 +16,7 @@ import com.watabou.utils.RectF;
 
 public class LobbyCreationScene extends PixelScene{
     private static final int WIDTH			= 120;
-    private static final float SMALL_GAP	= 2;
-    private static final float LARGE_GAP	= 8;
 
-
-
-    {
-        inGameScene = true;
-    }
 
     StyledButton btnCreate = null;
 
@@ -91,7 +84,7 @@ public class LobbyCreationScene extends PixelScene{
             }
         };
         btnBack.icon(Icons.EXIT.get());
-        btnBack.setSize( WIDTH, 20 );
+        btnBack.setSize( 20, 20 );
         add(btnBack);
 
 
@@ -112,7 +105,7 @@ public class LobbyCreationScene extends PixelScene{
 
 
         btnCreate.setPos((w- btnCreate.width())/2, h-30);
-        btnBack.setPos(w- btnBack.width()-insets.right, btnBack.height()+insets.top);
+        btnBack.setPos(w-btnBack.width()-insets.right, insets.top);
 
         fadeIn();
     }

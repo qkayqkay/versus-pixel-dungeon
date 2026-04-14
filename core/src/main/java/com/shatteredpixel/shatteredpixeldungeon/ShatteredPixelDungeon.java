@@ -22,10 +22,7 @@
 package com.shatteredpixel.shatteredpixeldungeon;
 
 import com.shatteredpixel.shatteredpixeldungeon.networking.NetworkManager;
-import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
-import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
-import com.shatteredpixel.shatteredpixeldungeon.scenes.TitleScene;
-import com.shatteredpixel.shatteredpixeldungeon.scenes.WelcomeScene;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.*;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.audio.Music;
 import com.watabou.noosa.audio.Sample;
@@ -46,7 +43,8 @@ public class ShatteredPixelDungeon extends Game {
 	public static final int v3_3_0 = 883;
 	
 	public ShatteredPixelDungeon( PlatformSupport platform ) {
-		super( sceneClass != null ? sceneClass : TitleScene.class, platform );
+		//super( sceneClass != null ? sceneClass : TitleScene.class, platform );
+		super( sceneClass != null ? sceneClass : AccountOptionsScene.class, platform );
 
 		//pre-v3.3.0
 		com.watabou.utils.Bundle.addAlias(
