@@ -141,7 +141,7 @@ public class TitleScene extends PixelScene {
 				//if (GamesInProgress.checkAll().size() == 0){
 					GamesInProgress.selectedClass = null;
 					GamesInProgress.curSlot = 2; //Todo, change this to slot 1.
-					ShatteredPixelDungeon.switchScene(JoinScene.class);
+					ShatteredPixelDungeon.switchScene(AccountOptionsScene.class);
 				//} else {
 					//ShatteredPixelDungeon.switchNoFade( StartScene.class );
 				//}
@@ -153,7 +153,7 @@ public class TitleScene extends PixelScene {
 				if (DeviceCompat.isDebug()) {
 					GamesInProgress.selectedClass = null;
 					GamesInProgress.curSlot = 1;
-					ShatteredPixelDungeon.switchScene(JoinScene.class);
+					ShatteredPixelDungeon.switchScene(AccountOptionsScene.class);
 					return true;
 				}
 				return super.onLongClick();

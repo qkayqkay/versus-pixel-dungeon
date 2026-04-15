@@ -230,7 +230,6 @@ public class  InLobbyScene extends PixelScene {
     public void update() {
         super.update();
         if (Game.timeTotal - timer >= 5) {
-            System.out.println("DOING THE THIGN");
             timer = Game.timeTotal;
             updateChat();
             NetworkManager.INSTANCE.requestLobbyInfo(new Consumer<Lobby>() {

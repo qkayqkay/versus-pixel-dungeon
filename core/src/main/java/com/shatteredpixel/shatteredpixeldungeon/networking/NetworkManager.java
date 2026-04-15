@@ -42,6 +42,11 @@ public enum NetworkManager {
     private Runnable onJoinError;
     private Runnable onLevelChanged;
     private Runnable onDisconnected; // callback for when keepalive detects a timeout
+    private Runnable onLoginSuccess;
+    private Consumer<String> onLoginFail;
+    private Runnable onRegisterSuccess;
+    private Consumer<String> onRegisterFail;
+
 
     public long countdownUntil = -1;
     public boolean shouldCountdown = false;
@@ -51,7 +56,6 @@ public enum NetworkManager {
     private static final int PING_TIMEOUT_MS  = 15000;  // disconnect if no pong for 15s
 
     private Consumer<Lobby> lobbyInfoCallback;
-    private Consumer<Lobby> onLoginRegisterCallback;
     private LinkedHashMap<String, Lobby> lobbies = new LinkedHashMap<>();
     public ArrayList<ChatMessage> chat = new ArrayList<>();
 
@@ -79,7 +83,7 @@ public enum NetworkManager {
                 heading = parts[0];
                 data = parts[1];
                 if(heading.equals("PLAYERID")){
-                    self = new Player(data, "temp");
+                    self = new Player(data, "Unknown");
                     players.add(self);
                     System.out.println("Connected to Server! Player ID is: "+data);
                     wndConnecting.destroy();
@@ -186,7 +190,7 @@ public enum NetworkManager {
             }
 
             if (chatter == null) {
-                chatter = new Player(chatterID, "unknown");
+                chatter = new Player(chatterID, "Unknown");
                 players.add(chatter);
             }
 
@@ -355,6 +359,43 @@ public enum NetworkManager {
                 onLevelChanged.run();
             }
         }
+        else if (header.equals("LOGINNOTIFY")) {
+            if (data.equals("success")) {
+                if (onLoginSuccess != null) {
+                    Gdx.app.postRunnable(new Runnable() {
+                        @Override
+                        public void run() {
+                            onLoginSuccess.run();
+                        }
+                    });
+                }
+            } else {
+                if (onLoginFail != null) {
+                    final String reason = data;
+                    Gdx.app.postRunnable(new Runnable() {
+                        @Override
+                        public void run() {
+                            onLoginFail.accept(reason);
+                        }
+                    });
+                }
+            }
+        }
+        else if (header.equals("REGISTERNOTIFY")) {
+            if (data.equals("success")) {
+                if (onRegisterSuccess != null) onRegisterSuccess.run();
+            } else {
+                if (onRegisterFail != null) {
+                    final String reason = data;
+                    Gdx.app.postRunnable(new Runnable() {
+                        @Override
+                        public void run() {
+                            onRegisterFail.accept(reason);
+                        }
+                    });
+                }
+            }
+        }
         else if (header.equals("ISREADY")) {
             for (Player p : players) {
                 if (p.getID().equals(data)) {
@@ -451,9 +492,16 @@ public enum NetworkManager {
         this.send("INFOLOBBY:");
     }
 
-    public void login(String username, String password, Consumer<Lobby> callback){
-        this.onLoginRegisterCallback = callback;
-        this.send("LOGIN:"+username+","+password); //MAKE SURE PASSWORDS CANT HAVE COMMAS!
+    public void login(String username, String password, Runnable onSuccess, Consumer<String> onFail) {
+        this.onLoginSuccess = onSuccess;
+        this.onLoginFail = onFail;
+        this.send("LOGIN:" + username + "," + password); // MAKE SURE TO MAKE COMMAS IMPOSSIBLE
+    }
+
+    public void register(String username, String password, Runnable onSuccess, Consumer<String> onFail) {
+        this.onRegisterSuccess = onSuccess;
+        this.onRegisterFail = onFail;
+        this.send("REGISTER:" + username + "," + password); // MAKE SURE TO MAKE COMMAS IMPOSSIBLE
     }
 
     public void listLobbies(Consumer<LinkedHashMap<String, Lobby>> callback) {

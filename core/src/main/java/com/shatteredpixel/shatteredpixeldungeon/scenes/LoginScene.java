@@ -12,6 +12,8 @@ import com.watabou.noosa.Game;
 import com.watabou.noosa.TextInput;
 import com.watabou.utils.RectF;
 
+import java.util.function.Consumer;
+
 public class LoginScene extends PixelScene {
 
     RectF insets;
@@ -48,16 +50,35 @@ public class LoginScene extends PixelScene {
 
         TextInput passwordInput = new TextInput(Chrome.get(Chrome.Type.TOAST_WHITE), false, 8,  uiCamera.zoom);
         add(passwordInput);
-        
+
+        RenderedTextBlock errorText = renderTextBlock("", 8);
+        errorText.hardlight(0xFF4444); // red colour for errors
+        add(errorText);
 
 
         btnLogin = new StyledButton(Chrome.Type.GREY_BUTTON_TR, Messages.get(this, "login") ) {
             @Override
             protected void onClick() {
-                btnLogin.enable(false);
                 System.out.println("username: "+usernameInput.getText()+" and password: "+passwordInput.getText());
-                //NetworkManager.INSTANCE.login(usernameInput.getText(), passwordInput.getText());
-                Game.switchScene(JoinScene.class);
+                NetworkManager.INSTANCE.login(
+                        usernameInput.getText(),
+                        passwordInput.getText(),
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                Game.switchScene(JoinScene.class);
+                            }
+                        },
+                        new Consumer<String>() {
+                            @Override
+                            public void accept(String reason) {
+                                // reason will be "wrongpassword", "usernotfound", etc.
+                                // display it to the player somehow
+                                errorText.text(Messages.get(LoginScene.this, reason));
+                                System.out.println(reason);
+                            }
+                        }
+                );
 
             }
         };
@@ -69,7 +90,7 @@ public class LoginScene extends PixelScene {
         StyledButton btnBack = new StyledButton(Chrome.Type.GREY_BUTTON_TR, "") {
             @Override
             protected void onClick() {
-                Game.switchScene(JoinScene.class);
+                Game.switchScene(TitleScene.class);
 
             }
         };
