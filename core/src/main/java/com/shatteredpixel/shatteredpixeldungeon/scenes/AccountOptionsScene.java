@@ -2,6 +2,7 @@ package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
 import com.shatteredpixel.shatteredpixeldungeon.Chrome;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.networking.NetworkManager;
 import com.shatteredpixel.shatteredpixeldungeon.ui.*;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.Game;
@@ -61,13 +62,13 @@ public class AccountOptionsScene extends PixelScene{
             @Override
             protected void onClick() {
                 super.onClick();
-                // TODO this StyledButton currently does nothing
+                //NetworkManager.INSTANCE.self.
             }
         };
         guestBtn.setSize(90, 20);
         y += (signupBtn.height()/2)+gap;
         guestBtn.setPos((w-guestBtn.width())/2, y);
-        add(guestBtn);
+        //add(guestBtn); shhhh im working on it
 
     }
 

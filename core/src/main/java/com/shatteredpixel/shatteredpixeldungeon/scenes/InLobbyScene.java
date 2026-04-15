@@ -139,10 +139,9 @@ public class  InLobbyScene extends PixelScene {
                 chatField.clearText();
             }
         };
-        btnSend.icon(Icons.STAIRS.get());
         btnSend.setSize( chatPanel.width()-5, 20 );
         btnSend.setPos(chatPanel.x+(chatPanel.width()-btnSend.width())/2, chatPanel.y+chatPanel.height()-btnSend.height()-5);
-        add(btnSend); //todo icon
+        add(btnSend);
 
         chatScroll = new ScrollPane(new Component());
         add(chatScroll);

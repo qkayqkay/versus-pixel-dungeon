@@ -46,14 +46,15 @@ public class SignupScene extends PixelScene {
         errorText.hardlight(0xFF4444); // red colour for errors
         add(errorText);
 
-        TextInput usernameInput = new TextInput(Chrome.get(Chrome.Type.TOAST_WHITE), false, 8, uiCamera.zoom);
-        add(usernameInput);
 
         TextInput passwordInput = new TextInput(Chrome.get(Chrome.Type.TOAST_WHITE), false, 8, uiCamera.zoom);
         add(passwordInput);
 
         TextInput confirmPasswordInput = new TextInput(Chrome.get(Chrome.Type.TOAST_WHITE), false, 8, uiCamera.zoom);
         add(confirmPasswordInput);
+
+        TextInput usernameInput = new TextInput(Chrome.get(Chrome.Type.TOAST_WHITE), false, 8, uiCamera.zoom);
+        add(usernameInput); // adding username last so thats the one with focus first
 
         btnSignup = new StyledButton(Chrome.Type.GREY_BUTTON_TR, Messages.get(this, "signup")) {
             @Override
@@ -69,6 +70,7 @@ public class SignupScene extends PixelScene {
                         new Runnable() {
                             @Override
                             public void run() {
+                                NetworkManager.INSTANCE.self.setName(usernameInput.getText());
                                 Game.switchScene(JoinScene.class);
                             }
                         },

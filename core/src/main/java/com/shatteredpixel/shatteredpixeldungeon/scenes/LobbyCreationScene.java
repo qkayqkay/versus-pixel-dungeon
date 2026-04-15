@@ -67,6 +67,7 @@ public class LobbyCreationScene extends PixelScene{
                 btnCreate.enable(false);
                 System.out.println("Name: "+nameInput.getText()+" and password: "+passwordInput.getText());
                 NetworkManager.INSTANCE.createLobby(nameInput.getText(), passwordInput.getText());
+                //NetworkManager.INSTANCE.self.setLobby() TODO
                 Game.switchScene(JoinScene.class);
 
             }

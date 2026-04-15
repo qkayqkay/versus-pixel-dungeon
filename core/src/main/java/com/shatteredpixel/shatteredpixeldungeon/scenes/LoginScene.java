@@ -45,11 +45,12 @@ public class LoginScene extends PixelScene {
 
 
 
-        TextInput usernameInput = new TextInput(Chrome.get(Chrome.Type.TOAST_WHITE), false, 8,  uiCamera.zoom);
-        add(usernameInput);
-
         TextInput passwordInput = new TextInput(Chrome.get(Chrome.Type.TOAST_WHITE), false, 8,  uiCamera.zoom);
         add(passwordInput);
+
+        TextInput usernameInput = new TextInput(Chrome.get(Chrome.Type.TOAST_WHITE), false, 8,  uiCamera.zoom);
+        add(usernameInput); // adding username last so thats the one with focus first
+
 
         RenderedTextBlock errorText = renderTextBlock("", 8);
         errorText.hardlight(0xFF4444); // red colour for errors
@@ -66,14 +67,13 @@ public class LoginScene extends PixelScene {
                         new Runnable() {
                             @Override
                             public void run() {
+                                NetworkManager.INSTANCE.self.setName(usernameInput.getText());
                                 Game.switchScene(JoinScene.class);
                             }
                         },
                         new Consumer<String>() {
                             @Override
                             public void accept(String reason) {
-                                // reason will be "wrongpassword", "usernotfound", etc.
-                                // display it to the player somehow
                                 errorText.text(Messages.get(LoginScene.this, reason));
                                 System.out.println(reason);
                             }

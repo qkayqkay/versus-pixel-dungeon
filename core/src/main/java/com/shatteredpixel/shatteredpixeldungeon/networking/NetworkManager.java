@@ -401,10 +401,10 @@ public enum NetworkManager {
                 if (p.getID().equals(data)) {
                     p.isReadied = !p.isReadied;
                     if(p.isReadied){
-                        chat.add(new ChatMessage(p.getID()+" is ready!"));
+                        chat.add(new ChatMessage(p.getName()+" is ready!"));
                     }
                     if(!p.isReadied){
-                        chat.add(new ChatMessage(p.getID()+" unchecked."));
+                        chat.add(new ChatMessage(p.getName()+" unchecked."));
                     }
                     if (onChatReceived != null) {
                         onChatReceived.run();
@@ -565,7 +565,7 @@ public enum NetworkManager {
     }
 
     public void sendMessage(String msg){
-        send("CHAT:"+self.getID()+"="+msg);
+        send("CHAT:"+self.getName()+"="+msg);
     }
 
 }
