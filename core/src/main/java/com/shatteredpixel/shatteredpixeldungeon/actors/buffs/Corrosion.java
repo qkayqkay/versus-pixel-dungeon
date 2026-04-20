@@ -125,7 +125,7 @@ public class Corrosion extends Buff implements Hero.Doom {
 			Badges.validateDeathFromFriendlyMagic();
 		}
 
-		Dungeon.fail( this );
+		//Dungeon.fail( this );
 		GLog.n(Messages.get(this, "ondeath"));
 	}
 
