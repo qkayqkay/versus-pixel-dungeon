@@ -43,6 +43,8 @@ public enum NetworkManager {
     private Runnable onLevelChanged;
     private Runnable onDisconnected; // callback for when keepalive detects a timeout
     private Runnable onLoginSuccess;
+    private Runnable onLobbyCreated;
+
     private Consumer<String> onLoginFail;
     private Runnable onRegisterSuccess;
     private Consumer<String> onRegisterFail;
@@ -52,8 +54,6 @@ public enum NetworkManager {
     public boolean shouldCountdown = false;
     public boolean shouldFreeze = true;
 
-    private static final int PING_INTERVAL_MS = 10000;  // send ping every 10s
-    private static final int PING_TIMEOUT_MS  = 15000;  // disconnect if no pong for 15s
 
     private Consumer<Lobby> lobbyInfoCallback;
     private LinkedHashMap<String, Lobby> lobbies = new LinkedHashMap<>();
@@ -67,38 +67,64 @@ public enum NetworkManager {
     public long lastPongReceived;
 
     public void connect(String ip, int port) throws Exception {
-        System.out.println("Connecting...");
-        if (socket == null || socket.isClosed()) {
-            Dungeon.dataFetcher = new DataFetcher();
-            socket = new Socket(ip, port);
-            out = new PrintWriter(socket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            String serverOK, heading, data;
-            String[] parts;
-            final WndMessage wndConnecting = new WndMessage("Connecting...");
-            PixelScene.showWindow(wndConnecting);
-            float startTime = (float)TimeUtils.millis();
-            while((serverOK = in.readLine()) != null){
-                parts = serverOK.split(":", 2);
-                heading = parts[0];
-                data = parts[1];
-                if(heading.equals("PLAYERID")){
-                    self = new Player(data, "Unknown");
-                    players.add(self);
-                    System.out.println("Connected to Server! Player ID is: "+data);
-                    wndConnecting.destroy();
-                    startListening();
-                    break;
-                }
-                if(TimeUtils.millis() - startTime > 10000){
-                    wndConnecting.destroy();
-                    final WndMessage wndSlow = new WndMessage("Connecting... Server is taking a while. Are you connected to the internet?");
-                    PixelScene.showWindow(wndSlow);
+        if (socket != null && !socket.isClosed()) {
+            System.out.println("Failed to connect to server! Already connected.");
+            return;
+        }
+        Dungeon.dataFetcher = new DataFetcher();
+
+        final WndMessage wndConnecting = new WndMessage("Connecting...");
+        PixelScene.showWindow(wndConnecting);
+
+        final int finalPort = port;
+        final String finalIp = ip;
+
+        Thread connectThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    socket = new Socket(finalIp, finalPort);
+                    out = new PrintWriter(socket.getOutputStream(), true);
+                    in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+                    String serverOK;
+                    while ((serverOK = in.readLine()) != null) {
+                        String[] parts = serverOK.split(":", 2);
+                        String heading = parts[0];
+                        String data = parts[1];
+
+                        if (heading.equals("NEWCONNECT")) {
+                            String[] nameParts = data.split("=", 2);
+                            String id = nameParts[0];
+                            String name = nameParts[1];
+                            self = new Player(id, name);
+                            players.add(self);
+                            System.out.println("Connected to Server! Player ID is: " + data);
+
+                            Gdx.app.postRunnable(new Runnable() {
+                                @Override
+                                public void run() {
+                                    wndConnecting.destroy();
+                                }
+                            });
+
+                            startListening();
+                            break;
+                        }
+                    }
+                } catch (Exception e) {
+                    System.err.println("Connection handshake failed: " + e.getMessage());
+                    Gdx.app.postRunnable(new Runnable() {
+                        @Override
+                        public void run() {
+                            wndConnecting.destroy();
+                        }
+                    });
                 }
             }
-        } else {
-            System.out.println("Failed to connect to server! Already connected.");
-        }
+        });
+        connectThread.setDaemon(true);
+        connectThread.start();
     }
 
     public boolean isConnected(){return (socket!=null);}
@@ -131,24 +157,31 @@ public enum NetworkManager {
         Thread keepAlive = new Thread(new Runnable() {
             @Override
             public void run() {
+                int missedPongs = 0;
                 while (isListening) {
                     try {
                         send("PING:");
-                        Thread.sleep(10000); // wait 10s then check if we got a response
+                        Thread.sleep(5000);
 
                         long timeSinceLastPong = System.currentTimeMillis() - lastPongReceived;
-                        if (timeSinceLastPong > 15000) {
-                            System.err.println("Keepalive timed out — no PONG in " + timeSinceLastPong + "ms. Disconnecting.");
-                            disconnect();
-                            if (onDisconnected != null) {
-                                Gdx.app.postRunnable(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        onDisconnected.run();
-                                    }
-                                });
+                        if (timeSinceLastPong > 7000) {
+                            missedPongs++;
+                            System.err.println("Missed pong " + missedPongs + "/3");
+                            if (missedPongs >= 3) {
+                                System.err.println("3 missed pongs — disconnecting.");
+                                disconnect();
+                                if (onDisconnected != null) {
+                                    Gdx.app.postRunnable(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            onDisconnected.run();
+                                        }
+                                    });
+                                }
+                                break;
                             }
-                            break;
+                        } else {
+                            missedPongs = 0; //reset if we got a pong
                         }
                     } catch (Exception e) {
                         System.err.println("Keepalive thread error: " + e.getMessage());
@@ -169,7 +202,6 @@ public enum NetworkManager {
 
         if (header.equals("PONG")) {
             lastPongReceived = System.currentTimeMillis();
-            System.out.println("Pong received.");
         }
 
         else if (header.equals("EVENT")) {
@@ -232,7 +264,7 @@ public enum NetworkManager {
                 }
             }
         }
-        else if (header.equals("LISTLOBBY")) {
+        else if (header.equals("LISTLOBBY")) { // for when outside a lobby. Some data can just not be sent.
             System.out.println("Caught lobby list: " + data);
             LinkedHashMap<String, Lobby> parsedLobbies = new LinkedHashMap();
             String[] lobbyEntries = data.split(";");
@@ -291,7 +323,25 @@ public enum NetworkManager {
 
             System.out.println("LOBBIES: " + parsedLobbies);
         }
-        else if (header.equals("INFOLOBBY")) {
+        else if (header.equals("CREATENOTIFY")) {
+            // data = the new lobby's ID assigned by the server
+            String newLobbyID = data;
+            Lobby newLobby = new Lobby(newLobbyID, false, false, new ArrayList<String>(), new ArrayList<String>(), 1, 4);
+            newLobby.setID(newLobbyID);
+            lobbies.put(newLobbyID, newLobby);
+            self.setLobby(newLobby);
+            joinLobby(newLobbyID);
+
+            if (onLobbyCreated != null) {
+                Gdx.app.postRunnable(new Runnable() {
+                    @Override
+                    public void run() {
+                        onLobbyCreated.run();
+                    }
+                });
+            }
+        }
+        else if (header.equals("INFOLOBBY")) { // for when youre in a lobby, get more info
             JsonObject obj = JsonParser.parseString(data).getAsJsonObject();
             String lobbyID = obj.get("id").getAsString();
             String lobbyName = obj.get("name").getAsString();
@@ -528,6 +578,7 @@ public enum NetworkManager {
     public void setDisconnectedCallback(Runnable callback) {
         this.onDisconnected = callback;
     }
+    public void setLobbyCreatedCallback(Runnable callback) { this.onLobbyCreated = callback; }
 
 
     public void createLobby(String lobbyName, String lobbyPassword){

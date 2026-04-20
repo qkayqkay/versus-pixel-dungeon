@@ -1,12 +1,10 @@
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
 import com.shatteredpixel.shatteredpixeldungeon.Chrome;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.networking.NetworkManager;
-import com.shatteredpixel.shatteredpixeldungeon.ui.CheckBox;
-import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
-import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
-import com.shatteredpixel.shatteredpixeldungeon.ui.StyledButton;
+import com.shatteredpixel.shatteredpixeldungeon.ui.*;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.TextInput;
@@ -32,6 +30,8 @@ public class LoginScene extends PixelScene {
         w = (int) (Camera.main.width - insets.left + insets.right);
         h = (int) (Camera.main.height - insets.top + insets.bottom);
 
+        TitleBackground BG = new TitleBackground( Camera.main.width, Camera.main.height);
+        add( BG );
 
         RenderedTextBlock title = renderTextBlock( Messages.get(this, "title"), 12 );
         add(title);
@@ -46,6 +46,7 @@ public class LoginScene extends PixelScene {
 
 
         TextInput passwordInput = new TextInput(Chrome.get(Chrome.Type.TOAST_WHITE), false, 8,  uiCamera.zoom);
+        passwordInput.setPasswordMode(true);
         add(passwordInput);
 
         TextInput usernameInput = new TextInput(Chrome.get(Chrome.Type.TOAST_WHITE), false, 8,  uiCamera.zoom);
@@ -68,6 +69,7 @@ public class LoginScene extends PixelScene {
                             @Override
                             public void run() {
                                 NetworkManager.INSTANCE.self.setName(usernameInput.getText());
+                                NetworkManager.INSTANCE.self.setGuestStatus(false);
                                 Game.switchScene(JoinScene.class);
                             }
                         },
@@ -90,7 +92,7 @@ public class LoginScene extends PixelScene {
         StyledButton btnBack = new StyledButton(Chrome.Type.GREY_BUTTON_TR, "") {
             @Override
             protected void onClick() {
-                Game.switchScene(TitleScene.class);
+                ShatteredPixelDungeon.switchNoFade(AccountOptionsScene.class);
 
             }
         };

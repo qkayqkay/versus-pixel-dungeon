@@ -1,28 +1,14 @@
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
 import com.shatteredpixel.shatteredpixeldungeon.*;
-import com.shatteredpixel.shatteredpixeldungeon.effects.BadgeBanner;
-import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
-import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
-import com.shatteredpixel.shatteredpixeldungeon.items.Amulet;
-import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
-import com.shatteredpixel.shatteredpixeldungeon.networking.DataFetcher;
 import com.shatteredpixel.shatteredpixeldungeon.networking.Lobby;
 import com.shatteredpixel.shatteredpixeldungeon.networking.NetworkManager;
-import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
-import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.ui.*;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndTextInput;
-import com.shatteredpixel.shatteredpixeldungeon.windows.WndUseItem;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.Game;
-import com.watabou.noosa.Image;
-import com.watabou.noosa.TextInput;
-import com.watabou.noosa.audio.Music;
-import com.watabou.noosa.tweeners.Delayer;
 import com.watabou.noosa.ui.Component;
-import com.watabou.utils.Random;
 import com.watabou.utils.RectF;
 
 import java.util.LinkedHashMap;
@@ -45,7 +31,7 @@ public class JoinScene extends PixelScene{
         inGameScene = true;
     }
 
-    StyledButton setName = null;
+    StyledButton btnRefresh = null;
     StyledButton btnCreate = null;
     StyledButton btnReturn = null;
 
@@ -68,6 +54,11 @@ public class JoinScene extends PixelScene{
         w = (int) (Camera.main.width - insets.left + insets.right);
         h = (int) (Camera.main.height - insets.top + insets.bottom);
 
+
+
+        TitleBackground BG = new TitleBackground( Camera.main.width, Camera.main.height);
+        add( BG );
+
         RenderedTextBlock title = null;
         title = renderTextBlock( Messages.get(this, "text"), 8 );
         title.maxWidth( PixelScene.landscape() ? 2*WIDTH-4 : WIDTH);
@@ -75,32 +66,27 @@ public class JoinScene extends PixelScene{
 
 
 
-        setName = new StyledButton(Chrome.Type.GREY_BUTTON_TR, Messages.get(this, "join_server") ) {
+        btnRefresh = new StyledButton(Chrome.Type.GREY_BUTTON_TR, Messages.get(this, "refresh") ) {
             @Override
             protected void onClick() {
-                WndTextInput nameInput = new WndTextInput(
-                        Messages.get(this, "nametitle"),
-                        Messages.get(this, "namedesc"),
-                        "",
-                        12,
-                        false,
-                        Messages.get(CustomNoteButton.CustomNoteWindow.class, "confirm"),
-                        Messages.get(CustomNoteButton.CustomNoteWindow.class, "cancel")) {
+                NetworkManager.INSTANCE.listLobbies(new Consumer<LinkedHashMap<String, Lobby>>() {
                     @Override
-                    public void onSelect(boolean positive, String text) {
-                        if (positive) {
-                            NetworkManager.INSTANCE.self.setName(text);
-
-                        }
+                    public void accept(LinkedHashMap<String, Lobby> result) {
+                        Gdx.app.postRunnable(new Runnable() {
+                            @Override
+                            public void run() {
+                                refreshLobbyMenu(result);
+                                refreshLobbyButtons();
+                            }
+                        });
                     }
-                };
-
+                });
             }
         };
 
-        setName.icon(Icons.NEWS.get());
-        setName.setSize( WIDTH, BTN_HEIGHT );
-        add( setName );
+        btnRefresh.icon(Icons.NEWS.get());
+        btnRefresh.setSize( WIDTH, BTN_HEIGHT );
+        add(btnRefresh);
 
 
         btnCreate = new StyledButton(Chrome.Type.GREY_BUTTON_TR, Messages.get(this, "create_server") ) {
@@ -123,7 +109,7 @@ public class JoinScene extends PixelScene{
             protected void onClick() {
                 btnReturn.enable(false);
                 System.out.println("Return to title button pressed");
-                Game.switchScene(TitleScene.class);
+                ShatteredPixelDungeon.switchNoFade(AccountOptionsScene.class);
 
             }
         };
@@ -136,9 +122,9 @@ public class JoinScene extends PixelScene{
 
 
         title.setPos((w-title.width())/2, 30) ;
-        btnCreate.setPos(w/6-setName.width()/2, h-30);
-        setName.setPos(w/2-setName.width()/2, h-30);
-        btnReturn.setPos(5*w/6-setName.width()/2, h-30);
+        btnCreate.setPos(w/6- btnRefresh.width()/2, h-30);
+        btnRefresh.setPos(w/2- btnRefresh.width()/2, h-30);
+        btnReturn.setPos(5*w/6- btnRefresh.width()/2, h-30);
 
         lobbyList = new ScrollPane(new Component());
         add(lobbyList);

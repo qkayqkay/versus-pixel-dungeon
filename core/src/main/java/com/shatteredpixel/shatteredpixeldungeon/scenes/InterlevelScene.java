@@ -29,8 +29,10 @@ import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.effects.ShadowBox;
+import com.shatteredpixel.shatteredpixeldungeon.items.EquipableItem;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.LostBackpack;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.SkeletonKey;
@@ -79,7 +81,7 @@ public class InterlevelScene extends PixelScene {
 	private static float fadeTime;
 	
 	public enum Mode {
-		DESCEND, ASCEND, CONTINUE, RESURRECT, RETURN, FALL, RESET, NONE
+		DESCEND, ASCEND, CONTINUE, RESURRECT, MULTIPLAYER_RESPAWN, RETURN, FALL, RESET, NONE
 	}
 	public static Mode mode;
 
@@ -431,6 +433,9 @@ public class InterlevelScene extends PixelScene {
 								break;
 							case RESURRECT:
 								resurrect();
+								break;
+							case MULTIPLAYER_RESPAWN:
+								multiplayerRespawn();
 								break;
 							case RETURN:
 								returnTo();
@@ -800,6 +805,48 @@ public class InterlevelScene extends PixelScene {
 		Notes.add(Notes.Landmark.LOST_PACK);
 
 		Dungeon.switchLevel( level, Dungeon.hero.pos );
+	}
+
+	private void multiplayerRespawn() {
+		System.out.println("Respawning!");
+		for (Item item : Dungeon.hero.belongings) {
+			item.keptThoughLostInvent = false;
+		}
+		Mob.holdAllies(Dungeon.level);
+
+		Level level = Dungeon.level;
+		BArray.setFalse(level.heroFOV);
+		BArray.setFalse(level.visited);
+		BArray.setFalse(level.mapped);
+
+		// Restore health and bring hero back to life
+		Dungeon.hero.HP = Dungeon.hero.HT;
+		Dungeon.hero.live();
+
+		// Re-activate all equipped items properly
+		for (Item item : Dungeon.hero.belongings) {
+			if (item instanceof EquipableItem && item.isEquipped(Dungeon.hero)) {
+				((EquipableItem) item).activate(Dungeon.hero);
+			}
+		}
+
+		Buff.affect(Dungeon.hero, Invisibility.class, 3f);
+
+		int tries = 0;
+		int invPos = Dungeon.hero.pos;
+		do {
+			Dungeon.hero.pos = level.randomRespawnCell(Dungeon.hero);
+			tries++;
+		} while (level.traps.get(Dungeon.hero.pos) != null
+				|| (level.plants.get(Dungeon.hero.pos) != null && tries < 500)
+				|| level.trueDistance(invPos, Dungeon.hero.pos) <= 30 - (tries / 10));
+
+		if (level.map[Dungeon.hero.pos] == Terrain.HIGH_GRASS
+				|| level.map[Dungeon.hero.pos] == Terrain.FURROWED_GRASS) {
+			level.map[Dungeon.hero.pos] = Terrain.GRASS;
+		}
+
+		Dungeon.switchLevel(level, Dungeon.hero.pos);
 	}
 
 	private void reset() throws IOException {

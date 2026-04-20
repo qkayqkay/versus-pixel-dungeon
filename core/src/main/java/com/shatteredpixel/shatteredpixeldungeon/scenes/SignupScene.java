@@ -1,11 +1,14 @@
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
+import com.badlogic.gdx.utils.Align;
 import com.shatteredpixel.shatteredpixeldungeon.Chrome;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.networking.NetworkManager;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.StyledButton;
+import com.shatteredpixel.shatteredpixeldungeon.ui.TitleBackground;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.TextInput;
@@ -30,6 +33,9 @@ public class SignupScene extends PixelScene {
         w = (int) (Camera.main.width - insets.left + insets.right);
         h = (int) (Camera.main.height - insets.top + insets.bottom);
 
+        TitleBackground BG = new TitleBackground( Camera.main.width, Camera.main.height);
+        add( BG );
+
         RenderedTextBlock title = renderTextBlock(Messages.get(this, "title"), 12);
         add(title);
 
@@ -48,9 +54,11 @@ public class SignupScene extends PixelScene {
 
 
         TextInput passwordInput = new TextInput(Chrome.get(Chrome.Type.TOAST_WHITE), false, 8, uiCamera.zoom);
+        passwordInput.setPasswordMode(true);
         add(passwordInput);
 
         TextInput confirmPasswordInput = new TextInput(Chrome.get(Chrome.Type.TOAST_WHITE), false, 8, uiCamera.zoom);
+        confirmPasswordInput.setPasswordMode(true);
         add(confirmPasswordInput);
 
         TextInput usernameInput = new TextInput(Chrome.get(Chrome.Type.TOAST_WHITE), false, 8, uiCamera.zoom);
@@ -60,7 +68,8 @@ public class SignupScene extends PixelScene {
             @Override
             protected void onClick() {
                 if (!passwordInput.getText().equals(confirmPasswordInput.getText())) {
-                    errorText.text(Messages.get(this, "passwords_dont_match"));
+                    errorText.text(Messages.get(SignupScene.class, "passwords_dont_match"));
+                    errorText.setPos((w - errorText.width()) / 2, 185);
                     return;
                 }
                 btnSignup.enable(false);
@@ -71,6 +80,7 @@ public class SignupScene extends PixelScene {
                             @Override
                             public void run() {
                                 NetworkManager.INSTANCE.self.setName(usernameInput.getText());
+                                NetworkManager.INSTANCE.self.setGuestStatus(false);
                                 Game.switchScene(JoinScene.class);
                             }
                         },
@@ -79,6 +89,8 @@ public class SignupScene extends PixelScene {
                             public void accept(String reason) {
                                 btnSignup.enable(true);
                                 errorText.text(Messages.get(SignupScene.this, reason)); // reason eg "usertaken"
+                                errorText.setPos((w - errorText.width()) / 2, 185);
+                                System.out.println("Reason is: "+reason);
                             }
                         }
                 );
@@ -90,7 +102,7 @@ public class SignupScene extends PixelScene {
         StyledButton btnBack = new StyledButton(Chrome.Type.GREY_BUTTON_TR, "") {
             @Override
             protected void onClick() {
-                Game.switchScene(TitleScene.class);
+                ShatteredPixelDungeon.switchNoFade(AccountOptionsScene.class);
             }
         };
         btnBack.icon(Icons.EXIT.get());
@@ -115,7 +127,7 @@ public class SignupScene extends PixelScene {
         passwordInput.setPos(centerX + spacing - 40, 110 - passwordInput.height() / 2);
         confirmPasswordInput.setPos(centerX + spacing - 40, 150 - confirmPasswordInput.height() / 2);
 
-        errorText.setPos((w - errorText.width()) / 2, 185);
+        errorText.setPos(w/2, 185);
 
         btnSignup.setPos((w - btnSignup.width()) / 2, h - 30);
         btnBack.setPos(w - btnBack.width() - insets.right, insets.top);

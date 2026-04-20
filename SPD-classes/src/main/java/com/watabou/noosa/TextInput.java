@@ -370,6 +370,11 @@ public class TextInput extends Component {
 		textField.copy();
 	}
 
+	public void setPasswordMode(boolean mode){
+		this.textField.setPasswordMode(mode);
+		this.textField.setPasswordCharacter('*');
+	}
+
 	public void pasteFromClipboard(){
 		String contents = Gdx.app.getClipboard().getContents();
 		if (contents == null) return;

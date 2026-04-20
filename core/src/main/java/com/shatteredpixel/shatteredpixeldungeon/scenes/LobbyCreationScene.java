@@ -57,19 +57,26 @@ public class LobbyCreationScene extends PixelScene{
 
 
         CheckBox checkBox = new CheckBox("X");
+        checkBox.checked(false);
+        checkBox.active = true;
         checkBox.setPos(3*w/4, 100);
+        //checkBox.setRect(3*w/4, 100, 150, 150);
         add(checkBox);
 
 
-        btnCreate = new StyledButton(Chrome.Type.GREY_BUTTON_TR, Messages.get(this, "create") ) {
+        btnCreate = new StyledButton(Chrome.Type.GREY_BUTTON_TR, Messages.get(this, "create")) {
             @Override
             protected void onClick() {
                 btnCreate.enable(false);
-                System.out.println("Name: "+nameInput.getText()+" and password: "+passwordInput.getText());
+                NetworkManager.INSTANCE.setLobbyCreatedCallback(new Runnable() {
+                    @Override
+                    public void run() {
+                        // The JOINNOTIFY handler will switch to InLobbyScene once the join succeeds.
+                        // Nothing extra needed here, but you could show a loading state, etc.
+                    }
+                });
                 NetworkManager.INSTANCE.createLobby(nameInput.getText(), passwordInput.getText());
-                //NetworkManager.INSTANCE.self.setLobby() TODO
-                Game.switchScene(JoinScene.class);
-
+                Game.switchScene(LobbyWaitScene.class); // blank scene to wait in
             }
         };
         btnCreate.icon(Icons.STAIRS.get());

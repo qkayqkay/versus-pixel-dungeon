@@ -16,9 +16,7 @@ public class StartFreeze extends FlavourBuff {
     @Override
     public boolean attachTo(Char target) {
         if (super.attachTo(target)) {
-            System.out.println("Attatching!");
             target.rooted = true;
-            //spend(TICK);
             return true;
         } else {
             return false;

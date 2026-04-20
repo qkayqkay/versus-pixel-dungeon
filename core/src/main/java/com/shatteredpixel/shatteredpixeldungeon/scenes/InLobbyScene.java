@@ -123,7 +123,22 @@ public class  InLobbyScene extends PixelScene {
         btnReturn.setPos(w - 25, 0);
         add(btnReturn);
 
-        chatField = new TextInput(Chrome.get(Chrome.Type.TOAST_WHITE), false, 6,  uiCamera.zoom);
+        chatField = new TextInput(Chrome.get(Chrome.Type.TOAST_WHITE), false, 6,  uiCamera.zoom){
+            @Override
+            public void onKeyTyped(char c) {
+                if (c == '\r' || c == '\n') {
+                    enterPressed();
+                }
+            }
+            @Override
+            public void enterPressed() {
+                String msg = getText();
+                if (!msg.equals("")) {
+                    NetworkManager.INSTANCE.sendMessage(msg);
+                    clearText();
+                }
+            }
+        };
         chatField.setSize(chatPanel.width()-5, 25);
         chatField.setPos(chatPanel.x+(chatPanel.width()-chatField.width())/2,chatPanel.y+chatPanel.height()-chatField.height()-30);
         add(chatField);
@@ -183,6 +198,8 @@ public class  InLobbyScene extends PixelScene {
         updateReadyButton();
         fadeIn();
     }
+
+
 
 
     private void updateReadyButton() {

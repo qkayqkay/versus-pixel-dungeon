@@ -72,6 +72,9 @@ public class TitleScene extends PixelScene {
 	private IconButton btnFade;
 	private ExitButton btnExit;
 
+	String ip = "127.0.0.1";
+	int port = 6000;
+
 	@Override
 	public void create() {
 		
@@ -295,7 +298,7 @@ public class TitleScene extends PixelScene {
 		fadeIn();
 
 		if(!NetworkManager.INSTANCE.isConnected()){
-			WndTextInput ipPortInput = new WndTextInput(
+			/*WndTextInput ipPortInput = new WndTextInput(
 					Messages.get(this, "ip_port_title"),
 					Messages.get(this, "ip_port_desc"),
 					"",
@@ -307,7 +310,7 @@ public class TitleScene extends PixelScene {
 				public void onSelect(boolean positive, String text){
 					String[] parts = text.split(":");
 					String ip = parts[0];
-					int port = Integer.parseInt(parts[1]);
+					int port = Integer.parseInt(parts[1]);*/
 					try {
 						NetworkManager.INSTANCE.setDisconnectedCallback(new Runnable() {
 							@Override
@@ -333,9 +336,9 @@ public class TitleScene extends PixelScene {
 							}
 						});
 					}
-				}
+				/*}
 			};
-			add(ipPortInput);
+			add(ipPortInput);*/
 		}
 	}
 

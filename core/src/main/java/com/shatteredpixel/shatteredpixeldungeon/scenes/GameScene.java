@@ -36,10 +36,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AscensionChallenge;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ChampionEnemy;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.StartFreeze;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.*;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DemonSpawner;
@@ -206,6 +203,8 @@ public class GameScene extends PixelScene {
 	public RenderedTextBlock countdown;
 	private long lastDisplayedSecond = -1;
 	public StartFreeze freeze;
+	private RenderedTextBlock respawnText;
+	private long lastRespawnSecond = -1;
 
 	private Signal.Listener<KeyEvent> chatKeyListener;
 	static ChatTab chatTab;
@@ -786,7 +785,7 @@ public class GameScene extends PixelScene {
 				if ( event.pressed && KeyBindings.getActionForKey( event ) == SPDAction.OPEN_CHAT ) {
 					scene.chatOpen = true;
 					System.out.println("Chat opened!");
-					chatTab = new ChatTab(5, uiCamera.zoom);
+					chatTab = new ChatTab(7, uiCamera.zoom);
 					chatTab.camera = uiCamera;
 					add(chatTab);
 
@@ -996,6 +995,9 @@ public class GameScene extends PixelScene {
 
 
 
+		int uw = uiCamera.width;
+		int uh = uiCamera.height;
+
 		if (NetworkManager.INSTANCE.freezeUntil > 0) {
 			freeze.setEndTime(NetworkManager.INSTANCE.freezeUntil);
 			NetworkManager.INSTANCE.freezeUntil = -1; // reset so it doesn't reapply
@@ -1007,17 +1009,38 @@ public class GameScene extends PixelScene {
 				freeze.detach();
 				System.out.println("Detaching!");
 				GameTimer gametimer = new GameTimer();
-				gametimer.setPos(5, 5);
+				gametimer.setPos(0, 0);
 				gametimer.camera = uiCamera;
 				add(gametimer);
-
-
 			}
-		}
-		RectF insets = Game.platform.getSafeInsets(PlatformSupport.INSET_BLK).scale(1f / defaultZoom);
+			RespawnCountdown respawn = Dungeon.hero.buff(RespawnCountdown.class);
+			if (respawn != null) {
+				if (respawn.getEndTime() < Game.realTime) {
+					respawn.detach();
+					if (respawnText != null) {
+						remove(respawnText);
+						respawnText.destroy();
+						respawnText = null;
+					}
+					lastRespawnSecond = -1;
+				} else {
+					long timeLeft = (respawn.getEndTime() - Game.realTime) / 1000;
+					if (timeLeft != lastRespawnSecond) {
+						lastRespawnSecond = timeLeft;
+						if (respawnText != null) {
+							remove(respawnText);
+							respawnText.destroy();
+						}
+						respawnText = PixelScene.renderTextBlock("Respawning in: " + timeLeft + "s", 12);
+						respawnText.camera = uiCamera;
+						respawnText.maxWidth(120);
+						respawnText.setPos((uw-respawnText.width()) / 2f, (uh - respawnText.height()) / 2f);
+						add(respawnText);
+					}
+				}
+			}
 
-		float uw = uiCamera.width;
-		float uh = uiCamera.height;
+		}
 
 		if (!NetworkManager.INSTANCE.shouldCountdown) {
 			if (countdown == null) {

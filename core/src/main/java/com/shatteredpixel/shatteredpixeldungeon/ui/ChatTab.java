@@ -29,7 +29,6 @@ public class ChatTab extends TextInput {
     public void onKeyTyped(char c) {
         if (c == '\r' || c == '\n') {
             enterPressed();
-
         }
     }
 

@@ -1,6 +1,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
 import com.shatteredpixel.shatteredpixeldungeon.Chrome;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.networking.NetworkManager;
 import com.shatteredpixel.shatteredpixeldungeon.ui.*;
@@ -27,6 +28,9 @@ public class AccountOptionsScene extends PixelScene{
         w = (int) (Camera.main.width - insets.left + insets.right);
         h = (int) (Camera.main.height - insets.top + insets.bottom);
 
+        TitleBackground BG = new TitleBackground( Camera.main.width, Camera.main.height);
+        add( BG );
+
         RenderedTextBlock title = PixelScene.renderTextBlock(Messages.get(AccountOptionsScene.class, "title"), 12);
         title.setSize(30, 15);
         title.setPos((w - title.width()) / 2, 10 + insets.top);
@@ -36,7 +40,7 @@ public class AccountOptionsScene extends PixelScene{
             @Override
             protected void onClick() {
                 super.onClick();
-                Game.switchScene(LoginScene.class);
+                ShatteredPixelDungeon.switchNoFade(LoginScene.class);
             }
         };
         loginBtn.setSize(90, 20);
@@ -49,7 +53,7 @@ public class AccountOptionsScene extends PixelScene{
             @Override
             protected void onClick() {
                 super.onClick();
-                Game.switchScene(SignupScene.class);
+                ShatteredPixelDungeon.switchNoFade(SignupScene.class);
             }
         };
         signupBtn.setSize(90, 20);
@@ -62,13 +66,24 @@ public class AccountOptionsScene extends PixelScene{
             @Override
             protected void onClick() {
                 super.onClick();
-                //NetworkManager.INSTANCE.self.
+                ShatteredPixelDungeon.switchNoFade(JoinScene.class); // AFAIK, nothing more is needed.
             }
         };
         guestBtn.setSize(90, 20);
         y += (signupBtn.height()/2)+gap;
         guestBtn.setPos((w-guestBtn.width())/2, y);
-        //add(guestBtn); shhhh im working on it
+        add(guestBtn);
+
+        StyledButton btnBack = new StyledButton(Chrome.Type.GREY_BUTTON_TR, "") {
+            @Override
+            protected void onClick() {
+                ShatteredPixelDungeon.switchNoFade(TitleScene.class);
+            }
+        };
+        btnBack.icon(Icons.EXIT.get());
+        btnBack.setSize(20, 20);
+        btnBack.setPos(w-btnBack.width(), 0);
+        add(btnBack);
 
     }
 

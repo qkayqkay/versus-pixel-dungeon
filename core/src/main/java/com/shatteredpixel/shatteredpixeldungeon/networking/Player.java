@@ -10,6 +10,7 @@ public class Player {
     public boolean isReadied = false;
     public HeroClass cl;
     private int level = 0; // touch this and system32 implodes.
+    private boolean isGuest = true; // this becomes false if you login or sign up.
 
 
     public Player(String ID, String name){
@@ -28,7 +29,7 @@ public class Player {
 
     public boolean isInGame() { return inGame; }
     public Lobby getLobby() { return lobby; }
-
+    public void setGuestStatus(boolean status) { isGuest = status; };
     public void changeLevel(int newlevel) { this.level = newlevel; }
     public void setInGame(boolean inGame) { this.inGame = inGame; }
     public void setLobby(Lobby lobby) { this.lobby = lobby; }
