@@ -42,6 +42,7 @@ public enum NetworkManager {
     private Runnable onJoinError;
     private Runnable onLevelChanged;
     private Runnable onDisconnected; // callback for when keepalive detects a timeout
+    private Runnable onClassUpdate; // callback for when keepalive detects a timeout
     private Runnable onLoginSuccess;
     private Runnable onLobbyCreated;
 
@@ -263,6 +264,9 @@ public enum NetworkManager {
                     p.cl = heroClass;
                 }
             }
+            if (onClassUpdate != null) {
+                onClassUpdate.run();
+            }
         }
         else if (header.equals("LISTLOBBY")) { // for when outside a lobby. Some data can just not be sent.
             System.out.println("Caught lobby list: " + data);
@@ -364,6 +368,15 @@ public enum NetworkManager {
                 String id = playerObj.get("id").getAsString();
                 String name = playerObj.get("name").getAsString();
 
+                HeroClass heroClass = null;
+                if (playerObj.has("class") && !playerObj.get("class").isJsonNull()) {
+                    try {
+                        heroClass = HeroClass.valueOf(playerObj.get("class").getAsString());
+                    } catch (IllegalArgumentException e) {
+                        heroClass = null;
+                    }
+                }
+
                 Player found = null;
                 for (Player existing : this.players) {
                     if (existing.getID().equals(id)) {
@@ -377,6 +390,7 @@ public enum NetworkManager {
                 } else {
                     found.name = name;
                 }
+                found.setClass(heroClass);
                 lobbyPlayers.add(found);
             }
 
@@ -579,6 +593,9 @@ public enum NetworkManager {
         this.onDisconnected = callback;
     }
     public void setLobbyCreatedCallback(Runnable callback) { this.onLobbyCreated = callback; }
+    public void setClassUpdateCallback(Runnable callback) {
+        this.onClassUpdate = callback;
+    }
 
 
     public void createLobby(String lobbyName, String lobbyPassword){

@@ -2,6 +2,7 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.buffs;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.watabou.noosa.Game;
@@ -71,6 +72,7 @@ public class RespawnCountdown extends FlavourBuff {
     @Override
     public void detach() {
         //target.rooted = false;
+
         System.out.println("RespawnCountdown detached! Stack trace:");
         Thread.currentThread().dumpStack();
         if (target.invisible > 0) target.invisible--;

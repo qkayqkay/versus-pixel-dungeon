@@ -147,7 +147,7 @@ public class GameScene extends PixelScene {
 	private DungeonWallsTilemap walls;
 	private WallBlockingTilemap wallBlocking;
 	private FogOfWar fog;
-	private HeroSprite hero;
+	public HeroSprite hero;
 
 	private MenuPane menu;
 	private StatusPane status;
@@ -1017,6 +1017,7 @@ public class GameScene extends PixelScene {
 			if (respawn != null) {
 				if (respawn.getEndTime() < Game.realTime) {
 					respawn.detach();
+					hero.revive();
 					if (respawnText != null) {
 						remove(respawnText);
 						respawnText.destroy();

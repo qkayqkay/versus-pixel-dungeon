@@ -29,6 +29,7 @@ public class Player {
 
     public boolean isInGame() { return inGame; }
     public Lobby getLobby() { return lobby; }
+    public void setClass(HeroClass cl) { this.cl = cl; }
     public void setGuestStatus(boolean status) { isGuest = status; };
     public void changeLevel(int newlevel) { this.level = newlevel; }
     public void setInGame(boolean inGame) { this.inGame = inGame; }

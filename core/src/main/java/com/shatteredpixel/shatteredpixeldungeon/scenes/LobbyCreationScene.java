@@ -26,6 +26,10 @@ public class LobbyCreationScene extends PixelScene{
     @Override
     public void create() {
         super.create();
+
+        TitleBackground BG = new TitleBackground( Camera.main.width, Camera.main.height);
+        add( BG );
+
         RectF insets = getCommonInsets();
         int w = (int) (Camera.main.width - insets.left + insets.right);
         int h = (int) (Camera.main.height - insets.top + insets.bottom);

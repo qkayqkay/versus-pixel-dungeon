@@ -417,7 +417,7 @@ public class HeroSelectScene extends PixelScene {
 		}
 	}
 
-	private void setSelectedHero(HeroClass cl){
+	public void setSelectedHero(HeroClass cl){
 		GamesInProgress.selectedClass = cl;
 		NetworkManager.INSTANCE.updateClass();
 		GamesInProgress.randomizedClass = false;

@@ -2167,9 +2167,20 @@ public class Hero extends Char {
 		interrupt();
 
 		HP = HT;
-		live();  // revives so buffs can stick
+		Buff.affect(this, Regeneration.class); // these two lines is basically hero.live() but doesnt mess artifacts and energy related stuff up.
+		Buff.affect(this, Hunger.class);
+
 		RespawnCountdown countdown = Buff.affect(this, RespawnCountdown.class);
 		countdown.setEndTime();
+
+		Game.runOnRenderThread(new Callback() {
+			@Override
+			public void call() {
+				Sample.INSTANCE.play( Assets.Sounds.DEATH );
+			}
+		});
+
+		sprite.die();
 
 		if (cause instanceof Hero.Doom) {
 			((Hero.Doom) cause).onDeath();
@@ -2177,7 +2188,7 @@ public class Hero extends Char {
 
 	}
 	
-	public static void reallyDie( Object cause ) {
+	/*public static void reallyDie( Object cause ) {     now useless code.
 		
 		int length = Dungeon.level.length();
 		int[] map = Dungeon.level.map;
@@ -2245,7 +2256,7 @@ public class Hero extends Char {
 		}
 
 		Dungeon.deleteGame( GamesInProgress.curSlot, true );
-	}
+	}*/
 
 	//effectively cache this buff to prevent having to call buff(...) a bunch.
 	//This is relevant because we call isAlive during drawing, which has both performance

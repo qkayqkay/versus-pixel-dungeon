@@ -98,7 +98,6 @@ public class Regeneration extends Buff {
 			spend( TICK );
 			
 		} else {
-			
 			diactivate();
 			
 		}

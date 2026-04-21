@@ -93,7 +93,7 @@ public class JoinScene extends PixelScene{
             @Override
             protected void onClick() {
                 System.out.println("Create lobby button pressed");
-                Game.switchScene(LobbyCreationScene.class);
+                ShatteredPixelDungeon.switchNoFade(LobbyCreationScene.class);
 
             }
         };

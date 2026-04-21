@@ -27,6 +27,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.RespawnCountdown;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Eye;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.NPC;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Beam;
@@ -258,7 +259,8 @@ public class SentryRoom extends SpecialRoom {
 			}
 
 			if (Dungeon.hero != null){
-				if (fieldOfView[Dungeon.hero.pos]
+				if (Dungeon.hero.buff(RespawnCountdown.class) == null &&
+				fieldOfView[Dungeon.hero.pos]
 						&& Dungeon.level.map[Dungeon.hero.pos] == Terrain.EMPTY_SP
 						&& room.inside(Dungeon.level.cellToPoint(Dungeon.hero.pos))
 						&& !Dungeon.hero.belongings.lostInventory()){

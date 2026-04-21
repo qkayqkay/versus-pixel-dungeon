@@ -26,6 +26,8 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.HeroDisguise;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
+import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
+import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.watabou.gltextures.SmartTexture;
 import com.watabou.gltextures.TextureCache;
@@ -33,6 +35,7 @@ import com.watabou.noosa.Camera;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Image;
 import com.watabou.noosa.TextureFilm;
+import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Callback;
 import com.watabou.utils.PointF;
 import com.watabou.utils.RectF;
@@ -61,6 +64,21 @@ public class HeroSprite extends CharSprite {
 			idle();
 		else
 			die();
+	}
+
+	@Override
+	public void die() {
+		sleeping = false;
+		processStateRemoval( State.PARALYSED );
+		play( die );
+		hideEmo();
+	}
+
+	public void revive() {
+		curAnim = null;
+		Sample.INSTANCE.play(Assets.Sounds.BONES);
+		CellEmitter.get(ch.pos).burst(Speck.factory(Speck.RATTLE), 5);
+		idle();
 	}
 
 	public void disguise(HeroClass cls){
