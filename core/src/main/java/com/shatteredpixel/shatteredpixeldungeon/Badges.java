@@ -966,19 +966,19 @@ public class Badges {
 	
 	public static void validateMageUnlock(){
 		if (Statistics.upgradesUsed >= 1 && !isUnlocked(Badge.UNLOCK_MAGE)){
-			displayBadge( Badge.UNLOCK_MAGE );
+			//displayBadge( Badge.UNLOCK_MAGE );
 		}
 	}
 	
 	public static void validateRogueUnlock(){
 		if (Statistics.sneakAttacks >= 10 && !isUnlocked(Badge.UNLOCK_ROGUE)){
-			displayBadge( Badge.UNLOCK_ROGUE );
+			//displayBadge( Badge.UNLOCK_ROGUE );
 		}
 	}
 	
 	public static void validateHuntressUnlock(){
 		if (Statistics.thrownAttacks >= 10 && !isUnlocked(Badge.UNLOCK_HUNTRESS)){
-			displayBadge( Badge.UNLOCK_HUNTRESS );
+			//displayBadge( Badge.UNLOCK_HUNTRESS );
 		}
 	}
 
@@ -990,18 +990,18 @@ public class Badges {
 
 			if (Dungeon.hero.belongings.weapon.isIdentified() &&
 					((MeleeWeapon) Dungeon.hero.belongings.weapon).STRReq() <= Dungeon.hero.STR()) {
-				displayBadge(Badge.UNLOCK_DUELIST);
+				//displayBadge(Badge.UNLOCK_DUELIST);
 
 			} else if (!Dungeon.hero.belongings.weapon.isIdentified() &&
 					((MeleeWeapon) Dungeon.hero.belongings.weapon).STRReq(0) <= Dungeon.hero.STR()){
-				displayBadge(Badge.UNLOCK_DUELIST);
+				//displayBadge(Badge.UNLOCK_DUELIST);
 			}
 		}
 	}
 
 	public static void validateClericUnlock(){
 		if (!isUnlocked(Badge.UNLOCK_CLERIC)){
-			displayBadge( Badge.UNLOCK_CLERIC );
+			//displayBadge( Badge.UNLOCK_CLERIC );
 		}
 	}
 	

@@ -29,10 +29,9 @@ public class RespawnCountdown extends FlavourBuff {
     @Override
     public boolean attachTo(Char target) {
         if (super.attachTo(target)) {
-            //target.rooted = true;
             System.out.println("Attaching!");
 
-
+            target.HP = target.HT;
             target.invisible++;
             target.paralysed++;
             target.next();
@@ -59,6 +58,7 @@ public class RespawnCountdown extends FlavourBuff {
 
     @Override
     public boolean act() {
+        target.HP = target.HT;
         /*if (endTime != -1 && Game.realTime >= endTime) {
             System.out.println("Condition met!");
             detach();
@@ -71,10 +71,7 @@ public class RespawnCountdown extends FlavourBuff {
 
     @Override
     public void detach() {
-        //target.rooted = false;
 
-        System.out.println("RespawnCountdown detached! Stack trace:");
-        Thread.currentThread().dumpStack();
         if (target.invisible > 0) target.invisible--;
         if (target.paralysed > 0) target.paralysed--;
         Buff.affect( target, Invisibility.class, 2 );

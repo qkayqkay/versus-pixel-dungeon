@@ -721,7 +721,7 @@ public class GameScene extends PixelScene {
 		}
 
 		//Tutorial
-		if (SPDSettings.intro()){
+		/*if (SPDSettings.intro()){ am skipping this bc ion need a tutorial
 
 			if (Document.ADVENTURERS_GUIDE.isPageFound(Document.GUIDE_INTRO)){
 				GameScene.flashForDocument(Document.ADVENTURERS_GUIDE, Document.GUIDE_INTRO);
@@ -738,7 +738,7 @@ public class GameScene extends PixelScene {
 			toolbar.visible = toolbar.active = false;
 			status.visible = status.active = false;
 			if (inventory != null) inventory.visible = inventory.active = false;
-		}
+		}*/
 
 		if (!SPDSettings.intro() &&
 				Rankings.INSTANCE.totalNumber > 0 &&
@@ -1007,7 +1007,6 @@ public class GameScene extends PixelScene {
 			StartFreeze freeze = Dungeon.hero.buff(StartFreeze.class);
 			if (freeze != null && freeze.shouldDetach()) {
 				freeze.detach();
-				System.out.println("Detaching!");
 				GameTimer gametimer = new GameTimer();
 				gametimer.setPos(0, 0);
 				gametimer.camera = uiCamera;
