@@ -774,6 +774,11 @@ public class GameScene extends PixelScene {
 			System.out.println("\n\n\nShould freeze!\n\n\n");
 			freeze = Buff.affect(Dungeon.hero, StartFreeze.class);
 			NetworkManager.INSTANCE.shouldFreeze = false;
+		} else if (Dungeon.hero.buff(StartFreeze.class) == null) {
+			GameTimer gametimer = new GameTimer();
+			gametimer.setPos(0, 0);
+			gametimer.camera = uiCamera;
+			add(gametimer);
 		}
 
 		int w = (int) (Camera.main.width - insets.left + insets.right);

@@ -15,7 +15,7 @@ allprojects {
         appPackageName = 'com.versuspixel.versuspixeldungeon'
 
         appVersionCode = 896
-        appVersionName = '0.0.2'
+        appVersionName = '0.1.0'
 
         appJavaCompatibility = JavaVersion.VERSION_11
 

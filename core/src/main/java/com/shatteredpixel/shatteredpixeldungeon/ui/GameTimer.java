@@ -14,18 +14,28 @@ public class GameTimer extends Component {
     public static GameTimer instance;
 
     private RenderedTextBlock timerText;
-    private float elapsed = 0;
-    private boolean stopped;
-    private boolean paused;
+    private static long startTimeMs = -1;  // time when timer began
+    private static long pausedAtMs = -1;   // when we paused
+    private static long totalPausedMs = 0; // total ms spent paused
+    private boolean stopped = false;
 
-    public GameTimer(float initialTime) {
+    public GameTimer(float initialTimeSeconds) {
         instance = this;
-        this.elapsed = initialTime;
+        if (startTimeMs == -1) { // set the starttime
+            startTimeMs = System.currentTimeMillis() - (long)(initialTimeSeconds * 1000);
+        }
     }
 
-    public GameTimer(){
+    public GameTimer() {
         this(0f);
     }
+
+    public float getElapsedSeconds() {
+        if (startTimeMs == -1) return 0f;
+        long now = (pausedAtMs != -1) ? pausedAtMs : System.currentTimeMillis();
+        return (now - startTimeMs - totalPausedMs) / 1000f;
+    }
+
     @Override
     protected void createChildren() {
         timerText = PixelScene.renderTextBlock("", 9);
@@ -40,39 +50,44 @@ public class GameTimer extends Component {
     @Override
     public void update() {
         super.update();
-        if(!paused) {
-            elapsed += Game.elapsed;
-        }
+        float elapsed = getElapsedSeconds();
 
-        int hours = (int)(elapsed/3600);
-        int minutes = (int)(elapsed / 60);
+        int hours   = (int)(elapsed / 3600);
+        int minutes = (int)((elapsed % 3600) / 60);
         int seconds = (int)(elapsed % 60);
 
         timerText.text(String.format("%02dh:%02dm:%02ds", hours, minutes, seconds));
         layout();
     }
 
-    public float getGameTime(){
-        return elapsed;
+    public float getGameTime() {
+        return getElapsedSeconds();
     }
 
-    public void pauseTimer(){
-        paused = true;
-    }
-
-    public boolean resumeTimer(){
-        if(!stopped){
-            paused = false;
-            return true; //unpausing was successful
-        }
-        else{
-            return false; // timer was already stopped
+    public void pauseTimer() {
+        if (pausedAtMs == -1) {
+            pausedAtMs = System.currentTimeMillis();
         }
     }
 
-    public float stopTimer(){
+    public boolean resumeTimer() {
+        if (stopped) return false;
+        if (pausedAtMs != -1) {
+            totalPausedMs += System.currentTimeMillis() - pausedAtMs;
+            pausedAtMs = -1;
+        }
+        return true;
+    }
+
+    public float stopTimer() {
+        float elapsed = getElapsedSeconds();
         stopped = true;
         return elapsed;
     }
 
+    public static void reset() {
+        startTimeMs = -1;
+        pausedAtMs = -1;
+        totalPausedMs = 0;
+    }
 }
