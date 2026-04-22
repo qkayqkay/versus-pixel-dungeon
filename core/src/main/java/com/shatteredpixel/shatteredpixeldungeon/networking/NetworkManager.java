@@ -513,8 +513,7 @@ public enum NetworkManager {
                     Gdx.app.postRunnable(new Runnable() {
                         @Override
                         public void run() {
-                            Dungeon.hero.die(null);
-                            GameScene.gameOver();
+                            Game.switchScene(LossScene.class);
                             GLog.n(Messages.get("amuletloss"), winners[0]); // I can take the first elements since there should only be 1 in this case.
                             System.out.println("Someone has acquired the amulet of yendor before you!");
                         }
