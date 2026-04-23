@@ -297,7 +297,7 @@ public class Belongings implements Iterable<Item> {
 	public boolean contains( Item contains ){ //todo also here and below theres more i think
 
 		boolean lostInvent = lostInventory();
-		
+
 		for (Item item : this) {
 			if (contains == item) {
 				if (!lostInvent || item.keptThroughLostInventory()) {
@@ -305,7 +305,7 @@ public class Belongings implements Iterable<Item> {
 				}
 			}
 		}
-		
+
 		return false;
 	}
 	
@@ -437,7 +437,7 @@ public class Belongings implements Iterable<Item> {
 		
 		private Iterator<Item> backpackIterator = backpack.iterator();
 		
-		private Item[] equipped = {weapon, armor, artifact, misc, ring, secondWep};
+		private Item[] equipped = {weapon, armor, artifact, misc, ring, secondWep, riftStone};
 		private int backpackIndex = equipped.length;
 		
 		@Override
