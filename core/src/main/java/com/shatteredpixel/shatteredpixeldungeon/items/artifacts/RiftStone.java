@@ -112,7 +112,15 @@ public class RiftStone extends Artifact {
      * (rings, talents, scrolls, etc.). Points only come from killing enemies.
      */
     @Override
-    public void charge(Hero target, float amount) {}
+    public void charge(Hero target, float amount) {
+        float total = partialCharge + amount;
+
+        int gained = (int) total;
+        partialCharge = total - gained;
+
+        charge += gained;
+        updateQuickslot();
+    }
 
 
     // Block equip / unequip — stone is permanent

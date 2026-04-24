@@ -868,6 +868,9 @@ public abstract class Mob extends Char {
 				if (Dungeon.hero.subClass == HeroSubClass.MONK){
 					Buff.affect(Dungeon.hero, MonkEnergy.class).gainEnergy(this);
 				}
+				if(Dungeon.hero.belongings.riftStone != null){
+					Dungeon.hero.belongings.riftStone.charge(Dungeon.hero, 1);
+				}
 			}
 		}
 	}
