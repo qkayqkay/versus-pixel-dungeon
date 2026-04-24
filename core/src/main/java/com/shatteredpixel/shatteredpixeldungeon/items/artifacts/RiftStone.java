@@ -16,27 +16,38 @@ import java.util.ArrayList;
 
 public class RiftStone extends Artifact {
 
+    public ArrayList<Boolean> unlockedRiftTiers = new ArrayList<Boolean>();
+
     {
         // TODO: replace with your actual sprite constant once added to ItemSpriteSheet
         image = ItemSpriteSheet.ARTIFACT_TOME;
 
-        charge    = 10000000;
-        chargeCap = 10000000; // TODO reset these to actual values later
+        charge    = 10;
+        chargeCap = 10; // TODO reset these to actual values later
         partialCharge = 0;
 
         exp      = 0;
         levelCap = 0;
+        unlockedRiftTiers.add(true); // tier 1 is unlocked by default, the rest aren't.
+        unlockedRiftTiers.add(false);
+        unlockedRiftTiers.add(false);
+        unlockedRiftTiers.add(false);
+
 
         defaultAction = AC_CAST;
 
-        unique = true; // self explanatory ig
-        bones  = false; // never drops on death as a bone item
+        unique = true;
+        bones  = false;
     }
 
     public static final String AC_CAST = "CAST";
 
-    // actions
 
+    public boolean isTierUnlocked(int tier){
+        return unlockedRiftTiers.get(tier-1); // - 1 since the first element is 0, no?
+    }
+
+    // actions
     @Override
     public ArrayList<String> actions(Hero hero) {
         ArrayList<String> actions = super.actions(hero);
@@ -79,6 +90,10 @@ public class RiftStone extends Artifact {
         }
         if (charge < 0) charge = 0;
         updateQuickslot();
+    }
+
+    public int getCharge(){
+        return charge;
     }
 
     /**

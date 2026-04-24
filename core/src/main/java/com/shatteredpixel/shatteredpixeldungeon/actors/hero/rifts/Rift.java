@@ -1,32 +1,79 @@
 package com.shatteredpixel.shatteredpixeldungeon.actors.hero.rifts;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barrier;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.AscendedForm;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.PowerOfMany;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.*;
-import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HolyTome;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.RiftStone;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.networking.NetworkManager;
 import com.shatteredpixel.shatteredpixeldungeon.ui.HeroIcon;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonArray;
+
+import static com.badlogic.gdx.math.MathUtils.floor;
 
 public abstract class Rift {
 
-    public abstract void onCast(Hero hero);
+    protected String riftId = "";
+    protected boolean silent = false;
+    protected String[] targetIds = new String[0];
+    protected HashMap<String, Object> params = new HashMap<>();
+    protected int cost;
 
-    public float chargeUse( Hero hero ){
-        return 1;
+    public void onCast(Hero hero) {
+        System.out.println("casting!");
+        hero.belongings.riftStone.spendCharge(cost);
+
+        params = new HashMap<>();
+
+        JsonObject json = new JsonObject();
+        json.addProperty("rift_id", riftId);
+        json.addProperty("silent", silent);
+
+        JsonArray targetsArray = new JsonArray();
+        for (String id : targetIds) {
+            targetsArray.add(id);
+        }
+        json.add("targets", targetsArray);
+
+        JsonObject paramsObj = new JsonObject();
+        for (Map.Entry<String, Object> entry : params.entrySet()) {
+            Object val = entry.getValue();
+
+            if (val instanceof Number) {
+                paramsObj.addProperty(entry.getKey(), (Number) val);
+            } else if (val instanceof Boolean) {
+                paramsObj.addProperty(entry.getKey(), (Boolean) val);
+            } else {
+                paramsObj.addProperty(entry.getKey(), val.toString());
+            }
+        }
+        json.add("params", paramsObj);
+        NetworkManager.INSTANCE.send("RIFT:" + json.toString());
     }
 
-    public boolean canCast( Hero hero ){
-        return true;
+    public float chargeUse(Hero hero){
+        return cost;
+    }
+
+    public boolean canCast(Hero hero){
+        return hero.belongings.riftStone.getCharge() >= cost;
+    }
+
+    public int getCost(){
+        return cost;
+    }
+
+    public float castProportion(Hero hero){ // this is used to calculate the gray overlay over each spellbutton
+        RiftStone stone = hero.belongings.riftStone;
+        if (stone == null || cost <= 0) return 1f;
+        return Math.min(1f, (float) stone.getCharge() / cost);
     }
 
     public String name(){
@@ -34,42 +81,44 @@ public abstract class Rift {
     }
 
     public String shortDesc(){
-        return Messages.get(this, "short_desc") + " " + Messages.get(this, "charge_cost", (int)chargeUse(Dungeon.hero));
+        return Messages.get(this, "short_desc") + " " +
+                Messages.get(this, "charge_cost", (int)chargeUse(Dungeon.hero));
     }
 
     public String desc(){
-        return Messages.get(this, "desc") + "\n\n" + Messages.get(this, "charge_cost", (int)chargeUse(Dungeon.hero));
+        return Messages.get(this, "desc") + "\n\n" +
+                Messages.get(this, "charge_cost", (int)chargeUse(Dungeon.hero));
     }
-
 
     public int icon(){
         return HeroIcon.NONE;
     }
 
-    public void onSpellCast(Hero hero){
+    public void onRiftCast(Hero hero){
         Invisibility.dispel();
-        //tome.spendCharge(chargeUse(hero));
-        //Talent.onArtifactUsed(hero); what does this do?
+        // Talent.onArtifactUsed(hero); what does this do? Figure it out
     }
 
-    public static ArrayList<com.shatteredpixel.shatteredpixeldungeon.actors.hero.rifts.Rift> getSpellList(Hero cleric, int tier){
-        ArrayList<com.shatteredpixel.shatteredpixeldungeon.actors.hero.rifts.Rift> spells = new ArrayList<>();
+    public static ArrayList<Rift> getRiftList(Hero hero, int tier){
+        ArrayList<Rift> rifts = new ArrayList<>();
 
         if (tier == 1) {
-            // for example to add one of this tier, do spells.add(riftClass.INSTANCE);
+            rifts.add(AlarmRift.INSTANCE);
 
         } else if (tier == 2) {
+            rifts.add(DementiaRift.INSTANCE);
 
         } else if (tier == 3){
 
         }
 
-        return spells;
+        return rifts;
     }
 
-    public static ArrayList<com.shatteredpixel.shatteredpixeldungeon.actors.hero.rifts.Rift> getAllSpells() {
-        ArrayList<com.shatteredpixel.shatteredpixeldungeon.actors.hero.rifts.Rift> spells = new ArrayList<>();
-        // same thing as getSpellList but without the tier logic, just add all of them
-        return spells;
+    public static ArrayList<Rift> getAllRifts() {
+        ArrayList<Rift> rifts = new ArrayList<>();
+        rifts.add(AlarmRift.INSTANCE);
+        rifts.add(DementiaRift.INSTANCE);
+        return rifts;
     }
 }

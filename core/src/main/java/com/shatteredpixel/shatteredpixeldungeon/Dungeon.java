@@ -282,6 +282,7 @@ public class Dungeon {
 		hero.live();
 
 		Badges.reset();
+
 		
 		GamesInProgress.selectedClass.initHero( hero );
 	}

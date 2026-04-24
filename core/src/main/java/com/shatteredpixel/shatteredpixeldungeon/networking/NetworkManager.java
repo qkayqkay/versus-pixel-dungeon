@@ -73,6 +73,7 @@ public enum NetworkManager {
             return;
         }
         Dungeon.dataFetcher = new DataFetcher();
+        new RiftManager();
 
         final WndMessage wndConnecting = new WndMessage("Connecting...");
         PixelScene.showWindow(wndConnecting);
@@ -207,6 +208,10 @@ public enum NetworkManager {
 
         else if (header.equals("EVENT")) {
             System.out.println("SERVER EVENT: " + data);
+        }
+
+        else if (header.equals("RIFT")){
+            RiftManager.INSTANCE.afflictRift(data);
         }
 
         else if (header.equals("CHAT")) {
