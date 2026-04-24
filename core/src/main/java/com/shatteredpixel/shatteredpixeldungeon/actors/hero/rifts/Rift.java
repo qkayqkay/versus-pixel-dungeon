@@ -104,9 +104,11 @@ public abstract class Rift {
 
         if (tier == 1) {
             rifts.add(AlarmRift.INSTANCE);
+            rifts.add(DisarmingRift.INSTANCE);
 
         } else if (tier == 2) {
             rifts.add(DementiaRift.INSTANCE);
+
 
         } else if (tier == 3){
 
@@ -119,6 +121,8 @@ public abstract class Rift {
         ArrayList<Rift> rifts = new ArrayList<>();
         rifts.add(AlarmRift.INSTANCE);
         rifts.add(DementiaRift.INSTANCE);
+        rifts.add(DisarmingRift.INSTANCE);
+
         return rifts;
     }
 }

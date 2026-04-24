@@ -32,6 +32,8 @@ public class RiftStone extends Artifact {
         unlockedRiftTiers.add(false);
         unlockedRiftTiers.add(false);
         unlockedRiftTiers.add(false);
+        unlockedRiftTiers.add(false); // this one will be for yog related rifts only
+
 
 
         defaultAction = AC_CAST;
@@ -44,7 +46,11 @@ public class RiftStone extends Artifact {
 
 
     public boolean isTierUnlocked(int tier){
-        return unlockedRiftTiers.get(tier-1); // - 1 since the first element is 0, no?
+        unlockedRiftTiers.set(1, Dungeon.hero.lvl >= 7);
+        unlockedRiftTiers.set(2, Dungeon.hero.lvl >= 14);
+        unlockedRiftTiers.set(3, Dungeon.hero.lvl >= 21);
+        unlockedRiftTiers.set(4, Dungeon.hero.lvl >= 28); // maybe add a condition where at least 1 enemy player is in yogs fight
+        return unlockedRiftTiers.get(tier-1); // - 1 since the first element is 0
     }
 
     // actions
@@ -67,10 +73,7 @@ public class RiftStone extends Artifact {
 
     // Charge/points
 
-    /**
-      Called when the hero kills an enemy. Awards points toward the charge cap.
-      Plug this into your kill-tracking buff (see StoneKillTracker below).
-     */
+
     public void onEnemyKilled() { // modify to take in account enemy type maybe?
         if (charge < chargeCap) {
             charge++;
@@ -79,9 +82,6 @@ public class RiftStone extends Artifact {
         }
     }
 
-    /**
-     * Deducts points when a rift is used.
-     */
     public void spendCharge(float chargesSpent) {
         partialCharge -= chargesSpent;
         while (partialCharge < 0) {
@@ -158,6 +158,22 @@ public class RiftStone extends Artifact {
     @Override
     protected ArtifactBuff passiveBuff() {
         return new StoneKillTracker();
+    }
+
+    public void onLevelUp(int lvl) {
+        System.out.println("leveled up!");
+        if(lvl == 7){
+            GLog.p(Messages.get(this, "levelup1"));
+        }
+        if(lvl == 14){
+            GLog.p(Messages.get(this, "levelup2"));
+        }
+        if(lvl == 21){
+            GLog.p(Messages.get(this, "levelup3"));
+        }
+        if(lvl == 28){
+            GLog.p(Messages.get(this, "levelup4"));
+        }
     }
 
     /**

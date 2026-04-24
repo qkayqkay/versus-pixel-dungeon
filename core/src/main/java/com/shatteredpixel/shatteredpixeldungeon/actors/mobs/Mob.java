@@ -869,7 +869,7 @@ public abstract class Mob extends Char {
 					Buff.affect(Dungeon.hero, MonkEnergy.class).gainEnergy(this);
 				}
 				if(Dungeon.hero.belongings.riftStone != null){
-					Dungeon.hero.belongings.riftStone.charge(Dungeon.hero, 1);
+					Dungeon.hero.belongings.riftStone.onEnemyKilled();
 				}
 			}
 		}

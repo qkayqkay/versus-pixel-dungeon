@@ -1985,6 +1985,7 @@ public class Hero extends Char {
 			if (lvl < MAX_LEVEL) {
 				lvl++;
 				levelUp = true;
+				belongings.riftStone.onLevelUp(lvl);
 				
 				if (buff(ElixirOfMight.HTBoost.class) != null){
 					buff(ElixirOfMight.HTBoost.class).onLevelUp();
