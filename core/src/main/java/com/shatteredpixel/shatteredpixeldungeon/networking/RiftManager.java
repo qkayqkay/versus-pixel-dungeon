@@ -21,6 +21,8 @@ import com.shatteredpixel.shatteredpixeldungeon.items.EquipableItem;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindOfWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
+import com.shatteredpixel.shatteredpixeldungeon.items.keys.IronKey;
+import com.shatteredpixel.shatteredpixeldungeon.items.keys.Key;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
@@ -37,6 +39,8 @@ import com.watabou.utils.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+
+import static com.shatteredpixel.shatteredpixeldungeon.Dungeon.hero;
 
 
 public class RiftManager {
@@ -70,18 +74,18 @@ public class RiftManager {
 
         if(riftID.equals("alarm_rift")){
             for (Mob mob : Dungeon.level.mobs) {
-                mob.beckon( Dungeon.hero.pos );
+                mob.beckon( hero.pos );
             }
 
-            if (Dungeon.level.heroFOV[Dungeon.hero.pos]) {
-                CellEmitter.center( Dungeon.hero.pos ).start( Speck.factory( Speck.SCREAM ), 0.3f, 3 );
+            if (Dungeon.level.heroFOV[hero.pos]) {
+                CellEmitter.center( hero.pos ).start( Speck.factory( Speck.SCREAM ), 0.3f, 3 );
             }
 
             Sample.INSTANCE.play( Assets.Sounds.ALERT );
         }
 
         if(riftID.equals("floor_scramble_rift")){
-            ScrollOfTeleportation.teleportChar(Dungeon.hero);
+            ScrollOfTeleportation.teleportChar(hero);
             BArray.setFalse(Dungeon.level.visited);
             BArray.setFalse(Dungeon.level.mapped);
             GameScene.updateFog();
@@ -125,7 +129,7 @@ public class RiftManager {
             Trap nearestTrap = null;
             float nearestDist = Float.MAX_VALUE;
             for (Trap trap : traps.values()) {
-                float dist = Dungeon.level.trueDistance(trap.pos, Dungeon.hero.pos);
+                float dist = Dungeon.level.trueDistance(trap.pos, hero.pos);
                 if(dist < nearestDist){
                     nearestDist = dist;
                     nearestTrap = trap;
@@ -137,7 +141,7 @@ public class RiftManager {
             }
         }
         if (riftID.equals("cursed_gift_rift")) {
-            ArrayList<EquipableItem> allEquipable = Dungeon.hero.belongings.getAllItems(EquipableItem.class);
+            ArrayList<EquipableItem> allEquipable = hero.belongings.getAllItems(EquipableItem.class);
             ArrayList<EquipableItem> potentialItems = new ArrayList<>();
 
             for (EquipableItem item : allEquipable) {
@@ -147,12 +151,12 @@ public class RiftManager {
                 // check STR requirement for weapons and armor
                 if (item instanceof Weapon) {
                     Weapon w = (Weapon) item;
-                    if (w.STRReq() > Dungeon.hero.STR()) {
+                    if (w.STRReq() > hero.STR()) {
                         continue;
                     }
                 } else if (item instanceof Armor) {
                     Armor a = (Armor) item;
-                    if (a.STRReq() > Dungeon.hero.STR()) {
+                    if (a.STRReq() > hero.STR()) {
                         continue;
                     }
                 }
@@ -161,8 +165,8 @@ public class RiftManager {
 
             if (!potentialItems.isEmpty()) {
                 EquipableItem chosen = potentialItems.get((int)(Math.random() * potentialItems.size()));
-                EquipableItem.equipCursed(Dungeon.hero); //plays the curse particle+sound effect
-                chosen.doEquip(Dungeon.hero);
+                EquipableItem.equipCursed(hero); //plays the curse particle+sound effect
+                chosen.doEquip(hero);
             }
         }
         if (riftID.equals("silent_dementia_rift")) {
@@ -188,10 +192,10 @@ public class RiftManager {
             }
         }
         if(riftID.equals("silent_hunger_surge_rift")){
-            Buff.prolong(Dungeon.hero, HungerSurge.class, 30);
+            Buff.prolong(hero, HungerSurge.class, 30);
         }
         if(riftID.equals("silent_gold_sink_rift")){
-            Buff.affect(Dungeon.hero, GoldSink.class);
+            Buff.affect(hero, GoldSink.class);
         }
         if(riftID.equals("invincible_snail_rift")){
             int cell;
@@ -200,7 +204,7 @@ public class RiftManager {
                 cell = Dungeon.level.randomDestination( null );
                 if (tries-- < 0 && cell != -1) break;
 
-                PathFinder.buildDistanceMap(Dungeon.hero.pos, Dungeon.level.passable);
+                PathFinder.buildDistanceMap(hero.pos, Dungeon.level.passable);
             } while (cell == -1 || PathFinder.distance[cell] < 10 || PathFinder.distance[cell] > 20);
             if(cell != -1){
                 InvincibleSnail snail = new InvincibleSnail();
@@ -219,13 +223,13 @@ public class RiftManager {
                 do {
                     cell = Dungeon.level.randomDestination(null);
                     if (tries-- < 0 && cell != -1) break;
-                    PathFinder.buildDistanceMap(Dungeon.hero.pos, Dungeon.level.passable);
+                    PathFinder.buildDistanceMap(hero.pos, Dungeon.level.passable);
                 } while (cell == -1 || PathFinder.distance[cell] < 7 || PathFinder.distance[cell] > 15 || Dungeon.level.heroFOV[cell]);
                 Rat rat = new Rat();
                 rat.pos = cell;
                 GameScene.add(rat);
                 Dungeon.level.occupyCell(rat);
-                rat.beckon(Dungeon.hero.pos);
+                rat.beckon(hero.pos);
             }
         }
         if(riftID.equals("lockdown_rift")){
@@ -234,7 +238,7 @@ public class RiftManager {
                 return;
             }
 
-            int heroPos = Dungeon.hero.pos;
+            int heroPos = hero.pos;
             int width = Dungeon.level.width();
             int heroX = heroPos % width;
             int heroY = heroPos / width;
@@ -268,9 +272,29 @@ public class RiftManager {
             }
 
             if (target != -1) {
+
                 Level.set(target, Terrain.LOCKED_DOOR);
                 GameScene.updateMap(target);
                 Dungeon.observe();
+                int cell;
+                int tries = 50;
+                do {
+                    cell = Dungeon.level.randomDestination( null );
+                    if (tries-- < 0 && cell != -1) break;
+
+                    PathFinder.buildDistanceMap(hero.pos, Dungeon.level.passable);
+                } while (cell == -1);
+
+                if (tries < 0){
+                    return;
+                }
+
+
+                Dungeon.level.drop(new IronKey(Dungeon.depth), cell).seen = true;
+                for (int i : PathFinder.NEIGHBOURS9) {
+                    Dungeon.level.mapped[cell + i] = true;
+                }
+                GameScene.updateFog(cell, 1);
             }
         }
     }
