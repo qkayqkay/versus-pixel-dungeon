@@ -4,7 +4,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 
 public class GoldSink extends Buff {
-    public static final int GOLD_PER_TURN = 7;
+    public static final int GOLD_PER_TURN = 10;
     public int duration = 30;
 
     {

@@ -107,20 +107,21 @@ public abstract class Rift {
             rifts.add(RatSwarmRift.INSTANCE);
             rifts.add(LockdownRift.INSTANCE);
         } else if (tier == 2) {
-            rifts.add(DisarmingRift.INSTANCE);
             rifts.add(AlarmRift.INSTANCE);
-            rifts.add(InvincibleSnailRift.INSTANCE);
-            rifts.add(CursedGiftRift.INSTANCE);
-            rifts.add(GoldSinkRift.INSTANCE);
             rifts.add(DementiaRift.INSTANCE);
-            rifts.add(HungerSurgeRift.INSTANCE);
-            rifts.add(FloorScrambleRift.INSTANCE);
 
 
         } else if (tier == 3){
+            rifts.add(CursedGiftRift.INSTANCE);
+            rifts.add(HungerSurgeRift.INSTANCE);
+            rifts.add(InvincibleSnailRift.INSTANCE);
 
         }
-
+        else if (tier == 4) {
+            rifts.add(GoldSinkRift.INSTANCE);
+            rifts.add(DisarmingRift.INSTANCE);
+            rifts.add(FloorScrambleRift.INSTANCE);
+        }
         return rifts;
     }
 
