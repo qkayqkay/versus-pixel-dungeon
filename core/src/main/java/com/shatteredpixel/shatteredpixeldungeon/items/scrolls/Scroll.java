@@ -212,16 +212,24 @@ public abstract class Scroll extends Item {
 		return anonymous || (handler != null && handler.isKnown( this ));
 	}
 	
-	public void setKnown() {
+	public void setKnown(boolean known) {
 		if (!anonymous) {
-			if (!isKnown()) {
-				handler.know(this);
-				updateQuickslot();
+			if(known) {
+				if (!isKnown()) {
+					handler.know(this);
+					updateQuickslot();
+				}
+
+				if (Dungeon.hero.isAlive()) {
+					Catalog.setSeen(getClass());
+					Statistics.itemTypesDiscovered.add(getClass());
+				}
 			}
-			
-			if (Dungeon.hero.isAlive()) {
-				Catalog.setSeen(getClass());
-				Statistics.itemTypesDiscovered.add(getClass());
+			else{
+				if(isKnown()){
+					handler.know(this, false);
+					updateQuickslot();
+				}
 			}
 		}
 	}
@@ -231,7 +239,7 @@ public abstract class Scroll extends Item {
 		super.identify(byHero);
 
 		if (!isKnown()) {
-			setKnown();
+			setKnown(true);
 		}
 		return this;
 	}

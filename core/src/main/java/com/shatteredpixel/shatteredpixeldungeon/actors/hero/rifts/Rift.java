@@ -3,7 +3,6 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.hero.rifts;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.RiftStone;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.networking.NetworkManager;
@@ -15,8 +14,6 @@ import java.util.Map;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonArray;
-
-import static com.badlogic.gdx.math.MathUtils.floor;
 
 public abstract class Rift {
 
@@ -105,9 +102,11 @@ public abstract class Rift {
         if (tier == 1) {
             rifts.add(AlarmRift.INSTANCE);
             rifts.add(DisarmingRift.INSTANCE);
-
-        } else if (tier == 2) {
+            rifts.add(TrapTriggerRift.INSTANCE);
+            rifts.add(CursedGiftRift.INSTANCE);
             rifts.add(DementiaRift.INSTANCE);
+        } else if (tier == 2) {
+            rifts.add(FloorScrambleRift.INSTANCE);
 
 
         } else if (tier == 3){
@@ -120,8 +119,11 @@ public abstract class Rift {
     public static ArrayList<Rift> getAllRifts() {
         ArrayList<Rift> rifts = new ArrayList<>();
         rifts.add(AlarmRift.INSTANCE);
-        rifts.add(DementiaRift.INSTANCE);
+        rifts.add(FloorScrambleRift.INSTANCE);
         rifts.add(DisarmingRift.INSTANCE);
+        rifts.add(TrapTriggerRift.INSTANCE);
+        rifts.add(CursedGiftRift.INSTANCE);
+        rifts.add(DementiaRift.INSTANCE);
 
         return rifts;
     }

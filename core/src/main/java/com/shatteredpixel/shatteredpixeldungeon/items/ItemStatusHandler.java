@@ -199,7 +199,24 @@ public class ItemStatusHandler<T extends Item> {
 	public void know( Class<?extends T> itemCls ){
 		known.add( itemCls );
 	}
-	
+
+
+	//
+	public void know(T item, boolean value) {
+		know((Class<? extends T>) item.getClass(), value);
+	}
+
+	public void know(Class<? extends T> itemCls, boolean value) {
+		if (value) {
+			known.add(itemCls);
+		} else {
+			known.remove(itemCls);
+		}
+	}
+
+	// These methods were added for the dementia rift
+
+
 	public HashSet<Class<? extends T>> known() {
 		return known;
 	}

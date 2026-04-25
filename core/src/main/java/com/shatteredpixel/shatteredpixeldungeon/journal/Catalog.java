@@ -314,14 +314,28 @@ public enum Catalog {
 		return false;
 	}
 	
-	public static void setSeen(Class<?> cls){
-		for (Catalog cat : values()) {
-			if (cat.seen.containsKey(cls) && !cat.seen.get(cls)) {
-				cat.seen.put(cls, true);
-				Journal.saveNeeded = true;
+	public static void setSeen(Class<?> cls, boolean seen){
+		if(seen) {
+			for (Catalog cat : values()) {
+				if (cat.seen.containsKey(cls) && !cat.seen.get(cls)) {
+					cat.seen.put(cls, true);
+					Journal.saveNeeded = true;
+				}
+			}
+			Badges.validateCatalogBadges();
+		}
+		else{
+			for (Catalog cat : values()) {
+				if (cat.seen.containsKey(cls) && cat.seen.get(cls)) {
+					cat.seen.put(cls, false);
+					Journal.saveNeeded = true;
+				}
 			}
 		}
-		Badges.validateCatalogBadges();
+	}
+
+	public static void setSeen(Class<?> cls){
+		setSeen(cls, false);
 	}
 
 	public static int useCount(Class<?> cls){
@@ -332,6 +346,7 @@ public enum Catalog {
 		}
 		return 0;
 	}
+
 
 	public static void countUse(Class<?> cls){
 		countUses(cls, 1);
