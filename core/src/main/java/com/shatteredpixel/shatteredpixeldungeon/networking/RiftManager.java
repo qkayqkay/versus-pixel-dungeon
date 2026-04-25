@@ -5,9 +5,17 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.GoldSink;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.HungerSurge;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.InvincibleSnail;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Rat;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.RipperDemon;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
+import com.shatteredpixel.shatteredpixeldungeon.effects.Pushing;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.EquipableItem;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
@@ -17,15 +25,14 @@ import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.audio.Sample;
-import com.watabou.utils.BArray;
-import com.watabou.utils.PathFinder;
-import com.watabou.utils.Reflection;
-import com.watabou.utils.SparseArray;
+import com.watabou.utils.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -158,7 +165,7 @@ public class RiftManager {
                 chosen.doEquip(Dungeon.hero);
             }
         }
-        if (riftID.equals("dementia_rift")) {
+        if (riftID.equals("silent_dementia_rift")) {
             if(Math.random() > 0.5) { // 50/50 chance
                 HashSet<Class<? extends Scroll>> known = Scroll.getKnown();
                 if (!known.isEmpty()) {
@@ -178,6 +185,92 @@ public class RiftManager {
                     chosen.setKnown(false);
                     Item.updateQuickslot();
                 }
+            }
+        }
+        if(riftID.equals("silent_hunger_surge_rift")){
+            Buff.prolong(Dungeon.hero, HungerSurge.class, 30);
+        }
+        if(riftID.equals("silent_gold_sink_rift")){
+            Buff.affect(Dungeon.hero, GoldSink.class);
+        }
+        if(riftID.equals("invincible_snail_rift")){
+            int cell;
+            int tries = 50;
+            do {
+                cell = Dungeon.level.randomDestination( null );
+                if (tries-- < 0 && cell != -1) break;
+
+                PathFinder.buildDistanceMap(Dungeon.hero.pos, Dungeon.level.passable);
+            } while (cell == -1 || PathFinder.distance[cell] < 10 || PathFinder.distance[cell] > 20);
+            if(cell != -1){
+                InvincibleSnail snail = new InvincibleSnail();
+                snail.pos = cell;
+                GameScene.add( snail);
+                Dungeon.level.occupyCell(snail);
+            }
+        }
+        if(riftID.equals("rat_swarm_rift")){
+            int random = (int) Math.round(Math.random() * 3);
+            GLog.n(Messages.get(this, "rats_announce"+random));
+            int numRats = (int) Math.round(Math.random()*2 + 4); // between 4-6
+            for(int i = 0 ; i < numRats; i++) {
+                int cell;
+                int tries = 50;
+                do {
+                    cell = Dungeon.level.randomDestination(null);
+                    if (tries-- < 0 && cell != -1) break;
+                    PathFinder.buildDistanceMap(Dungeon.hero.pos, Dungeon.level.passable);
+                } while (cell == -1 || PathFinder.distance[cell] < 7 || PathFinder.distance[cell] > 15 || Dungeon.level.heroFOV[cell]);
+                Rat rat = new Rat();
+                rat.pos = cell;
+                GameScene.add(rat);
+                Dungeon.level.occupyCell(rat);
+                rat.beckon(Dungeon.hero.pos);
+            }
+        }
+        if(riftID.equals("lockdown_rift")){
+            if (Dungeon.level.locked) {
+                // Floor is already locked, rift fails
+                return;
+            }
+
+            int heroPos = Dungeon.hero.pos;
+            int width = Dungeon.level.width();
+            int heroX = heroPos % width;
+            int heroY = heroPos / width;
+            int target = -1;
+
+            outer:
+            for (int radius = 1; radius <= 20; radius++) {
+                for (int dy = -radius; dy <= radius; dy++) {
+                    for (int dx = -radius; dx <= radius; dx++) {
+                        // Only check the "ring" at the current radius, not inner tiles we've already checked
+                        if (Math.abs(dx) != radius && Math.abs(dy) != radius) {
+                            continue;
+                        }
+
+                        int checkX = heroX + dx;
+                        int checkY = heroY + dy;
+
+                        if (checkX < 0 || checkX >= width || checkY < 0 || checkY >= Dungeon.level.height()) {
+                            continue;
+                        }
+
+                        int checkPos = checkY * width + checkX;
+                        int cell = Dungeon.level.map[checkPos];
+
+                        if (cell == Terrain.DOOR || cell == Terrain.OPEN_DOOR) {
+                            target = checkPos;
+                            break outer;
+                        }
+                    }
+                }
+            }
+
+            if (target != -1) {
+                Level.set(target, Terrain.LOCKED_DOOR);
+                GameScene.updateMap(target);
+                Dungeon.observe();
             }
         }
     }

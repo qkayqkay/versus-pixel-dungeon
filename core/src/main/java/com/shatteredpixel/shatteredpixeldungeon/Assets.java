@@ -109,6 +109,7 @@ public class Assets {
 		public static final String SCENES   = "messages/scenes/scenes";
 		public static final String UI       = "messages/ui/ui";
 		public static final String WINDOWS  = "messages/windows/windows";
+		public static final String NETWORKING  = "messages/networking/networking";
 	}
 
 	public static class Music {

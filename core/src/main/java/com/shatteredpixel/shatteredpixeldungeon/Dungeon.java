@@ -43,8 +43,10 @@ import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TalismanOfForesi
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfRegrowth;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfWarding;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
 import com.shatteredpixel.shatteredpixeldungeon.levels.CavesBossLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.CavesLevel;
@@ -89,6 +91,9 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.TimeZone;
+
+import static com.shatteredpixel.shatteredpixeldungeon.items.Generator.Category.ARMOR;
+import static com.shatteredpixel.shatteredpixeldungeon.items.Generator.Category.WEAPON;
 
 public class Dungeon {
 
@@ -283,7 +288,9 @@ public class Dungeon {
 
 		Badges.reset();
 
-		
+		/*hero.STR = 20;
+		hero.HT = 100;
+		depth = 25;// DEBUG */
 		GamesInProgress.selectedClass.initHero( hero );
 	}
 
@@ -400,6 +407,18 @@ public class Dungeon {
 		
 		if (branch == 0) Statistics.qualifiedForNoKilling = !bossLevel();
 		Statistics.qualifiedForBossChallengeBadge = false;
+
+		/*if(depth == 25){
+			//* DEBUG:
+
+			Generator.random(WEAPON).collect();
+			Generator.random(WEAPON).collect();
+			Generator.random(ARMOR).collect();
+			Generator.random(ARMOR).collect();
+			for(int i = 0; i < 15; i++) {
+				new ScrollOfUpgrade().collect();
+			}
+		}*/
 		
 		return level;
 	}

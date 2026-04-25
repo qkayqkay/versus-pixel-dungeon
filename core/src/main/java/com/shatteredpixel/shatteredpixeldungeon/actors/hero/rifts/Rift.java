@@ -1,8 +1,10 @@
 package com.shatteredpixel.shatteredpixeldungeon.actors.hero.rifts;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.HungerSurge;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Rat;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.RiftStone;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.networking.NetworkManager;
@@ -25,6 +27,7 @@ public abstract class Rift {
 
     public void onCast(Hero hero) {
         System.out.println("casting!");
+        onRiftCast();
         hero.belongings.riftStone.spendCharge(cost);
 
         params = new HashMap<>();
@@ -91,7 +94,7 @@ public abstract class Rift {
         return HeroIcon.NONE;
     }
 
-    public void onRiftCast(Hero hero){
+    public void onRiftCast(){
         Invisibility.dispel();
         // Talent.onArtifactUsed(hero); what does this do? Figure it out
     }
@@ -100,12 +103,17 @@ public abstract class Rift {
         ArrayList<Rift> rifts = new ArrayList<>();
 
         if (tier == 1) {
-            rifts.add(AlarmRift.INSTANCE);
-            rifts.add(DisarmingRift.INSTANCE);
             rifts.add(TrapTriggerRift.INSTANCE);
-            rifts.add(CursedGiftRift.INSTANCE);
-            rifts.add(DementiaRift.INSTANCE);
+            rifts.add(RatSwarmRift.INSTANCE);
+            rifts.add(LockdownRift.INSTANCE);
         } else if (tier == 2) {
+            rifts.add(DisarmingRift.INSTANCE);
+            rifts.add(AlarmRift.INSTANCE);
+            rifts.add(InvincibleSnailRift.INSTANCE);
+            rifts.add(CursedGiftRift.INSTANCE);
+            rifts.add(GoldSinkRift.INSTANCE);
+            rifts.add(DementiaRift.INSTANCE);
+            rifts.add(HungerSurgeRift.INSTANCE);
             rifts.add(FloorScrambleRift.INSTANCE);
 
 
@@ -124,6 +132,11 @@ public abstract class Rift {
         rifts.add(TrapTriggerRift.INSTANCE);
         rifts.add(CursedGiftRift.INSTANCE);
         rifts.add(DementiaRift.INSTANCE);
+        rifts.add(HungerSurgeRift.INSTANCE);
+        rifts.add(GoldSinkRift.INSTANCE);
+        rifts.add(InvincibleSnailRift.INSTANCE);
+        rifts.add(RatSwarmRift.INSTANCE);
+        rifts.add(LockdownRift.INSTANCE);
 
         return rifts;
     }
