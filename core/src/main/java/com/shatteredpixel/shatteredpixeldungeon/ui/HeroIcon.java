@@ -114,6 +114,17 @@ public class HeroIcon extends Image {
 	public static final int WEAPON_SWAP     = 109;
 	public static final int MONK_ABILITIES  = 110;
 
+	public static final int ALARM  = 112;
+	public static final int FLOOR_SCRAMBLE  = 113;
+	public static final int GOLD_SINK  = 114;
+	public static final int RAT_SWARM  = 115;
+	public static final int LOCKDOWN  = 116;
+	public static final int CURSED_GIFT  = 117;
+	public static final int INVICIBLE_SNAIL  = 118;
+	public static final int DISARMAMENT  = 119;
+	public static final int DEMENTIA  = 120;
+	public static final int HUNGER_SURGE  = 121;
+
 	public HeroIcon(HeroSubClass subCls){
 		super( Assets.Interfaces.HERO_ICONS );
 		if (film == null){

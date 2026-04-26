@@ -35,7 +35,7 @@ public class WndRifts extends Window {
         IconTitle title;
         if (!info) {
             title = new IconTitle(Icons.get(Icons.TALENT),
-                    Messages.titleCase("Multiplayer Rifts"));
+                    Messages.titleCase("Cast Rifts"));
         } else {
             title = new IconTitle(Icons.INFO.get(),
                     Messages.titleCase("Rift Info"));

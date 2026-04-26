@@ -29,6 +29,6 @@ public class AlarmRift extends Rift {
 
     @Override
     public int icon() {
-        return HeroIcon.GUIDING_LIGHT;
+        return HeroIcon.ALARM;
     }
 }

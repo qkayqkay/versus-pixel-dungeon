@@ -2,6 +2,7 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.hero.rifts;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.InvincibleSnail;
+import com.shatteredpixel.shatteredpixeldungeon.ui.HeroIcon;
 
 public class InvincibleSnailRift extends Rift{
         public static final InvincibleSnailRift INSTANCE = new InvincibleSnailRift();
@@ -19,4 +20,8 @@ public class InvincibleSnailRift extends Rift{
             super.onCast(hero);
         }
 
+        @Override
+        public int icon() {
+            return HeroIcon.INVICIBLE_SNAIL;
+        }
     }
