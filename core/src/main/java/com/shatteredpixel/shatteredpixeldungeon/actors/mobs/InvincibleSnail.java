@@ -3,6 +3,7 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.mobs;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invulnerability;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.InvincibleSnailSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.TormentedSpiritSprite;
 import com.watabou.utils.Random;
 
@@ -15,8 +16,8 @@ public class InvincibleSnail extends Wraith {
 
     @Override
     public int damageRoll() {
-        return Random.NormalIntRange( 1 + (level*7)/2, 2 + (level*7) );
-    } // roughly 700% damage
+        return Random.NormalIntRange( 1 + (level*5)/2, 2 + (level*5) );
+    } // roughly 500% damage
 
     @Override
     protected boolean act() {

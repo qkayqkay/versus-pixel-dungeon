@@ -86,8 +86,7 @@ public abstract class Rift {
     }
 
     public String desc(){
-        return Messages.get(this, "desc") + "\n\n" +
-                Messages.get(this, "charge_cost", (int)chargeUse(Dungeon.hero));
+        return Messages.get(this, "desc");
     }
 
     public int icon(){
@@ -106,6 +105,7 @@ public abstract class Rift {
             rifts.add(TrapTriggerRift.INSTANCE);
             rifts.add(RatSwarmRift.INSTANCE);
             rifts.add(LockdownRift.INSTANCE);
+
         } else if (tier == 2) {
             rifts.add(AlarmRift.INSTANCE);
             rifts.add(DementiaRift.INSTANCE);

@@ -12,7 +12,7 @@ public class InvincibleSnailSprite extends MobSprite {
 
         TextureFilm frames = new TextureFilm( texture, 14, 15 );
 
-        int c = 9;
+        int c = 18;
 
         idle = new MovieClip.Animation( 5, true );
         idle.frames( frames, c+0, c+1 );
