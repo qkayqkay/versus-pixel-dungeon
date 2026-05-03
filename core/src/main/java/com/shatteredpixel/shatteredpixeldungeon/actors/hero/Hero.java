@@ -114,6 +114,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.ShadowCaster;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.networking.Gamemode;
 import com.shatteredpixel.shatteredpixeldungeon.networking.NetworkManager;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.AlchemyScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
@@ -203,7 +204,7 @@ public class Hero extends Char {
 		belongings = new Belongings( this );
 		visibleEnemies = new ArrayList<>();
 
-		NetworkManager.INSTANCE.self.getLobby().getGamemode().onHeroCreate(this);
+		Gamemode.current.onHeroCreate(this);
 	}
 	
 	public void updateHT( boolean boostHP ){
@@ -1978,7 +1979,9 @@ public class Hero extends Char {
 			if (lvl < MAX_LEVEL) {
 				lvl++;
 				levelUp = true;
-				belongings.riftStone.onLevelUp(lvl);
+				if(belongings.riftStone != null) {
+					belongings.riftStone.onLevelUp(lvl);
+				}
 				
 				if (buff(ElixirOfMight.HTBoost.class) != null){
 					buff(ElixirOfMight.HTBoost.class).onLevelUp();

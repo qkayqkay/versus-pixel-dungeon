@@ -4,6 +4,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.RiftStone;
 
 public class Gamemode {
+    public static Gamemode current = Gamemode.classic(); //TODO set this
     public String gamemodeID;
     public boolean equipRiftStone;
     public boolean isTimed;

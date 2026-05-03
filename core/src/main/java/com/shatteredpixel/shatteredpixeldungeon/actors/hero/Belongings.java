@@ -40,6 +40,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.ShardOfOblivion;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.networking.Gamemode;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Bundle;
@@ -190,7 +191,9 @@ public class Belongings implements Iterable<Item> {
 		bundle.put( MISC, misc );
 		bundle.put( RING, ring );
 		bundle.put( SECOND_WEP, secondWep );
-		bundle.put( RIFT_STONE, riftStone );
+		if(Gamemode.current.equipRiftStone) {
+			bundle.put(RIFT_STONE, riftStone);
+		}
 	}
 
 	public static boolean bundleRestoring = false;
@@ -215,8 +218,10 @@ public class Belongings implements Iterable<Item> {
 		ring = (Ring) bundle.get(RING);
 		if (ring() != null)         ring().activate( owner );
 
-		riftStone = (RiftStone) bundle.get(RIFT_STONE);
-		if (riftStone != null)         riftStone().activate( owner );
+		if(Gamemode.current.equipRiftStone) {
+			riftStone = (RiftStone) bundle.get(RIFT_STONE);
+			if (riftStone != null) riftStone().activate(owner);
+		}
 
 		secondWep = (KindOfWeapon) bundle.get(SECOND_WEP);
 		if (secondWep() != null)    secondWep().activate(owner);
@@ -436,9 +441,17 @@ public class Belongings implements Iterable<Item> {
 		private int index = 0;
 		
 		private Iterator<Item> backpackIterator = backpack.iterator();
-		
-		private Item[] equipped = {weapon, armor, artifact, misc, ring, secondWep, riftStone};
-		private int backpackIndex = equipped.length;
+		private Item[] equipped;
+		private int backpackIndex;
+
+		{
+			if (Gamemode.current != null && Gamemode.current.equipRiftStone) {
+				equipped = new Item[]{weapon, armor, artifact, misc, ring, secondWep, riftStone};
+			} else {
+				equipped = new Item[]{weapon, armor, artifact, misc, ring, secondWep};
+			}
+			backpackIndex = equipped.length;
+		}
 		
 		@Override
 		public boolean hasNext() {

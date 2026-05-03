@@ -69,6 +69,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.secret.SecretRoom;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.SpecialRoom;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.networking.DataFetcher;
+import com.shatteredpixel.shatteredpixeldungeon.networking.Gamemode;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar;
@@ -292,6 +293,7 @@ public class Dungeon {
 		hero.HT = 100;
 		depth = 25;// DEBUG */
 		GamesInProgress.selectedClass.initHero( hero );
+		Gamemode.current.onGameStart();
 	}
 
 	public static boolean isChallenged( int mask ) {

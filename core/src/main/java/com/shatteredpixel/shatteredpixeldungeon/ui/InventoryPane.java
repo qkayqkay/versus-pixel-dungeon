@@ -34,6 +34,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.bags.PotionBandolier;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.ScrollHolder;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.VelvetPouch;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.networking.Gamemode;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
@@ -153,7 +154,11 @@ public class InventoryPane extends Component {
 		};
 
 		equipped = new ArrayList<>();
-		for (int i = 0; i < 6; i++){
+		int maxSlots = 5;
+		if(Gamemode.current.equipRiftStone){
+			maxSlots++;
+		}
+		for (int i = 0; i < maxSlots; i++){
 			InventorySlot btn = new InventoryPaneSlot(null);
 			equipped.add(btn);
 			add(btn);
@@ -302,8 +307,9 @@ public class InventoryPane extends Component {
 		equipped.get(2).item(stuff.artifact == null ? new WndBag.Placeholder( ItemSpriteSheet.ARTIFACT_HOLDER ) : stuff.artifact);
 		equipped.get(3).item(stuff.misc == null ? new WndBag.Placeholder( ItemSpriteSheet.SOMETHING ) : stuff.misc);
 		equipped.get(4).item(stuff.ring == null ? new WndBag.Placeholder( ItemSpriteSheet.RING_HOLDER ) : stuff.ring);
-		equipped.get(5).item(stuff.riftStone == null ? new WndBag.Placeholder( ItemSpriteSheet.SOMETHING ) : stuff.riftStone);
-
+		if(Gamemode.current.equipRiftStone) {
+			equipped.get(5).item(stuff.riftStone == null ? new WndBag.Placeholder(ItemSpriteSheet.SOMETHING) : stuff.riftStone);
+		}
 
 		ArrayList<Item> items = (ArrayList<Item>) lastBag.items.clone();
 
