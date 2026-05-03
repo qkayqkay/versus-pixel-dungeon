@@ -9,7 +9,7 @@ public class Player {
     public Lobby lobby; // what lobby im currently in
     public boolean isReadied = false;
     public HeroClass cl;
-    private int level = 0; // touch this and system32 implodes.
+    public int level = 0; // touch this and system32 implodes.
     private boolean isGuest = true; // this becomes false if you login or sign up.
 
 
@@ -34,4 +34,5 @@ public class Player {
     public void changeLevel(int newlevel) { this.level = newlevel; }
     public void setInGame(boolean inGame) { this.inGame = inGame; }
     public void setLobby(Lobby lobby) { this.lobby = lobby; }
+    public boolean isAdmin() { return level >= 1; }
 }

@@ -6,10 +6,7 @@ import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
-import com.shatteredpixel.shatteredpixeldungeon.networking.ChatMessage;
-import com.shatteredpixel.shatteredpixeldungeon.networking.Lobby;
-import com.shatteredpixel.shatteredpixeldungeon.networking.NetworkManager;
-import com.shatteredpixel.shatteredpixeldungeon.networking.Player;
+import com.shatteredpixel.shatteredpixeldungeon.networking.*;
 import com.shatteredpixel.shatteredpixeldungeon.ui.*;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage;
 import com.watabou.noosa.*;
@@ -41,6 +38,8 @@ public class InLobbyScene extends PixelScene {
     private NinePatch classPanel;
     private ArrayList<ClassSelectBtn> classBtns = new ArrayList<>();
 
+    private StyledButton gamemodeButton;
+
     private float w;
     private float h;
     Player self = NetworkManager.INSTANCE.self;
@@ -48,9 +47,7 @@ public class InLobbyScene extends PixelScene {
     @Override
     protected void onBackPressed() {}
 
-    // -------------------------------------------------------------------------
-    // Player list buttons (middle panel)
-    // -------------------------------------------------------------------------
+    // Player list buttons(middle panel)
 
     private class LobbyPlayerBtn extends StyledButton {
 
@@ -102,10 +99,7 @@ public class InLobbyScene extends PixelScene {
         content.setSize(playersScroll.width(), y);
     }
 
-    // -------------------------------------------------------------------------
-    // Class selector buttons (bottom-right panel)
-    // -------------------------------------------------------------------------
-
+    // Class selector buttons(bottom-right panel)
     private class ClassSelectBtn extends StyledButton {
 
         private HeroClass cl;
@@ -135,10 +129,7 @@ public class InLobbyScene extends PixelScene {
         }
     }
 
-    // -------------------------------------------------------------------------
-    // Scene creation
-    // -------------------------------------------------------------------------
-
+    //scene creation
     @Override
     public void create() {
         super.create();
@@ -150,7 +141,7 @@ public class InLobbyScene extends PixelScene {
         w = (Camera.main.width  - insets.left - insets.right);
         h = (Camera.main.height - insets.top  - insets.bottom);
 
-        // --- Chat panel (left fifth) ---
+        //chat panel
         chatPanel = Chrome.get(Chrome.Type.TOAST);
         chatPanel.size(w / 5 - 5, h - 50);
         chatPanel.x = 3 + insets.left;
@@ -199,7 +190,7 @@ public class InLobbyScene extends PixelScene {
                 chatPanel.innerWidth(),
                 chatPanel.innerHeight() - chatField.height() - btnSend.height() - 10);
 
-        // --- Players panel (middle two-fifths) ---
+
         playersPanel = Chrome.get(Chrome.Type.TOAST);
         playersPanel.size(2 * w / 5 - 5, h - 70);
         playersPanel.x = chatPanel.x + chatPanel.width() + 5;
@@ -214,7 +205,6 @@ public class InLobbyScene extends PixelScene {
                 playersPanel.innerWidth(),
                 playersPanel.innerHeight());
 
-        // --- Right column: settings (top half) + class selector (bottom half) ---
         float rightX      = playersPanel.x + playersPanel.width() + 5;
         float rightWidth  = 2 * w / 5 - 5;
         float rightHeight = h - 70;
@@ -229,13 +219,49 @@ public class InLobbyScene extends PixelScene {
         settingsPanel.y = rightMidY;
         add(settingsPanel);
 
+        gamemodeButton = new StyledButton(Chrome.Type.GREY_BUTTON_TR, "Gamemode: "+Gamemode.current.gamemodeName) {
+            private Dropdown dropdown = null;
+
+            @Override
+            protected void onClick() {
+                if (dropdown != null) {
+                    dropdown.close();
+                    dropdown = null;
+                    return;
+                }
+                dropdown = new Dropdown(Gamemode.listGamemodes(), new Dropdown.OnGamemodeSelected() {
+                    @Override
+                    public void onSelected(Gamemode g) {
+                        Gamemode.current = g;
+                        updateSettingButtons();
+                        NetworkManager.INSTANCE.sendGamemode(g);
+                        if(dropdown != null) {
+                            dropdown.close();
+                            dropdown = null;
+                        }
+                    }
+                });
+                add(dropdown);
+                dropdown.layout(
+                        settingsPanel.x + settingsPanel.marginLeft(),
+                        settingsPanel.y + settingsPanel.marginTop() + 18f,
+                        settingsPanel.innerWidth());
+            }
+        };
+        gamemodeButton.setRect(
+                settingsPanel.x + settingsPanel.marginLeft(),
+                settingsPanel.y + settingsPanel.marginTop(),
+                settingsPanel.innerWidth(),
+                16f);
+        add(gamemodeButton);
+
         classPanel = Chrome.get(Chrome.Type.TOAST);
         classPanel.size(rightWidth, halfHeight);
         classPanel.x = rightX;
         classPanel.y = rightMidY + halfHeight + gap;
         add(classPanel);
 
-        // Build class buttons
+        // build class buttons
         classBtns.clear();
         for (HeroClass cl : HeroClass.values()) {
             ClassSelectBtn btn = new ClassSelectBtn(cl);
@@ -244,12 +270,12 @@ public class InLobbyScene extends PixelScene {
         }
         layoutClassBtns();
 
-        // --- Title ---
+        //title
         RenderedTextBlock title = PixelScene.renderTextBlock(Messages.get(InLobbyScene.class, "title"), 12);
         title.setPos((w - title.width()) / 2 + insets.left, 10 + insets.top);
         add(title);
 
-        // --- Ready / Start button ---
+        //ready/start button
         btnReady = new StyledButton(Chrome.Type.GREY_BUTTON_TR, "") {
             @Override
             protected void onClick() {
@@ -267,7 +293,7 @@ public class InLobbyScene extends PixelScene {
         add(btnReady);
         updateReadyButton();
 
-        // --- Return button ---
+        // return button(to leave the lobby)
         btnReturn = new StyledButton(Chrome.Type.GREY_BUTTON_TR, "") {
             @Override
             protected void onClick() {
@@ -282,7 +308,7 @@ public class InLobbyScene extends PixelScene {
         btnReturn.setPos(insets.left + w - 25, insets.top);
         add(btnReturn);
 
-        // --- Callbacks ---
+        // callbacks
         NetworkManager.INSTANCE.setChatCallback(new Runnable() {
             @Override
             public void run() {
@@ -311,6 +337,20 @@ public class InLobbyScene extends PixelScene {
             }
         });
 
+        NetworkManager.INSTANCE.setSettingsUpdate(new Runnable() {
+            @Override
+            public void run() {
+                Gdx.app.postRunnable(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (ShatteredPixelDungeon.scene() == InLobbyScene.this) {
+                            updateSettingButtons();
+                        }
+                    }
+                });
+            }
+        });
+
         NetworkManager.INSTANCE.setLevelChangedCallback(new Runnable() {
             @Override
             public void run() {
@@ -319,6 +359,7 @@ public class InLobbyScene extends PixelScene {
                     public void run() {
                         if (ShatteredPixelDungeon.scene() == InLobbyScene.this) {
                             updateReadyButton();
+                            updateSettingButtons();
                         }
                     }
                 });
@@ -331,7 +372,7 @@ public class InLobbyScene extends PixelScene {
         fadeIn();
     }
 
-    // Re-position class buttons to fill the classPanel in a 2-column grid
+    // class panel, with a 2 column 3 row grid
     private void layoutClassBtns() {
         if (classBtns.isEmpty()) return;
 
@@ -357,15 +398,6 @@ public class InLobbyScene extends PixelScene {
         }
     }
 
-    // -------------------------------------------------------------------------
-    // Resize handling — re-layout everything when the window changes size
-    // -------------------------------------------------------------------------
-
-
-
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
 
     private void updateReadyButton() {
         if (lobby != null && lobby.isAdmin()) {
@@ -378,6 +410,7 @@ public class InLobbyScene extends PixelScene {
     private void onLobbyLoaded() {
         updateReadyButton();
         updatePlayerBtns();
+        updateSettingButtons();
     }
 
     private void updateChat() {
@@ -403,6 +436,16 @@ public class InLobbyScene extends PixelScene {
 
             content.setSize(chatScroll.width(), y);
             chatScroll.scrollTo(0, y);
+        }
+    }
+
+    private void updateSettingButtons() {
+        gamemodeButton.text("Gamemode: " + Gamemode.current.gamemodeName);
+        if(!NetworkManager.INSTANCE.self.isAdmin()){
+            gamemodeButton.enable(false);
+        }
+        else{
+            gamemodeButton.enable(true);
         }
     }
 

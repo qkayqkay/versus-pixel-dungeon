@@ -2,16 +2,22 @@ package com.shatteredpixel.shatteredpixeldungeon.networking;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.RiftStone;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 
 public class Gamemode {
     public static Gamemode current = Gamemode.classic(); //TODO set this
+    private static Gamemode[] gamemodes = new Gamemode[]{Gamemode.classic(), Gamemode.classicRift(), Gamemode.bingo()};
     public String gamemodeID;
+    public String gamemodeName;
     public boolean equipRiftStone;
     public boolean isTimed;
     public boolean isBingo;
 
     public Gamemode(String gamemodeID){
         this.gamemodeID = gamemodeID;
+        System.out.println(this.getClass().getName());
+        System.out.println(this.getClass().getPackage().getName());
+        this.gamemodeName = Messages.get(this, gamemodeID+"_name");
     }
 
     public void onGameStart() {
@@ -25,6 +31,15 @@ public class Gamemode {
             stone.activate(h);
         }
 
+    }
+
+    public static Gamemode fromID(String id) {
+        switch (id) {
+            case "classic": return classic();
+            case "classic_rift": return classicRift();
+            case "bingo": return bingo();
+            default: return classic();
+        }
     }
 
     public static Gamemode classic() {
@@ -44,5 +59,9 @@ public class Gamemode {
         Gamemode g = new Gamemode("bingo");
         g.isBingo = true;
         return g;
+    }
+
+    public static Gamemode[] listGamemodes(){
+        return gamemodes;
     }
 }

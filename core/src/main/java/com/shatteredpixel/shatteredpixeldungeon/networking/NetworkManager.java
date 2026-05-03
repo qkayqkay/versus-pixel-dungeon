@@ -42,9 +42,11 @@ public enum NetworkManager {
     private Runnable onJoinError;
     private Runnable onLevelChanged;
     private Runnable onDisconnected; // callback for when keepalive detects a timeout
-    private Runnable onClassUpdate; // callback for when keepalive detects a timeout
+    private Runnable onClassUpdate;
     private Runnable onLoginSuccess;
     private Runnable onLobbyCreated;
+    private Runnable onSettingsUpdate;
+
 
     private Consumer<String> onLoginFail;
     private Runnable onRegisterSuccess;
@@ -99,7 +101,7 @@ public enum NetworkManager {
                             String[] nameParts = data.split("=", 2);
                             String id = nameParts[0];
                             String name = nameParts[1];
-                            self = new Player(id, name);
+                            self = new Player(id, name); // self represents the Player object of the current client.
                             players.add(self);
                             System.out.println("Connected to Server! Player ID is: " + data);
 
@@ -273,6 +275,13 @@ public enum NetworkManager {
                 onClassUpdate.run();
             }
         }
+        else if (header.equals("GAMEMODEUPDATE")) {
+            Gamemode.current = Gamemode.fromID(data);
+            if (onSettingsUpdate != null) {
+                onSettingsUpdate.run();
+            }
+        }
+
         else if (header.equals("LISTLOBBY")) { // for when outside a lobby. Some data can just not be sent.
             System.out.println("Caught lobby list: " + data);
             LinkedHashMap<String, Lobby> parsedLobbies = new LinkedHashMap();
@@ -394,6 +403,13 @@ public enum NetworkManager {
                     this.players.add(found);
                 } else {
                     found.name = name;
+                }
+                if (superAdmins.contains(id)) {
+                    found.level = 2;
+                } else if (admins.contains(id)) {
+                    found.level = 1;
+                } else {
+                    found.level = 0;
                 }
                 found.setClass(heroClass);
                 lobbyPlayers.add(found);
@@ -555,6 +571,10 @@ public enum NetworkManager {
         } catch (Exception e) { /* ignore */ }
     }
 
+    public void sendGamemode(Gamemode gamemode){
+        this.send("SETGAMEMODE:"+gamemode.gamemodeID);
+    }
+
     public void requestLobbyInfo(Consumer<Lobby> callback) {
         this.lobbyInfoCallback = callback;
         this.send("INFOLOBBY:");
@@ -600,6 +620,8 @@ public enum NetworkManager {
     public void setClassUpdateCallback(Runnable callback) {
         this.onClassUpdate = callback;
     }
+    public void setSettingsUpdate(Runnable callback) { this.onSettingsUpdate = callback; }
+
 
 
     public void createLobby(String lobbyName, String lobbyPassword){
