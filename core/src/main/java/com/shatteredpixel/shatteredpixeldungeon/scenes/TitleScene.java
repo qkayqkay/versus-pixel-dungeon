@@ -77,6 +77,7 @@ public class TitleScene extends PixelScene {
 
 	//String ip = "127.0.0.1";
 	//int port = 6000;
+
 	@Override
 	public void create() {
 		

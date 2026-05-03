@@ -114,6 +114,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.ShadowCaster;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.networking.NetworkManager;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.AlchemyScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
@@ -198,14 +199,11 @@ public class Hero extends Char {
 
 		HP = HT = 20;
 		STR = STARTING_STR;
-		
-		belongings = new Belongings( this );
-		RiftStone stone = new RiftStone();
-		this.belongings.riftStone = stone;
-		stone.activate(this);
 
-		
+		belongings = new Belongings( this );
 		visibleEnemies = new ArrayList<>();
+
+		NetworkManager.INSTANCE.self.getLobby().getGamemode().onHeroCreate(this);
 	}
 	
 	public void updateHT( boolean boostHP ){

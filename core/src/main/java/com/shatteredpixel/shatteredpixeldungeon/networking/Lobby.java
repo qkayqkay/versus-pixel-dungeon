@@ -14,6 +14,7 @@ public class Lobby {
     private boolean inGame;
     private int maxPlayers;
     private String id;
+    private Gamemode gamemode;
 
     public Lobby(String name, boolean inGame, boolean hasPassword, ArrayList<String> admins, ArrayList<String> superAdmins, int numPlayers, int maxPlayers) {
         this.name = name;
@@ -27,6 +28,7 @@ public class Lobby {
     }
 
     public void setID(String id) { this.id = id; }
+    public void setName(String newName) { this.name = newName; }
     public void setInGame(boolean inGame) { this.inGame = inGame; }
     public void setMaxPlayers(int maxPlayers) { this.maxPlayers = maxPlayers; }
     public void setPlayers(ArrayList<Player> players) { this.players = players; }
@@ -34,12 +36,12 @@ public class Lobby {
     public void setSuperAdmins(ArrayList<String> superAdmins) { this.superAdmins = superAdmins; }
 
     public String getID() { return id; }
+    public Gamemode getGamemode() { return gamemode; }
     public boolean isInGame() { return inGame; }
     public int getMaxPlayers() { return maxPlayers; }
     public ArrayList<Player> getPlayers() { return players; }
     public int getPlayerCount(){ return this.numPlayers; } // note that this doesn't work when the server stops sending this value(eg with infolobby, altho do I really care then?)
     public String getName() { return name; }
-    public void setName(String newName) { this.name = newName; }
     public boolean hasPassword() { return hasPassword; }
     public ArrayList<String> getAdmins() { return admins; }
     //public boolean isAdmin(String playerID) { return admins.contains(playerID); } //TODO UPDATE THIS LIKE LINE UNDERNEATH
