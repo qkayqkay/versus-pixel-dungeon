@@ -96,7 +96,7 @@ public class WandOfFrost extends DamageWand {
 
 			wandProc(ch, chargesPerCast());
 			ch.damage(damage, this);
-			Sample.INSTANCE.play( Assets.Sounds.HIT_MAGIC, 1, 1.1f * Random.Float(0.87f, 1.15f) );
+			Sample.INSTANCE.play( Assets.Sounds.HIT_MAGIC, 1, 1.1f * Random.FloatVisual(0.87f, 1.15f) );
 
 			if (ch.isAlive()){
 				if (Dungeon.level.water[ch.pos])
@@ -134,7 +134,7 @@ public class WandOfFrost extends DamageWand {
 			float procChance = ((int)Math.floor(chill.cooldown()) - 1)/9f;
 			procChance *= procChanceMultiplier(attacker);
 
-			if (Random.Float() < procChance) {
+			if (Random.FloatVisual() < procChance) {
 
 				float powerMulti = Math.max(1f, procChance);
 
@@ -158,11 +158,11 @@ public class WandOfFrost extends DamageWand {
 		particle.color(0x88CCFF);
 		particle.am = 0.6f;
 		particle.setLifespan(2f);
-		float angle = Random.Float(PointF.PI2);
+		float angle = Random.FloatVisual(PointF.PI2);
 		particle.speed.polar( angle, 2f);
 		particle.acc.set( 0f, 1f);
 		particle.setSize( 0f, 1.5f);
-		particle.radiateXY(Random.Float(1f));
+		particle.radiateXY(Random.FloatVisual(1f));
 	}
 
 }

@@ -38,17 +38,17 @@ public class SpectralWallParticle extends PixelParticle {
 
 			switch (type){
 				case 1:
-					if (Random.Int(2) != 0) return;
+					if (Random.IntVisual(2) != 0) return;
 					break;
 				case 2:
-					if (Random.Int(3) != 0) return;
+					if (Random.IntVisual(3) != 0) return;
 					break;
 				case 3:
 					break;
 				case 4:
 					break;
 				case 5:
-					if (Random.Int(4) != 0) return;
+					if (Random.IntVisual(4) != 0) return;
 					break;
 			}
 

@@ -57,7 +57,7 @@ public class SeniorSprite extends MobSprite {
 	@Override
 	public void attack( int cell ) {
 		super.attack( cell );
-		if (Random.Float() < 0.3f) {
+		if (Random.FloatVisual() < 0.3f) {
 			play( kick );
 		}
 	}

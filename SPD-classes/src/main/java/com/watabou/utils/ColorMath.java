@@ -59,7 +59,7 @@ public class ColorMath {
 	}
 	
 	public static int random( int a, int b ) {
-		return interpolate( a, b, Random.Float() );
+		return interpolate( a, b, Random.FloatVisual() );
 	}
 
 }

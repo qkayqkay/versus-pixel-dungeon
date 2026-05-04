@@ -362,7 +362,7 @@ public class DwarfKing extends Mob {
 		if (furthest != null) {
 			Buff.append(furthest, LifeLink.class, 100f).object = id();
 			Buff.append(this, LifeLink.class, 100f).object = furthest.id();
-			yell(Messages.get(this, "lifelink_" + Random.IntRange(1, 2)));
+			yell(Messages.get(this, "lifelink_" + Random.IntRangeVisual(1, 2)));
 			sprite.parent.add(new Beam.HealthRay(sprite.destinationCenter(), furthest.sprite.destinationCenter()));
 			Sample.INSTANCE.play( Assets.Sounds.RAY );
 			return true;
@@ -423,7 +423,7 @@ public class DwarfKing extends Mob {
 			}
 
 			if (bestPos != enemy.pos) ScrollOfTeleportation.appear(furthest, bestPos);
-			yell(Messages.get(this, "teleport_" + Random.IntRange(1, 2)));
+			yell(Messages.get(this, "teleport_" + Random.IntRangeVisual(1, 2)));
 			return true;
 		}
 		return false;

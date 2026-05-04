@@ -70,7 +70,7 @@ public class WndChooseAbility extends Window {
 						super.onSelect(index);
 						if (index == 0){
 							WndChooseAbility.this.hide();
-							ArmorAbility abil = Random.oneOf(hero.heroClass.armorAbilities());
+							ArmorAbility abil = Random.oneOfVisual(hero.heroClass.armorAbilities());
 							crown.upgradeArmor(hero, armor, abil);
 							GameScene.show(new WndInfoArmorAbility(hero.heroClass, abil));
 						}

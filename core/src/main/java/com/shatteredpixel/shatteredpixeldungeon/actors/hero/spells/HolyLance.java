@@ -121,8 +121,8 @@ public class HolyLance extends TargetedClericSpell {
 										min = max;
 									}
 									enemy.damage(Hero.heroDamageIntRange(min, max), HolyLance.this);
-									Sample.INSTANCE.play( Assets.Sounds.HIT_MAGIC, 1, Random.Float(0.8f, 1f) );
-									Sample.INSTANCE.play( Assets.Sounds.HIT_STAB, 1, Random.Float(0.8f, 1f) );
+									Sample.INSTANCE.play( Assets.Sounds.HIT_MAGIC, 1, Random.FloatVisual(0.8f, 1f) );
+									Sample.INSTANCE.play( Assets.Sounds.HIT_STAB, 1, Random.FloatVisual(0.8f, 1f) );
 
 									if (enemy.isActive()){
 										Buff.affect(enemy, GuidingLight.Illuminated.class);

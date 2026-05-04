@@ -50,10 +50,10 @@ public class Annoying extends Weapon.Enchantment {
 			Sample.INSTANCE.play(Assets.Sounds.MIMIC);
 			Invisibility.dispel();
 			//~1/100 for each rare line, ~1/10 for each common line
-			if (Random.Int(33) != 0) {
-				GLog.n(Messages.get(this, "msg_" + Random.IntRange(1, 10)));
+			if (Random.IntVisual(33) != 0) {
+				GLog.n(Messages.get(this, "msg_" + Random.IntRangeVisual(1, 10)));
 			} else {
-				GLog.n(Messages.get(this, "msg_" + Random.IntRange(11, 13)));
+				GLog.n(Messages.get(this, "msg_" + Random.IntRangeVisual(11, 13)));
 			}
 		}
 

@@ -254,7 +254,7 @@ public class GnollGeomancer extends Mob {
 						sprite.idle();
 					}
 
-					Sample.INSTANCE.play(Assets.Sounds.MINE, 1f, Random.Float(0.85f, 1.15f));
+					Sample.INSTANCE.play(Assets.Sounds.MINE, 1f, Random.FloatVisual(0.85f, 1.15f));
 					Invisibility.dispel(Dungeon.hero);
 					Dungeon.hero.spendAndNext(p.delayFactor(GnollGeomancer.this));
 				}

@@ -33,6 +33,7 @@ import com.watabou.utils.Bundle;
 import com.watabou.utils.SparseArray;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 public abstract class Actor implements Bundlable {
 	
@@ -144,8 +145,8 @@ public abstract class Actor implements Bundlable {
 	// *** Static members ***
 	// **********************
 	
-	private static HashSet<Actor> all = new HashSet<>();
-	private static HashSet<Char> chars = new HashSet<>();
+	private static LinkedHashSet<Actor> all = new LinkedHashSet<>();
+	private static LinkedHashSet<Char> chars = new LinkedHashSet<>();
 	private static volatile Actor current;
 
 	private static SparseArray<Actor> ids = new SparseArray<>();
@@ -257,7 +258,9 @@ public abstract class Actor implements Bundlable {
 
 						//some actors will always go before others if time is equal.
 						if (actor.time < earliest ||
-								actor.time == earliest && (current == null || actor.actPriority > current.actPriority)) {
+								actor.time == earliest && (current == null
+										|| actor.actPriority > current.actPriority
+										|| (actor.actPriority == current.actPriority && actor.id() < current.id()))) {
 							earliest = actor.time;
 							current = actor;
 						}
@@ -388,9 +391,9 @@ public abstract class Actor implements Bundlable {
 		return ids.get( id );
 	}
 
-	public static synchronized HashSet<Actor> all() {
-		return new HashSet<>(all);
+	public static synchronized LinkedHashSet<Actor> all() {
+		return new LinkedHashSet<>(all);
 	}
 
-	public static synchronized HashSet<Char> chars() { return new HashSet<>(chars); }
+	public static synchronized LinkedHashSet<Char> chars() { return new LinkedHashSet<>(chars); }
 }

@@ -45,7 +45,7 @@ public class PitfallParticle extends PixelParticle.Shrinking {
 		super();
 
 		color( 0x000000 );
-		angle = Random.Float( -30, 30 );
+		angle = Random.FloatVisual( -30, 30 );
 
 	}
 

@@ -216,12 +216,12 @@ public class ItemStatusHandler<T extends Item> {
 
 	// These methods were added for the dementia rift
 
-
-	public HashSet<Class<? extends T>> known() {
+	
+	public LinkedHashSet<Class<? extends T>> known() {
 		return known;
 	}
 	
-	public HashSet<Class<? extends T>> unknown() {
+	public LinkedHashSet<Class<? extends T>> unknown() {
 		LinkedHashSet<Class<? extends T>> result = new LinkedHashSet<>();
 		for (Class<? extends T> i : items) {
 			if (!known.contains( i )) {

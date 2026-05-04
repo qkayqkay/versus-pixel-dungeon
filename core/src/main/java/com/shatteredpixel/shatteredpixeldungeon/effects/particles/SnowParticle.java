@@ -37,7 +37,7 @@ public class SnowParticle extends PixelParticle {
 	
 	public SnowParticle() {
 		super();
-		speed.set( 0, Random.Float( 5, 8 ) );
+		speed.set( 0, Random.FloatVisual( 5, 8 ) );
 		lifespan = 1.2f;
 	}
 	

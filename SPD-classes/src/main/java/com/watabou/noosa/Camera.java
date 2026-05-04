@@ -215,8 +215,8 @@ public class Camera extends Gizmo {
 		
 		if ((shakeTime -= Game.elapsed) > 0) {
 			float damping = shakeTime / shakeDuration;
-			shakeX = Random.Float( -shakeMagX, +shakeMagX ) * damping;
-			shakeY = Random.Float( -shakeMagY, +shakeMagY ) * damping;
+			shakeX = Random.FloatVisual( -shakeMagX, +shakeMagX ) * damping;
+			shakeY = Random.FloatVisual( -shakeMagY, +shakeMagY ) * damping;
 		} else {
 			shakeX = 0;
 			shakeY = 0;

@@ -127,7 +127,7 @@ public class AttackIndicator extends Tag {
 				lastTarget = null;
 			} else {
 				active = true;
-				lastTarget = Random.element( candidates );
+				lastTarget = Random.elementVisual( candidates );
 				updateImage();
 				flash();
 			}

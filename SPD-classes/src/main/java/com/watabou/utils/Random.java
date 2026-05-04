@@ -35,6 +35,10 @@ public class Random {
 	//top of the stack is what is currently being used to generate new numbers.
 	//the base generator is always created with no seed, and cannot be popped.
 	private static ArrayDeque<java.util.Random> generators;
+	
+	//visualGenerator is used for purely aesthetic effects that shouldn't affect gameplay determinism
+	private static java.util.Random visualGenerator = new java.util.Random();
+
 	static {
 		resetGenerators();
 	}
@@ -42,6 +46,12 @@ public class Random {
 	public static synchronized void resetGenerators(){
 		generators = new ArrayDeque<>();
 		generators.push(new java.util.Random());
+		gameplayCount = 0;
+		visualCount = 0;
+	}
+
+	public static synchronized void seedBaseGenerator(long seed){
+		generators.peekLast().setSeed(seed);
 	}
 
 	public static synchronized void pushGenerator(){
@@ -73,14 +83,120 @@ public class Random {
 		}
 	}
 
+	// --- Visual Generator Methods ---
+
+	public static synchronized float FloatVisual() {
+		float res = visualGenerator.nextFloat();
+		logRNG(false, "FloatVisual", res);
+		return res;
+	}
+
+	public static float FloatVisual( float max ) {
+		return FloatVisual() * max;
+	}
+
+	public static float FloatVisual( float min, float max ) {
+		return min + FloatVisual(max - min);
+	}
+
+	public static synchronized int IntVisual( int max ) {
+		if (max <= 0) return 0;
+		int res = visualGenerator.nextInt(max);
+		logRNG(false, "IntVisual(" + max + ")", res);
+		return res;
+	}
+
+	public static int IntVisual( int min, int max ) {
+		return min + IntVisual(max - min);
+	}
+
+	public static int IntRangeVisual( int min, int max ) {
+		return min + IntVisual(max - min + 1);
+	}
+	
+	public static int NormalIntRangeVisual( int min, int max ) {
+		return min + (int)((FloatVisual() + FloatVisual()) * (max - min + 1) / 2f);
+	}
+
+	public static int chancesVisual( float[] chances ) {
+		int length = chances.length;
+		float sum = 0;
+		for (int i=0; i < length; i++) {
+			sum += Math.max(0, chances[i]);
+		}
+		if (sum <= 0){
+			return -1;
+		}
+		float value = FloatVisual( sum );
+		sum = 0;
+		for (int i=0; i < length; i++) {
+			sum += Math.max(0, chances[i]);
+			if (value < sum) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	public static float NormalFloatVisual( float min, float max ) {
+		return min + ((FloatVisual(max - min) + FloatVisual(max - min))/2f);
+	}
+
+	public static<T> T elementVisual( T[] array ) {
+		return array[IntVisual(array.length)];
+	}
+	
+	public static<T> T elementVisual( Collection<? extends T> collection ) {
+		int size = collection.size();
+		return size > 0 ? (T)collection.toArray()[IntVisual( size )] : null;
+	}
+
+	@SafeVarargs
+	public static<T> T oneOfVisual(T... array ) {
+		return array[IntVisual(array.length)];
+	}
+
+	public static int indexVisual( Collection<?> collection ) {
+		return IntVisual(collection.size());
+	}
+
+	public synchronized static<T> void shuffleVisual( List<?extends T> list){
+		Collections.shuffle(list, visualGenerator);
+	}
+
+	private static long gameplayCount = 0;
+	private static long visualCount = 0;
+
+	private static void logRNG(boolean gameplay, String method, Object result) {
+		String caller = "unknown";
+		StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+		for (int i = 0; i < stack.length; i++) {
+			String className = stack[i].getClassName();
+			if (!className.contains("com.watabou.utils.Random") && !className.contains("java.lang.Thread")) {
+				caller = stack[i].getFileName() + ":" + stack[i].getLineNumber();
+				break;
+			}
+		}
+		if (gameplay) {
+			System.out.println(String.format("[RNG_GAME #%d] %s -> %s (%s)", ++gameplayCount, method, result.toString(), caller));
+		} else {
+			// Visual RNG는 양이 많을 수 있으므로 필요 시에만 주석 해제하여 확인
+			// System.out.println(String.format("[RNG_VISUAL #%d] %s -> %s (%s)", ++visualCount, method, result.toString(), caller));
+		}
+	}
+
 	//returns a uniformly distributed float in the range [0, 1)
 	public static synchronized float Float() {
 		return Float(true);
 	}
 
 	public static synchronized float Float( boolean useGeneratorStack ) {
-		if (useGeneratorStack)  return generators.peekFirst().nextFloat();
-		else                    return generators.peekLast().nextFloat();
+		float res;
+		if (useGeneratorStack)  res = generators.peekFirst().nextFloat();
+		else                    res = generators.peekLast().nextFloat();
+		
+		logRNG(useGeneratorStack, "Float", res);
+		return res;
 	}
 
 	//returns a uniformly distributed float in the range [0, max)
@@ -118,9 +234,13 @@ public class Random {
 	//returns a uniformly distributed int in the range [0, max)
 	//can either use the current generator in the stack, or force the first generator (pure random)
 	public static synchronized int Int( int max, boolean useGeneratorStack ) {
-		if (max <= 0)                   return 0;
-		else if (useGeneratorStack)     return generators.peekFirst().nextInt(max);
-		else                            return generators.peekLast().nextInt(max);
+		int res;
+		if (max <= 0)                   res = 0;
+		else if (useGeneratorStack)     res = generators.peekFirst().nextInt(max);
+		else                            res = generators.peekLast().nextInt(max);
+
+		logRNG(useGeneratorStack, "Int(" + max + ")", res);
+		return res;
 	}
 
 	//returns a uniformly distributed int in the range [min, max)

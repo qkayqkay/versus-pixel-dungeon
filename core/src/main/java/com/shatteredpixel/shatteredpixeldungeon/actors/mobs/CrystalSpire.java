@@ -332,7 +332,7 @@ public class CrystalSpire extends Mob {
 					BossHealthBar.bleed(HP <= HT/3);
 
 					if (isAlive()) {
-						Sample.INSTANCE.play(Assets.Sounds.SHATTER, 1f, Random.Float(1.15f, 1.25f));
+						Sample.INSTANCE.play(Assets.Sounds.SHATTER, 1f, Random.FloatVisual(1.15f, 1.25f));
 						((CrystalSpireSprite) sprite).updateIdle();
 					} else {
 						Sample.INSTANCE.play(Assets.Sounds.SHATTER);

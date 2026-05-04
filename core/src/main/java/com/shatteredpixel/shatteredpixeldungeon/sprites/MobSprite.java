@@ -58,7 +58,7 @@ public class MobSprite extends CharSprite {
 	public void fall() {
 		
 		origin.set( width / 2, height - DungeonTilemap.SIZE / 2 );
-		angularSpeed = Random.Int( 2 ) == 0 ? -720 : 720;
+		angularSpeed = Random.IntVisual( 2 ) == 0 ? -720 : 720;
 		am = 1;
 
 		hideEmo();

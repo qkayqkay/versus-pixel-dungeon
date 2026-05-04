@@ -74,7 +74,7 @@ public class BloodParticle extends PixelParticle.Shrinking {
 		this.x = x;
 		this.y = y;
 
-		speed.polar( Random.Float(PointF.PI2), Random.Float( 16, 32 ) );
+		speed.polar( Random.FloatVisual(PointF.PI2), Random.FloatVisual( 16, 32 ) );
 		size = 5;
 
 		left = 0.5f;

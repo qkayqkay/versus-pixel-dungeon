@@ -202,7 +202,7 @@ public class TalentsPane extends ScrollPane {
 									}
 									if (index == 0 || index == 1){
 										while (Dungeon.hero.talentPointsAvailable(tier) > 0){
-											TalentButton button = Random.element(buttons);
+											TalentButton button = Random.elementVisual(buttons);
 											if (Dungeon.hero.pointsInTalent(button.talent) < button.talent.maxPoints()){
 												button.upgradeTalent();
 												if (index == 1){

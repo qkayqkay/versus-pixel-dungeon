@@ -544,8 +544,8 @@ public class MagesStaff extends MeleeWeapon {
 		}
 
 		public void shuffleXY(float amt){
-			x += Random.Float(-amt, amt);
-			y += Random.Float(-amt, amt);
+			x += Random.FloatVisual(-amt, amt);
+			y += Random.FloatVisual(-amt, amt);
 		}
 
 		public void radiateXY(float amt){
@@ -557,7 +557,7 @@ public class MagesStaff extends MeleeWeapon {
 		@Override
 		public void update() {
 			super.update();
-			size(minSize + (left / lifespan)*(maxSize-minSize) + Random.Float(sizeJitter));
+			size(minSize + (left / lifespan)*(maxSize-minSize) + Random.FloatVisual(sizeJitter));
 		}
 	}
 }

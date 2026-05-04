@@ -42,7 +42,7 @@ public class RainbowParticle extends PixelParticle {
 
 	public RainbowParticle() {
 		super();
-		color( Random.Int( 0x1000000 ) );
+		color( Random.IntVisual( 0x1000000 ) );
 		lifespan = 0.5f;
 	}
 
@@ -53,7 +53,7 @@ public class RainbowParticle extends PixelParticle {
 		this.x = x;
 		this.y = y;
 
-		speed.set( Random.Float(-5, +5), Random.Float( -5, +5 ) );
+		speed.set( Random.FloatVisual(-5, +5), Random.FloatVisual( -5, +5 ) );
 
 		left = lifespan;
 	}
@@ -64,7 +64,7 @@ public class RainbowParticle extends PixelParticle {
 		this.x = x;
 		this.y = y;
 
-		speed.polar( Random.Float( PointF.PI2 ), Random.Float( 16, 32 ) );
+		speed.polar( Random.FloatVisual( PointF.PI2 ), Random.FloatVisual( 16, 32 ) );
 
 		left = lifespan;
 	}

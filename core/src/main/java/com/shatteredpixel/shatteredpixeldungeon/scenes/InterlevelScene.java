@@ -603,8 +603,8 @@ public class InterlevelScene extends PixelScene {
 					//the randomization is effectively -2 to +2
 					// we don't use the generator stack as levelgen may be occurring
 					// and we don't want to accidentally use a seeded generator
-					(w + insets.left - loadingText.width() - 4) + 4*(Random.Float(false)-0.5f),
-					(h + insets.top - loadingText.height() - 6) + 4*(Random.Float(false)-0.5f)
+					(w + insets.left - loadingText.width() - 4) + 4*(Random.FloatVisual()-0.5f),
+					(h + insets.top - loadingText.height() - 6) + 4*(Random.FloatVisual()-0.5f)
 			);
 			align(loadingText);
 		}

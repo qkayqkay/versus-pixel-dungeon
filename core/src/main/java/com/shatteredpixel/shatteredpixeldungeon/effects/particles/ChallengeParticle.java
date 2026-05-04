@@ -55,7 +55,7 @@ public class ChallengeParticle extends PixelParticle.Shrinking {
 		left = lifespan;
 		size = 8;
 
-		speed.set( Random.Float( -8, +8 ), Random.Float( -16, -32 ) );
+		speed.set( Random.FloatVisual( -8, +8 ), Random.FloatVisual( -16, -32 ) );
 	}
 
 	@Override

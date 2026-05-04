@@ -259,7 +259,9 @@ public class Dungeon {
 			Generator.fullReset();
 
 		Random.resetGenerators();
-		
+		//seed the base generator so that gameplay events are deterministic
+		Random.seedBaseGenerator( seed );
+
 		Statistics.reset();
 		Notes.reset();
 

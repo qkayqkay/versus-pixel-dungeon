@@ -67,15 +67,15 @@ public class SparkParticle extends PixelParticle {
 		this.y = y;
 		size = 5;
 		
-		left = lifespan = Random.Float( 0.5f, 1.0f );
+		left = lifespan = Random.FloatVisual( 0.5f, 1.0f );
 		
-		speed.polar( -Random.Float( 3.1415926f ), Random.Float( 20, 40 ) );
+		speed.polar( -Random.FloatVisual( 3.1415926f ), Random.FloatVisual( 20, 40 ) );
 	}
 	
 	public void resetStatic( float x, float y){
 		reset(x, y);
 		
-		left = lifespan = Random.Float( 0.25f, 0.5f );
+		left = lifespan = Random.FloatVisual( 0.25f, 0.5f );
 		
 		acc.set( 0, 0 );
 		speed.set( 0, 0 );
@@ -84,7 +84,7 @@ public class SparkParticle extends PixelParticle {
 	public void resetAttracting( float x, float y, Visual attracting){
 		reset(x, y);
 
-		left = lifespan = Random.Float( 0.2f, 0.35f );
+		left = lifespan = Random.FloatVisual( 0.2f, 0.35f );
 
 		acc.set(0);
 		speed.set((attracting.x + attracting.width / 2f) - x,
@@ -103,6 +103,6 @@ public class SparkParticle extends PixelParticle {
 	@Override
 	public void update() {
 		super.update();
-		size( Random.Float( size * left / lifespan ) );
+		size( Random.FloatVisual( size * left / lifespan ) );
 	}
 }

@@ -50,9 +50,9 @@ public class WoolParticle extends PixelParticle.Shrinking {
 		this.x = x;
 		this.y = y;
 		
-		left = lifespan = Random.Float( 0.6f, 1f );
+		left = lifespan = Random.FloatVisual( 0.6f, 1f );
 		size = 5;
 		
-		speed.set( Random.Float( -10, +10 ), Random.Float( -10, +10 ) );
+		speed.set( Random.FloatVisual( -10, +10 ), Random.FloatVisual( -10, +10 ) );
 	}
 }

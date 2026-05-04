@@ -107,7 +107,7 @@ public class WandOfLivingEarth extends DamageWand {
 			guardian.sprite.centerEmitter().burst(MagicMissile.EarthParticle.ATTRACT, 8 + buffedLvl() / 2);
 			guardian.setInfo(curUser, buffedLvl(), armorToAdd);
 			wandProc(guardian, chargesPerCast());
-			Sample.INSTANCE.play( Assets.Sounds.HIT_MAGIC, 1, 0.9f * Random.Float(0.87f, 1.15f) );
+			Sample.INSTANCE.play( Assets.Sounds.HIT_MAGIC, 1, 0.9f * Random.FloatVisual(0.87f, 1.15f) );
 
 		//shooting the guardian at a location
 		} else if ( guardian == null && buff != null && buff.armor >= buff.armorToGuardian()){
@@ -163,7 +163,7 @@ public class WandOfLivingEarth extends DamageWand {
 
 			guardian.sprite.centerEmitter().burst(MagicMissile.EarthParticle.ATTRACT, 8 + buffedLvl()/2);
 			buff.detach();
-			Sample.INSTANCE.play( Assets.Sounds.HIT_MAGIC, 1, 0.9f * Random.Float(0.87f, 1.15f) );
+			Sample.INSTANCE.play( Assets.Sounds.HIT_MAGIC, 1, 0.9f * Random.FloatVisual(0.87f, 1.15f) );
 
 		//shooting at a location/enemy with no guardian being shot
 		} else {
@@ -174,7 +174,7 @@ public class WandOfLivingEarth extends DamageWand {
 
 				wandProc(ch, chargesPerCast());
 				ch.damage(damage, this);
-				Sample.INSTANCE.play( Assets.Sounds.HIT_MAGIC, 1, 0.8f * Random.Float(0.87f, 1.15f) );
+				Sample.INSTANCE.play( Assets.Sounds.HIT_MAGIC, 1, 0.8f * Random.FloatVisual(0.87f, 1.15f) );
 				
 				if (guardian == null) {
 					if (armorToAdd > 0) {
@@ -244,7 +244,7 @@ public class WandOfLivingEarth extends DamageWand {
 	
 	@Override
 	public void staffFx(MagesStaff.StaffParticle particle) {
-		if (Random.Int(10) == 0){
+		if (Random.IntVisual(10) == 0){
 			particle.color(ColorMath.random(0xFFF568, 0x80791A));
 		} else {
 			particle.color(ColorMath.random(0x805500, 0x332500));
@@ -253,7 +253,7 @@ public class WandOfLivingEarth extends DamageWand {
 		particle.setLifespan(2f);
 		particle.setSize( 1f, 2f);
 		particle.shuffleXY(0.5f);
-		float dst = Random.Float(11f);
+		float dst = Random.FloatVisual(11f);
 		particle.x -= dst;
 		particle.y += dst;
 	}

@@ -777,14 +777,14 @@ public class DriedRose extends Artifact {
 		
 		public void sayAppeared(){
 			if (Dungeon.hero.buff(AscensionChallenge.class) != null){
-				yell( Messages.get( this, "dialogue_ascension_" + Random.IntRange(1, 6) ));
+				yell( Messages.get( this, "dialogue_ascension_" + Random.IntRangeVisual(1, 6) ));
 
 			} else {
 
 				int depth = (Dungeon.depth - 1) / 5;
 
 				//only some lines are said on the first floor of a depth
-				int variant = Dungeon.depth % 5 == 1 ? Random.IntRange(1, 3) : Random.IntRange(1, 6);
+				int variant = Dungeon.depth % 5 == 1 ? Random.IntRange(1, 3) : Random.IntRangeVisual(1, 6);
 
 				switch (depth) {
 					case 0:

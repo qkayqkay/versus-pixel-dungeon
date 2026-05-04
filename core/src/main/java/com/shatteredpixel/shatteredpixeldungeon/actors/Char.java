@@ -376,7 +376,7 @@ public abstract class Char extends Actor {
 			if (visibleFight) {
 				enemy.sprite.showStatus( CharSprite.POSITIVE, Messages.get(this, "invulnerable") );
 
-				Sample.INSTANCE.play(Assets.Sounds.HIT_PARRY, 1f, Random.Float(0.96f, 1.05f));
+				Sample.INSTANCE.play(Assets.Sounds.HIT_PARRY, 1f, Random.FloatVisual(0.96f, 1.05f));
 			}
 
 			return false;
@@ -505,8 +505,8 @@ public abstract class Char extends Actor {
 				effectiveDamage = attackProc(enemy, effectiveDamage);
 			}
 			if (visibleFight) {
-				if (effectiveDamage > 0 || !enemy.blockSound(Random.Float(0.96f, 1.05f))) {
-					hitSound(Random.Float(0.87f, 1.15f));
+				if (effectiveDamage > 0 || !enemy.blockSound(Random.FloatVisual(0.96f, 1.05f))) {
+					hitSound(Random.FloatVisual(0.87f, 1.15f));
 				}
 			}
 
@@ -593,7 +593,7 @@ public abstract class Char extends Actor {
 				if (hitMissIcon != -1){
 					//dooking is a playful sound Ferrets can make, like low pitched chirping
 					// I doubt this will translate, so it's only in English
-					if (hitMissIcon == FloatingText.MISS_TUFT && Messages.lang() == Languages.ENGLISH && Random.Int(10) == 0) {
+					if (hitMissIcon == FloatingText.MISS_TUFT && Messages.lang() == Languages.ENGLISH && Random.IntVisual(10) == 0) {
 						enemy.sprite.showStatusWithIcon(CharSprite.NEUTRAL, "dooked", hitMissIcon);
 					} else {
 						enemy.sprite.showStatusWithIcon(CharSprite.NEUTRAL, enemy.defenseVerb(), hitMissIcon);

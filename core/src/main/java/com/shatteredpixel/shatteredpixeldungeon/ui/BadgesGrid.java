@@ -131,7 +131,7 @@ public class BadgesGrid extends Component {
 		public void update() {
 			super.update();
 
-			if (unlocked && Random.Float() < Game.elapsed * 0.1) {
+			if (unlocked && Random.FloatVisual() < Game.elapsed * 0.1) {
 				BadgeBanner.highlight( icon, badge.image );
 			}
 		}

@@ -43,7 +43,7 @@ public class FlowParticle extends PixelParticle {
 		
 		lifespan = 0.6f;
 		acc.set( 0, 32 );
-		angularSpeed = Random.Float( -360, +360 );
+		angularSpeed = Random.FloatVisual( -360, +360 );
 	}
 	
 	public void reset( float x, float y ) {

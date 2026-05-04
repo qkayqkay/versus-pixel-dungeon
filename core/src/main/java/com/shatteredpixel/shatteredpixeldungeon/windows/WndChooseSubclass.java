@@ -68,7 +68,7 @@ public class WndChooseSubclass extends Window {
 						super.onSelect(index);
 						if (index == 0){
 							WndChooseSubclass.this.hide();
-							HeroSubClass cls = Random.oneOf(hero.heroClass.subClasses());
+							HeroSubClass cls = Random.oneOfVisual(hero.heroClass.subClasses());
 							tome.choose(cls);
 							GameScene.show(new WndInfoSubclass(hero.heroClass, cls));
 						}

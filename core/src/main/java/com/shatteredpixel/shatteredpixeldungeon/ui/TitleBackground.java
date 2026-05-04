@@ -286,10 +286,10 @@ public class TitleBackground extends Component {
 
 	public RectF getArchFrame(){
 
-		int tile = Random.chances(arch_chances);
+		int tile = Random.chancesVisual(arch_chances);
 		if (tile == -1){
 			arch_chances = INIT_ARCH_CHANCES.clone();
-			tile = Random.chances(arch_chances);
+			tile = Random.chancesVisual(arch_chances);
 		}
 		arch_chances[tile]--;
 
@@ -322,7 +322,7 @@ public class TitleBackground extends Component {
 
 		//if we aren't low enough, add more arch layers
 		while (bottom < height){
-			float left = -5 + (-33.334f * Random.Int(1, 9) * scale);
+			float left = -5 + (-33.334f * Random.IntVisual(1, 9) * scale);
 			while (left < width){
 				Image arch = new Image(Assets.Splashes.Title.ARCHS);
 				arch.frame(getArchFrame());
@@ -345,10 +345,10 @@ public class TitleBackground extends Component {
 
 	public RectF getClusterFrame(){
 
-		int tile = Random.chances(cluster_chances);
+		int tile = Random.chancesVisual(cluster_chances);
 		if (tile == -1){
 			cluster_chances = INIT_CLUSTER_CHANCES.clone();
-			tile = Random.chances(cluster_chances);
+			tile = Random.chancesVisual(cluster_chances);
 		}
 		cluster_chances[tile]--;
 
@@ -374,11 +374,11 @@ public class TitleBackground extends Component {
 				cluster.frame(getClusterFrame());
 				float flex = 0;
 				do {
-					cluster.x = Random.Float(-cluster.width()/3f, width - 2*cluster.width()/3f);
+					cluster.x = Random.FloatVisual(-cluster.width()/3f, width - 2*cluster.width()/3f);
 					flex += 1;
 				} while (Math.abs(cluster.x - lastX) < density*(cluster.width()/2f - flex));
-				cluster.y = bottom - cluster.height() + Random.Float(cluster.height()/2f, cluster.height())/density;
-				cluster.angle = Random.Float(-20, 20);
+				cluster.y = bottom - cluster.height() + Random.FloatVisual(cluster.height()/2f, cluster.height())/density;
+				cluster.angle = Random.FloatVisual(-20, 20);
 				bottom = cluster.y + cluster.height();
 				lastX = cluster.x;
 			}
@@ -394,11 +394,11 @@ public class TitleBackground extends Component {
 
 			float flex = 0;
 			do {
-				cluster.x = Random.Float(-cluster.width()/3f, width - 2*cluster.width()/3f);
+				cluster.x = Random.FloatVisual(-cluster.width()/3f, width - 2*cluster.width()/3f);
 				flex += 1;
 			} while (Math.abs(cluster.x - lastX) < density*(cluster.width()/2f - flex));
-			cluster.y = bottom - cluster.height() + Random.Float(cluster.height()/2f, cluster.height())/density;
-			cluster.angle = Random.Float(-20, 20);
+			cluster.y = bottom - cluster.height() + Random.FloatVisual(cluster.height()/2f, cluster.height())/density;
+			cluster.angle = Random.FloatVisual(-20, 20);
 
 			cluster.brightness(0.5f);
 
@@ -429,11 +429,11 @@ public class TitleBackground extends Component {
 				cluster.frame(getClusterFrame());
 				float flex = 0;
 				do {
-					cluster.x = Random.Float(-cluster.width()/3f, width - 2*cluster.width()/3f);
+					cluster.x = Random.FloatVisual(-cluster.width()/3f, width - 2*cluster.width()/3f);
 					flex += 1;
 				} while (Math.abs(cluster.x - lastX) < density*(cluster.width()/2f - flex));
-				cluster.y = bottom - cluster.height() + Random.Float(cluster.height()/2f, cluster.height())/density;
-				cluster.angle = Random.Float(-20, 20);
+				cluster.y = bottom - cluster.height() + Random.FloatVisual(cluster.height()/2f, cluster.height())/density;
+				cluster.angle = Random.FloatVisual(-20, 20);
 				bottom = cluster.y + cluster.height();
 				lastX = cluster.x;
 			}
@@ -449,11 +449,11 @@ public class TitleBackground extends Component {
 
 			float flex = 0;
 			do {
-				cluster.x = Random.Float(-cluster.width()/3f, width - 2*cluster.width()/3f);
+				cluster.x = Random.FloatVisual(-cluster.width()/3f, width - 2*cluster.width()/3f);
 				flex += 1;
 			} while (Math.abs(cluster.x - lastX) < density*(cluster.width()/2f - flex));
-			cluster.y = bottom - cluster.height() + Random.Float(cluster.height()/2f, cluster.height())/density;
-			cluster.angle = Random.Float(-20, 20);
+			cluster.y = bottom - cluster.height() + Random.FloatVisual(cluster.height()/2f, cluster.height())/density;
+			cluster.angle = Random.FloatVisual(-20, 20);
 
 			cluster.brightness(0.75f);
 
@@ -476,10 +476,10 @@ public class TitleBackground extends Component {
 
 		int tile = -1;
 		do {
-			tile = Random.chances(mid_chances);
+			tile = Random.chancesVisual(mid_chances);
 			if (tile == -1) {
 				mid_chances = INIT_MID_CHANCES.clone();
-				tile = Random.chances(mid_chances);
+				tile = Random.chancesVisual(mid_chances);
 			}
 		} while (lastMids.contains(tile));
 		mid_chances[tile]--;
@@ -509,14 +509,14 @@ public class TitleBackground extends Component {
 		if (!toMove.isEmpty()){
 			for (Image mid : toMove){
 				mid.frame(getMidFrame());
-				mid.scale.set(scale * Random.Float(0.75f, 1.25f));
+				mid.scale.set(scale * Random.FloatVisual(0.75f, 1.25f));
 				float flex = 0;
 				do {
-					mid.x = Random.Float(-mid.width()/3f, width - 2*mid.width()/3f);
+					mid.x = Random.FloatVisual(-mid.width()/3f, width - 2*mid.width()/3f);
 					flex += 1;
 				} while (Math.abs(mid.x - lastX) < density*(mid.width()*0.75f - flex));
-				mid.y = bottom - mid.height() + Random.Float(mid.height()*0.75f, mid.height())/density;
-				mid.angle = Random.Float(-20, 20);
+				mid.y = bottom - mid.height() + Random.FloatVisual(mid.height()*0.75f, mid.height())/density;
+				mid.angle = Random.FloatVisual(-20, 20);
 				bottom = mid.y + mid.height();
 				lastX = mid.x;
 			}
@@ -528,16 +528,16 @@ public class TitleBackground extends Component {
 		while (bottom < (height + padding)){
 			Image mid = new Image(Assets.Splashes.Title.MID_MIXED);
 			mid.frame(getMidFrame());
-			mid.scale.set(scale * Random.Float(0.75f, 1.25f));
+			mid.scale.set(scale * Random.FloatVisual(0.75f, 1.25f));
 			mid.brightness(0.9f);
 
 			float flex = 0;
 			do {
-				mid.x = Random.Float(-mid.width()/3f, width - 2*mid.width()/3f);
+				mid.x = Random.FloatVisual(-mid.width()/3f, width - 2*mid.width()/3f);
 				flex += 1;
 			} while (Math.abs(mid.x - lastX) < density*(mid.width()*0.75f - flex));
-			mid.y = bottom - mid.height() + Random.Float(mid.height()/2f, mid.height())/density;
-			mid.angle = Random.Float(-20, 20);
+			mid.y = bottom - mid.height() + Random.FloatVisual(mid.height()/2f, mid.height())/density;
+			mid.angle = Random.FloatVisual(-20, 20);
 
 			mids1.add(mid);
 			mids1Layer.add(mid);
@@ -564,14 +564,14 @@ public class TitleBackground extends Component {
 		if (!toMove.isEmpty()){
 			for (Image mid : toMove){
 				mid.frame(getMidFrame());
-				mid.scale.set(scale * Random.Float(1.25f, 1.75f));
+				mid.scale.set(scale * Random.FloatVisual(1.25f, 1.75f));
 				float flex = 0;
 				do {
-					mid.x = Random.Float(-mid.width()/3f, width - 2*mid.width()/3f);
+					mid.x = Random.FloatVisual(-mid.width()/3f, width - 2*mid.width()/3f);
 					flex += 1;
 				} while (Math.abs(mid.x - lastX) < density*(mid.width()*0.75f - flex));
-				mid.y = bottom - mid.height() + Random.Float(mid.height()/2f, mid.height())/density;
-				mid.angle = Random.Float(-20, 20);
+				mid.y = bottom - mid.height() + Random.FloatVisual(mid.height()/2f, mid.height())/density;
+				mid.angle = Random.FloatVisual(-20, 20);
 				bottom = mid.y + mid.height();
 				lastX = mid.x;
 			}
@@ -583,15 +583,15 @@ public class TitleBackground extends Component {
 		while (bottom < (height + padding)){
 			Image mid = new Image(Assets.Splashes.Title.MID_MIXED);
 			mid.frame(getMidFrame());
-			mid.scale.set(scale * Random.Float(1.25f, 1.75f));
+			mid.scale.set(scale * Random.FloatVisual(1.25f, 1.75f));
 
 			float flex = 0;
 			do {
-				mid.x = Random.Float(-mid.width()/3f, width - 2*mid.width()/3f);
+				mid.x = Random.FloatVisual(-mid.width()/3f, width - 2*mid.width()/3f);
 				flex += 1;
 			} while (Math.abs(mid.x - lastX) < density*(mid.width()*0.75f - flex));
-			mid.y = bottom - mid.height() + Random.Float(mid.height()/2f, mid.height())/density;
-			mid.angle = Random.Float(-20, 20);
+			mid.y = bottom - mid.height() + Random.FloatVisual(mid.height()/2f, mid.height())/density;
+			mid.angle = Random.FloatVisual(-20, 20);
 
 			mids2.add(mid);
 			mids2Layer.add(mid);
@@ -612,10 +612,10 @@ public class TitleBackground extends Component {
 
 		int tile = -1;
 		do {
-			tile = Random.chances(small_chances);
+			tile = Random.chancesVisual(small_chances);
 			if (tile == -1) {
 				small_chances = INIT_SMALL_CHANCES.clone();
-				tile = Random.chances(small_chances);
+				tile = Random.chancesVisual(small_chances);
 			}
 		} while (lastSmalls.contains(tile));
 		small_chances[tile]--;
@@ -645,14 +645,14 @@ public class TitleBackground extends Component {
 		if (!toMove.isEmpty()) {
 			for (Image small : toMove) {
 				small.frame(getSmallFrame());
-				small.scale.set(scale * Random.Float(0.75f, 1.25f));
+				small.scale.set(scale * Random.FloatVisual(0.75f, 1.25f));
 				float flex = 0;
 				do {
-					small.x = Random.Float(small.width() / 3f, width - 4 * small.width() / 3f);
+					small.x = Random.FloatVisual(small.width() / 3f, width - 4 * small.width() / 3f);
 					flex += 1;
 				} while (Math.abs(small.x - lastX) < density * (small.width() - flex));
-				small.y = bottom - small.height()/2f + Random.Float(small.height() / 2f, small.height()) / density;
-				small.angle = Random.Float(-20, 20);
+				small.y = bottom - small.height()/2f + Random.FloatVisual(small.height() / 2f, small.height()) / density;
+				small.angle = Random.FloatVisual(-20, 20);
 				bottom = small.y + small.height();
 				lastX = small.x;
 			}
@@ -664,16 +664,16 @@ public class TitleBackground extends Component {
 		while (bottom < (height + padding)) {
 			Image small = new Image(Assets.Splashes.Title.FRONT_SMALL);
 			small.frame(getSmallFrame());
-			small.scale.set(scale * Random.Float(0.75f, 1.25f));
+			small.scale.set(scale * Random.FloatVisual(0.75f, 1.25f));
 			small.brightness(0.8f);
 
 			float flex = 0;
 			do {
-				small.x = Random.Float(small.width() / 3f, width - 4 * small.width() / 3f);
+				small.x = Random.FloatVisual(small.width() / 3f, width - 4 * small.width() / 3f);
 				flex += 1;
 			} while (Math.abs(small.x - lastX) < density * (small.width() - flex));
-			small.y = bottom - small.height()/2f + Random.Float(small.height() / 2f, small.height()) / density;
-			small.angle = Random.Float(-20, 20);
+			small.y = bottom - small.height()/2f + Random.FloatVisual(small.height() / 2f, small.height()) / density;
+			small.angle = Random.FloatVisual(-20, 20);
 
 			smallFars.add(small);
 			smallFarLayer.add(small);
@@ -700,14 +700,14 @@ public class TitleBackground extends Component {
 		if (!toMove.isEmpty()){
 			for (Image small : toMove){
 				small.frame(getSmallFrame());
-				small.scale.set(scale * Random.Float(2f, 2.5f));
+				small.scale.set(scale * Random.FloatVisual(2f, 2.5f));
 				float flex = 0;
 				do {
-					small.x = Random.Float(-small.width()/3f, width - 2*small.width()/3f);
+					small.x = Random.FloatVisual(-small.width()/3f, width - 2*small.width()/3f);
 					flex += 1;
 				} while (Math.abs(small.x - lastX) < density*(small.width() - flex));
-				small.y = bottom - small.height() + Random.Float(small.height()/2f, small.height())/density;
-				small.angle = Random.Float(-20, 20);
+				small.y = bottom - small.height() + Random.FloatVisual(small.height()/2f, small.height())/density;
+				small.angle = Random.FloatVisual(-20, 20);
 				bottom = small.y + small.height();
 				lastX = small.x;
 			}
@@ -719,15 +719,15 @@ public class TitleBackground extends Component {
 		while (bottom < (height + padding)){
 			Image small = new Image(Assets.Splashes.Title.FRONT_SMALL);
 			small.frame(getSmallFrame());
-			small.scale.set(scale * Random.Float(2f, 2.5f));
+			small.scale.set(scale * Random.FloatVisual(2f, 2.5f));
 
 			float flex = 0;
 			do {
-				small.x = Random.Float(-small.width()/3f, width - 2*small.width()/3f);
+				small.x = Random.FloatVisual(-small.width()/3f, width - 2*small.width()/3f);
 				flex += 1;
 			} while (Math.abs(small.x - lastX) < density*(small.width() - flex));
-			small.y = bottom - small.height() + Random.Float(small.height()/2f, small.height())/density;
-			small.angle = Random.Float(-20, 20);
+			small.y = bottom - small.height() + Random.FloatVisual(small.height()/2f, small.height())/density;
+			small.angle = Random.FloatVisual(-20, 20);
 
 			smallCloses.add(small);
 			smallCloseLayer.add(small);

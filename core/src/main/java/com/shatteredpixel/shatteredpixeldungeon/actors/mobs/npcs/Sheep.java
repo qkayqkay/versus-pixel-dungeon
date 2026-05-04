@@ -57,7 +57,7 @@ public class Sheep extends NPC {
 
 	public void initialize(float lifespan){
 		this.lifespan = lifespan;
-		spend( lifespan + Random.Float(-2, 2) );
+		spend( lifespan + Random.FloatVisual(-2, 2) );
 	}
 
 	@Override
@@ -78,10 +78,10 @@ public class Sheep extends NPC {
 	@Override
 	public boolean interact(Char c) {
 		Bestiary.setSeen(getClass());
-		sprite.showStatus( CharSprite.NEUTRAL, Messages.get(this, Random.element( LINE_KEYS )) );
+		sprite.showStatus( CharSprite.NEUTRAL, Messages.get(this, Random.elementVisual( LINE_KEYS )) );
 		if (c == Dungeon.hero) {
 			Dungeon.hero.spendAndNext(1f);
-			Sample.INSTANCE.play(Assets.Sounds.SHEEP, 1, Random.Float(0.91f, 1.1f));
+			Sample.INSTANCE.play(Assets.Sounds.SHEEP, 1, Random.FloatVisual(0.91f, 1.1f));
 			//sheep summoned by woolly bomb can be dispelled by interacting
 			if (lifespan >= 20){
 				spend(-cooldown());

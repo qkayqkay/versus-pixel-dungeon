@@ -577,14 +577,14 @@ public class Hero extends Char {
 		if (buff(RoundShield.GuardTracker.class) != null){
 			buff(RoundShield.GuardTracker.class).hasBlocked = true;
 			BuffIndicator.refreshHero();
-			Sample.INSTANCE.play(Assets.Sounds.HIT_PARRY, 1, Random.Float(0.96f, 1.05f));
+			Sample.INSTANCE.play(Assets.Sounds.HIT_PARRY, 1, Random.FloatVisual(0.96f, 1.05f));
 			return Messages.get(RoundShield.GuardTracker.class, "guarded");
 		}
 
 		if (buff(MonkEnergy.MonkAbility.Focus.FocusBuff.class) != null){
 			buff(MonkEnergy.MonkAbility.Focus.FocusBuff.class).detach();
 			if (sprite != null && sprite.visible) {
-				Sample.INSTANCE.play(Assets.Sounds.HIT_PARRY, 1, Random.Float(0.96f, 1.05f));
+				Sample.INSTANCE.play(Assets.Sounds.HIT_PARRY, 1, Random.FloatVisual(0.96f, 1.05f));
 			}
 			return Messages.get(Monk.class, "parried");
 		}
@@ -656,7 +656,7 @@ public class Hero extends Char {
 
 	//damage rolls that come from the hero can have their RNG influenced by clover
 	public static int heroDamageIntRange(int min, int max ){
-		if (Random.Float() < ThirteenLeafClover.alterHeroDamageChance()){
+		if (Random.FloatVisual() < ThirteenLeafClover.alterHeroDamageChance()){
 			return ThirteenLeafClover.alterDamageRoll(min, max);
 		} else {
 			return Random.NormalIntRange(min, max);
@@ -2279,19 +2279,19 @@ public class Hero extends Char {
 		
 		if (!flying && travelling) {
 			if (Dungeon.level.water[pos]) {
-				Sample.INSTANCE.play( Assets.Sounds.WATER, 1, Random.Float( 0.8f, 1.25f ) );
+				Sample.INSTANCE.play( Assets.Sounds.WATER, 1, Random.FloatVisual( 0.8f, 1.25f ) );
 			} else if (Dungeon.level.map[pos] == Terrain.EMPTY_SP) {
-				Sample.INSTANCE.play( Assets.Sounds.STURDY, 1, Random.Float( 0.96f, 1.05f ) );
+				Sample.INSTANCE.play( Assets.Sounds.STURDY, 1, Random.FloatVisual( 0.96f, 1.05f ) );
 			} else if (Dungeon.level.map[pos] == Terrain.GRASS
 					|| Dungeon.level.map[pos] == Terrain.EMBERS
 					|| Dungeon.level.map[pos] == Terrain.FURROWED_GRASS){
 				if (step == pos && wasHighGrass) {
-					Sample.INSTANCE.play(Assets.Sounds.TRAMPLE, 1, Random.Float( 0.96f, 1.05f ) );
+					Sample.INSTANCE.play(Assets.Sounds.TRAMPLE, 1, Random.FloatVisual( 0.96f, 1.05f ) );
 				} else {
-					Sample.INSTANCE.play( Assets.Sounds.GRASS, 1, Random.Float( 0.96f, 1.05f ) );
+					Sample.INSTANCE.play( Assets.Sounds.GRASS, 1, Random.FloatVisual( 0.96f, 1.05f ) );
 				}
 			} else {
-				Sample.INSTANCE.play( Assets.Sounds.STEP, 1, Random.Float( 0.96f, 1.05f ) );
+				Sample.INSTANCE.play( Assets.Sounds.STEP, 1, Random.FloatVisual( 0.96f, 1.05f ) );
 			}
 		}
 	}
@@ -2523,7 +2523,7 @@ public class Hero extends Char {
 							chance = 0;
 						}
 						
-						if (Random.Float() < chance) {
+						if (Random.FloatVisual() < chance) {
 						
 							int oldValue = Dungeon.level.map[curr];
 							

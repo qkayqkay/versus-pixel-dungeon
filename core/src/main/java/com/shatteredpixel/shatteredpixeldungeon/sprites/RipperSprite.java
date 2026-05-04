@@ -32,7 +32,7 @@ public class RipperSprite extends MobSprite {
 	private Animation prep;
 	private Animation leap;
 
-	private boolean alt = Random.Int(2) == 0;
+	private boolean alt = Random.IntVisual(2) == 0;
 
 	public RipperSprite() {
 		super();

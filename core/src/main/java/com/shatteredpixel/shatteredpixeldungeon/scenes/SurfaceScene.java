@@ -278,7 +278,7 @@ public class SurfaceScene extends PixelScene {
 			ratJumpTimer -= Game.elapsed;
 			while (ratJumpTimer <= 0f) {
 				ratJumpTimer += 0.02f;
-				Random.element(rats).jump();
+				Random.elementVisual(rats).jump();
 			}
 		}
 
@@ -443,7 +443,7 @@ public class SurfaceScene extends PixelScene {
 		private float tx;
 		private float ty;
 		
-		private double a = Random.Float( 5 );
+		private double a = Random.FloatVisual( 5 );
 		private double angle;
 		
 		private boolean forward;
@@ -452,7 +452,7 @@ public class SurfaceScene extends PixelScene {
 			
 			super( Assets.Interfaces.SURFACE );
 			
-			frame( 88 + Random.Int( 4 ) * WIDTH, 60, WIDTH, HEIGHT );
+			frame( 88 + Random.IntVisual( 4 ) * WIDTH, 60, WIDTH, HEIGHT );
 			
 			this.tx = tx;
 			this.ty = ty;
@@ -463,7 +463,7 @@ public class SurfaceScene extends PixelScene {
 		@Override
 		public void update() {
 			super.update();
-			a += Random.Float( Game.elapsed * 5 );
+			a += Random.FloatVisual( Game.elapsed * 5 );
 			angle = (2 + Math.cos( a )) * (forward ? +0.2 : -0.2);
 			
 			scale.y = (float)Math.cos( angle );

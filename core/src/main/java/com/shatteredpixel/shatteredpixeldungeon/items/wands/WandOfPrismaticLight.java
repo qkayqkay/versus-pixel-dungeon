@@ -130,7 +130,7 @@ public class WandOfPrismaticLight extends DamageWand {
 				}
 			}
 
-			CellEmitter.center(c).burst( RainbowParticle.BURST, Random.IntRange( 1, 2 ) );
+			CellEmitter.center(c).burst( RainbowParticle.BURST, Random.IntRangeVisual( 1, 2 ) );
 		}
 		if (noticed)
 			Sample.INSTANCE.play( Assets.Sounds.SECRET );
@@ -168,10 +168,10 @@ public class WandOfPrismaticLight extends DamageWand {
 
 	@Override
 	public void staffFx(MagesStaff.StaffParticle particle) {
-		particle.color( Random.Int( 0x1000000 ) );
+		particle.color( Random.IntVisual( 0x1000000 ) );
 		particle.am = 0.5f;
 		particle.setLifespan(1f);
-		particle.speed.polar(Random.Float(PointF.PI2), 2f);
+		particle.speed.polar(Random.FloatVisual(PointF.PI2), 2f);
 		particle.setSize( 1f, 2f);
 		particle.radiateXY( 0.5f);
 	}

@@ -60,7 +60,7 @@ public class PurpleParticle extends PixelParticle {
 		this.x = x;
 		this.y = y;
 		
-		speed.set( Random.Float( -5, +5 ), Random.Float( -5, +5 ) );
+		speed.set( Random.FloatVisual( -5, +5 ), Random.FloatVisual( -5, +5 ) );
 		
 		left = lifespan;
 	}
@@ -71,7 +71,7 @@ public class PurpleParticle extends PixelParticle {
 		this.x = x;
 		this.y = y;
 		
-		speed.polar( Random.Float( PointF.PI2 ), Random.Float( 16, 32 ) );
+		speed.polar( Random.FloatVisual( PointF.PI2 ), Random.FloatVisual( 16, 32 ) );
 		
 		left = lifespan;
 	}

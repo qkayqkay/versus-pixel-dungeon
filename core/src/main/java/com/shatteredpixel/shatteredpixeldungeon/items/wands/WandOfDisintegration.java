@@ -113,7 +113,7 @@ public class WandOfDisintegration extends DamageWand {
 				
 			}
 			
-			CellEmitter.center( c ).burst( PurpleParticle.BURST, Random.IntRange( 1, 2 ) );
+			CellEmitter.center( c ).burst( PurpleParticle.BURST, Random.IntRangeVisual( 1, 2 ) );
 		}
 		
 		if (terrainAffected) {
@@ -124,7 +124,7 @@ public class WandOfDisintegration extends DamageWand {
 		for (Char ch : chars) {
 			wandProc(ch, chargesPerCast());
 			ch.damage( damageRoll(lvl), this );
-			ch.sprite.centerEmitter().burst( PurpleParticle.BURST, Random.IntRange( 1, 2 ) );
+			ch.sprite.centerEmitter().burst( PurpleParticle.BURST, Random.IntRangeVisual( 1, 2 ) );
 			ch.sprite.flash();
 		}
 	}

@@ -383,7 +383,7 @@ public class SpiritBow extends Weapon {
 
 		@Override
 		public void throwSound() {
-			Sample.INSTANCE.play( Assets.Sounds.ATK_SPIRITBOW, 1, Random.Float(0.87f, 1.15f) );
+			Sample.INSTANCE.play( Assets.Sounds.ATK_SPIRITBOW, 1, Random.FloatVisual(0.87f, 1.15f) );
 		}
 
 		int flurryCount = -1;

@@ -46,7 +46,7 @@ public class EnergyParticle extends PixelParticle {
 		lifespan = 1f;
 		color( 0xFFFFAA );
 		
-		speed.polar( Random.Float( PointF.PI2 ), Random.Float( 24, 32 ) );
+		speed.polar( Random.FloatVisual( PointF.PI2 ), Random.FloatVisual( 24, 32 ) );
 	}
 	
 	public void reset( float x, float y ) {
@@ -64,6 +64,6 @@ public class EnergyParticle extends PixelParticle {
 		
 		float p = left / lifespan;
 		am = p < 0.5f ? p * p * 4 : (1 - p) * 2;
-		size( Random.Float( 5 * left / lifespan ) );
+		size( Random.FloatVisual( 5 * left / lifespan ) );
 	}
 }

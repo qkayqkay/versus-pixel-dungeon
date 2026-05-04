@@ -147,8 +147,8 @@ public class Lightning extends Group {
 
 		@Override
 		public void update() {
-			float x2 = (start.x + end.x) / 2 + Random.Float( -4, +4 );
-			float y2 = (start.y + end.y) / 2 + Random.Float( -4, +4 );
+			float x2 = (start.x + end.x) / 2 + Random.FloatVisual( -4, +4 );
+			float y2 = (start.y + end.y) / 2 + Random.FloatVisual( -4, +4 );
 
 			float dx = x2 - start.x;
 			float dy = y2 - start.y;

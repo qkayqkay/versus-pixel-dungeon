@@ -119,6 +119,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 
 public abstract class Level implements Bundlable {
 	
@@ -179,9 +181,9 @@ public abstract class Level implements Bundlable {
 	//when a boss level has become locked.
 	public boolean locked = false;
 	
-	public HashSet<Mob> mobs;
+	public LinkedHashSet<Mob> mobs;
 	public SparseArray<Heap> heaps;
-	public HashMap<Class<? extends Blob>,Blob> blobs;
+	public LinkedHashMap<Class<? extends Blob>,Blob> blobs;
 	public SparseArray<Plant> plants;
 	public SparseArray<Trap> traps;
 	public ArrayList<CustomTilemap> customTiles;
@@ -297,9 +299,9 @@ public abstract class Level implements Bundlable {
 
 			transitions = new ArrayList<>();
 
-			mobs = new HashSet<>();
+			mobs = new LinkedHashSet<>();
 			heaps = new SparseArray<>();
-			blobs = new HashMap<>();
+			blobs = new LinkedHashMap<>();
 			plants = new SparseArray<>();
 			traps = new SparseArray<>();
 			customTiles = new ArrayList<>();
@@ -370,9 +372,9 @@ public abstract class Level implements Bundlable {
 
 		setSize( bundle.getInt(WIDTH), bundle.getInt(HEIGHT));
 		
-		mobs = new HashSet<>();
+		mobs = new LinkedHashSet<>();
 		heaps = new SparseArray<>();
-		blobs = new HashMap<>();
+		blobs = new LinkedHashMap<>();
 		plants = new SparseArray<>();
 		traps = new SparseArray<>();
 		customTiles = new ArrayList<>();
@@ -1260,11 +1262,11 @@ public abstract class Level implements Bundlable {
 		Plant plant = plants.get( cell );
 		if (plant != null) {
 			if (bubble != null){
-				Sample.INSTANCE.play(Assets.Sounds.TRAMPLE, 1, Random.Float( 0.96f, 1.05f ) );
+				Sample.INSTANCE.play(Assets.Sounds.TRAMPLE, 1, Random.FloatVisual( 0.96f, 1.05f ) );
 				bubble.setDelayedPress(cell);
 
 			} else if (timeFreeze != null){
-				Sample.INSTANCE.play(Assets.Sounds.TRAMPLE, 1, Random.Float( 0.96f, 1.05f ) );
+				Sample.INSTANCE.play(Assets.Sounds.TRAMPLE, 1, Random.FloatVisual( 0.96f, 1.05f ) );
 				timeFreeze.setDelayedPress(cell);
 
 			} else {

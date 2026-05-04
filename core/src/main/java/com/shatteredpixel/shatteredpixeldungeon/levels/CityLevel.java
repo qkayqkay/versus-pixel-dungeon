@@ -358,7 +358,7 @@ public class CityLevel extends RegularLevel {
 			super();
 			
 			color( 0x000000 );
-			speed.set( Random.Float( -2, 4 ), -Random.Float( 3, 6 ) );
+			speed.set( Random.FloatVisual( -2, 4 ), -Random.FloatVisual( 3, 6 ) );
 		}
 		
 		public void reset( float x, float y ) {

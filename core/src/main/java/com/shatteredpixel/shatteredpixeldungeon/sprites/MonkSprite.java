@@ -57,7 +57,7 @@ public class MonkSprite extends MobSprite {
 	@Override
 	public void attack( int cell ) {
 		super.attack( cell );
-		if (Random.Float() < 0.5f) {
+		if (Random.FloatVisual() < 0.5f) {
 			play( kick );
 		}
 	}

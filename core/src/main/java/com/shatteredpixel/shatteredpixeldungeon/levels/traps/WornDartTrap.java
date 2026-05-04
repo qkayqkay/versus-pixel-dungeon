@@ -104,7 +104,7 @@ public class WornDartTrap extends Trap {
 											GLog.n(Messages.get(WornDartTrap.class, "ondeath"));
 											if (reclaimed) Badges.validateDeathFromFriendlyMagic();
 										}
-										Sample.INSTANCE.play(Assets.Sounds.HIT, 1, 1, Random.Float(0.8f, 1.25f));
+										Sample.INSTANCE.play(Assets.Sounds.HIT, 1, 1, Random.FloatVisual(0.8f, 1.25f));
 										finalTarget.sprite.bloodBurstA(finalTarget.sprite.center(), dmg);
 										finalTarget.sprite.flash();
 										next();

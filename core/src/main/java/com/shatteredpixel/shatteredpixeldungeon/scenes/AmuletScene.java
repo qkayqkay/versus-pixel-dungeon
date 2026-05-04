@@ -171,7 +171,7 @@ public class AmuletScene extends PixelScene {
 		super.update();
 		
 		if ((timer -= Game.elapsed) < 0) {
-			timer = Random.Float( 0.5f, 5f );
+			timer = Random.FloatVisual( 0.5f, 5f );
 			
 			Speck star = (Speck)recycle( Speck.class );
 			star.reset( 0, amulet.x + 10.5f, amulet.y + 5.5f, Speck.DISCOVER );

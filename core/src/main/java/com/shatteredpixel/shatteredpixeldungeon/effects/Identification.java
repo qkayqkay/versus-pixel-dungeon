@@ -78,7 +78,7 @@ public class Identification extends Group {
 			float x1 = x0 + mx * SIZE;
 			float y1 = y0 + my * SIZE;
 			
-			PointF p = new PointF().polar( Random.Float( 2 * PointF.PI ), 8 );
+			PointF p = new PointF().polar( Random.FloatVisual( 2 * PointF.PI ), 8 );
 			x0 += p.x;
 			y0 += p.y;
 			

@@ -177,7 +177,7 @@ public class WandOfCorruption extends Wand {
 				corruptEnemy( enemy );
 			} else {
 				float debuffChance = corruptingPower / enemyResist;
-				if (Random.Float() < debuffChance){
+				if (Random.FloatVisual() < debuffChance){
 					debuffEnemy( enemy, MAJOR_DEBUFFS);
 				} else {
 					debuffEnemy( enemy, MINOR_DEBUFFS);
@@ -185,7 +185,7 @@ public class WandOfCorruption extends Wand {
 			}
 
 			wandProc(ch, chargesPerCast());
-			Sample.INSTANCE.play( Assets.Sounds.HIT_MAGIC, 1, 0.8f * Random.Float(0.87f, 1.15f) );
+			Sample.INSTANCE.play( Assets.Sounds.HIT_MAGIC, 1, 0.8f * Random.FloatVisual(0.87f, 1.15f) );
 			
 		} else {
 			Dungeon.level.pressCell(bolt.collisionPos);
@@ -243,7 +243,7 @@ public class WandOfCorruption extends Wand {
 		// lvl 1 - 28.5%
 		// lvl 2 - 37.5%
 		float procChance = (level+1f)/(level+6f) * procChanceMultiplier(attacker);
-		if (Random.Float() < procChance) {
+		if (Random.FloatVisual() < procChance) {
 
 			float powerMulti = Math.max(1f, procChance);
 

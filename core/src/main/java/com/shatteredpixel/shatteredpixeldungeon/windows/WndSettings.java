@@ -925,10 +925,10 @@ public class WndSettings extends WndTabbed {
 				@Override
 				protected void onChange() {
 					SPDSettings.SFXVol(getSelectedValue());
-					if (Random.Int(100) == 0){
+					if (Random.IntVisual(100) == 0){
 						Sample.INSTANCE.play(Assets.Sounds.MIMIC);
 					} else {
-						Sample.INSTANCE.play(Random.oneOf(Assets.Sounds.GOLD,
+						Sample.INSTANCE.play(Random.oneOfVisual(Assets.Sounds.GOLD,
 								Assets.Sounds.HIT,
 								Assets.Sounds.ITEM,
 								Assets.Sounds.SHATTER,

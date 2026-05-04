@@ -123,13 +123,14 @@ public enum Music {
 		trackQueue.clear();
 
 		for (int i = 0; i < trackList.length; i++){
-			if (Random.Float() < trackChances[i]){
+			if (Random.FloatVisual() < trackChances[i]){
 				trackQueue.add(trackList[i]);
 			}
 		}
 
 		this.looping = false;
 		this.shuffle = shuffle;
+		if (shuffle) Random.shuffleVisual(trackQueue);
 
 		if (!enabled || trackQueue.isEmpty()){
 			return;
@@ -196,7 +197,7 @@ public enum Music {
 
 		if (trackQueue.isEmpty()) {
 			for (int i = 0; i < trackList.length; i++) {
-				if (Random.Float() < trackChances[i]) {
+				if (Random.FloatVisual() < trackChances[i]) {
 					trackQueue.add(trackList[i]);
 				}
 			}

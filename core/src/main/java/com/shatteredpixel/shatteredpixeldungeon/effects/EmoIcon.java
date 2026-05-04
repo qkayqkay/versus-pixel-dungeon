@@ -86,7 +86,7 @@ public class EmoIcon extends Image {
 			maxSize = 1.2f;
 			timeScale = 0.5f;
 			
-			scale.set( Random.Float( 1, maxSize ) );
+			scale.set( Random.FloatVisual( 1, maxSize ) );
 
 			x = owner.x + owner.width - width / 2;
 			y = owner.y - height;
@@ -110,7 +110,7 @@ public class EmoIcon extends Image {
 			maxSize = 1.3f;
 			timeScale = 2;
 			
-			scale.set( Random.Float( 1, maxSize ) );
+			scale.set( Random.FloatVisual( 1, maxSize ) );
 
 			x = owner.x + owner.width - width / 2;
 			y = owner.y - height;
@@ -134,7 +134,7 @@ public class EmoIcon extends Image {
 			maxSize = 1.3f;
 			timeScale = 1.5f;
 
-			scale.set( Random.Float( 1, maxSize ) );
+			scale.set( Random.FloatVisual( 1, maxSize ) );
 
 			x = owner.x + owner.width - width / 2;
 			y = owner.y - height;
@@ -157,7 +157,7 @@ public class EmoIcon extends Image {
 			maxSize = 1.25f;
 			timeScale = 1;
 			
-			scale.set( Random.Float( 1, maxSize ) );
+			scale.set( Random.FloatVisual( 1, maxSize ) );
 			
 			x = owner.x + owner.width - width / 2;
 			y = owner.y - height;

@@ -212,7 +212,7 @@ public class HallsLevel extends RegularLevel {
 			
 			this.pos = pos;
 			
-			delay = Random.Float( 2 );
+			delay = Random.FloatVisual( 2 );
 		}
 		
 		@Override
@@ -229,12 +229,12 @@ public class HallsLevel extends RegularLevel {
 				
 				if ((delay -= Game.elapsed) <= 0) {
 					
-					delay = Random.Float( 2 );
+					delay = Random.FloatVisual( 2 );
 					
 					PointF p = DungeonTilemap.tileToWorld( pos );
 					((FireParticle)recycle( FireParticle.class )).reset(
-						p.x + Random.Float( DungeonTilemap.SIZE ),
-						p.y + Random.Float( DungeonTilemap.SIZE ) );
+						p.x + Random.FloatVisual( DungeonTilemap.SIZE ),
+						p.y + Random.FloatVisual( DungeonTilemap.SIZE ) );
 				}
 			}
 		}

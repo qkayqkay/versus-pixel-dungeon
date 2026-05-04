@@ -60,7 +60,7 @@ public class WandOfMagicMissile extends DamageWand {
 
 			wandProc(ch, chargesPerCast());
 			ch.damage(damageRoll(), this);
-			Sample.INSTANCE.play( Assets.Sounds.HIT_MAGIC, 1, Random.Float(0.87f, 1.15f) );
+			Sample.INSTANCE.play( Assets.Sounds.HIT_MAGIC, 1, Random.FloatVisual(0.87f, 1.15f) );
 
 			ch.sprite.burst(0xFFFFFFFF, buffedLvl() / 2 + 2);
 
