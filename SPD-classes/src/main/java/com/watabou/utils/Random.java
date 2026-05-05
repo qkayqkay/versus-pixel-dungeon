@@ -24,6 +24,7 @@ package com.watabou.utils;
 import com.watabou.noosa.Game;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,13 +32,41 @@ import java.util.List;
 
 public class Random {
 
+	private static final long multiplier = 0x5DEECE66DL;
+	private static final long addend = 0xBL;
+	private static final long mask = (1L << 48) - 1;
+
+	// Custom LCG implementation that exposes its seed and matches java.util.Random behavior
+	public static class LCG extends java.util.Random {
+		public long seed;
+
+		public LCG(long seed) {
+			// Random constructor calls setSeed
+			setSeed(seed);
+		}
+
+		@Override
+		public synchronized void setSeed(long seed) {
+			this.seed = (seed ^ multiplier) & mask;
+		}
+
+		@Override
+		protected synchronized int next(int bits) {
+			seed = (seed * multiplier + addend) & mask;
+			return (int) (seed >>> (48 - bits));
+		}
+	}
+
 	//we store a stack of random number generators, which may be seeded deliberately or randomly.
 	//top of the stack is what is currently being used to generate new numbers.
 	//the base generator is always created with no seed, and cannot be popped.
-	private static ArrayDeque<java.util.Random> generators;
+	private static ArrayDeque<LCG> generators;
 	
 	//visualGenerator is used for purely aesthetic effects that shouldn't affect gameplay determinism
-	private static java.util.Random visualGenerator = new java.util.Random();
+	private static LCG visualGenerator = new LCG(System.currentTimeMillis());
+
+	private static long gameplayCount = 0;
+	private static long visualCount = 0;
 
 	static {
 		resetGenerators();
@@ -45,21 +74,22 @@ public class Random {
 
 	public static synchronized void resetGenerators(){
 		generators = new ArrayDeque<>();
-		generators.push(new java.util.Random());
+		generators.push(new LCG(System.currentTimeMillis()));
 		gameplayCount = 0;
 		visualCount = 0;
 	}
 
 	public static synchronized void seedBaseGenerator(long seed){
 		generators.peekLast().setSeed(seed);
+		gameplayCount = 0;
 	}
 
 	public static synchronized void pushGenerator(){
-		generators.push( new java.util.Random() );
+		generators.push( new LCG(System.currentTimeMillis()) );
 	}
 
 	public static synchronized void pushGenerator( long seed ){
-		generators.push( new java.util.Random( scrambleSeed(seed) ) );
+		generators.push( new LCG( scrambleSeed(seed) ) );
 	}
 
 	//scrambles a given seed, this helps eliminate patterns between the outputs of similar seeds
@@ -83,11 +113,25 @@ public class Random {
 		}
 	}
 
+	private static void logRNG(boolean gameplay, String method, Object result) {
+		String caller = "unknown";
+		StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+		for (int i = 0; i < stack.length; i++) {
+			String className = stack[i].getClassName();
+			if (!className.contains("com.watabou.utils.Random") && !className.contains("java.lang.Thread")) {
+				caller = stack[i].getFileName() + ":" + stack[i].getLineNumber();
+				break;
+			}
+		}
+		if (gameplay) {
+			System.out.println(String.format("[RNG_GAME #%d] %s -> %s (%s)", ++gameplayCount, method, result.toString(), caller));
+		}
+	}
+
 	// --- Visual Generator Methods ---
 
 	public static synchronized float FloatVisual() {
 		float res = visualGenerator.nextFloat();
-		logRNG(false, "FloatVisual", res);
 		return res;
 	}
 
@@ -102,7 +146,6 @@ public class Random {
 	public static synchronized int IntVisual( int max ) {
 		if (max <= 0) return 0;
 		int res = visualGenerator.nextInt(max);
-		logRNG(false, "IntVisual(" + max + ")", res);
 		return res;
 	}
 
@@ -164,26 +207,7 @@ public class Random {
 		Collections.shuffle(list, visualGenerator);
 	}
 
-	private static long gameplayCount = 0;
-	private static long visualCount = 0;
-
-	private static void logRNG(boolean gameplay, String method, Object result) {
-		String caller = "unknown";
-		StackTraceElement[] stack = Thread.currentThread().getStackTrace();
-		for (int i = 0; i < stack.length; i++) {
-			String className = stack[i].getClassName();
-			if (!className.contains("com.watabou.utils.Random") && !className.contains("java.lang.Thread")) {
-				caller = stack[i].getFileName() + ":" + stack[i].getLineNumber();
-				break;
-			}
-		}
-		if (gameplay) {
-			System.out.println(String.format("[RNG_GAME #%d] %s -> %s (%s)", ++gameplayCount, method, result.toString(), caller));
-		} else {
-			// Visual RNG는 양이 많을 수 있으므로 필요 시에만 주석 해제하여 확인
-			// System.out.println(String.format("[RNG_VISUAL #%d] %s -> %s (%s)", ++visualCount, method, result.toString(), caller));
-		}
-	}
+	// --- Gameplay Generator Methods ---
 
 	//returns a uniformly distributed float in the range [0, 1)
 	public static synchronized float Float() {
@@ -337,12 +361,12 @@ public class Random {
 		
 		float value = Float( sum );
 		
-		sum = probs[0];
+		sum = 0;
 		for (int i=0; i < size; i++) {
+			sum += probs[i];
 			if (value < sum) {
 				return (K)values[i];
 			}
-			sum += probs[i + 1];
 		}
 		
 		return null;
@@ -412,5 +436,33 @@ public class Random {
 				v[j] = vt;
 			}
 		}
+	}
+
+	// --- State Save/Restore ---
+
+	public static synchronized long[] getStackStates() {
+		long[] states = new long[generators.size()];
+		int i = 0;
+		for (LCG lcg : generators) {
+			states[i++] = lcg.seed;
+		}
+		return states;
+	}
+
+	public static synchronized void restoreStackStates(long[] states) {
+		generators.clear();
+		for (int i = states.length - 1; i >= 0; i--) {
+			LCG lcg = new LCG(0);
+			lcg.seed = states[i]; // Direct seed injection
+			generators.push(lcg);
+		}
+	}
+
+	public static synchronized long getVisualState() {
+		return visualGenerator.seed;
+	}
+
+	public static synchronized void restoreVisualState(long state) {
+		visualGenerator.seed = state;
 	}
 }
