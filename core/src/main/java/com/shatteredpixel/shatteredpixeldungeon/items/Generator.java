@@ -923,7 +923,9 @@ public class Generator {
 	}
 
 	public static void restoreFromBundle(Bundle bundle) {
+		Random.pushGenerator();
 		fullReset();
+		Random.popGenerator();
 
 		usingFirstDeck = bundle.getBoolean(FIRST_DECK);
 

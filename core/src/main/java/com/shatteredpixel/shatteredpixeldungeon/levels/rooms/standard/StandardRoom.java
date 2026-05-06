@@ -25,11 +25,13 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room;
+import com.watabou.utils.Bundle;
 import com.watabou.utils.Point;
 import com.watabou.utils.Random;
 import com.watabou.utils.Reflection;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public abstract class StandardRoom extends Room {
 	
@@ -51,8 +53,31 @@ public abstract class StandardRoom extends Room {
 	}
 	
 	public SizeCategory sizeCat;
-	{ setSizeCat(); }
+	{
+		if (!com.watabou.utils.Random.loading) {
+			setSizeCat();
+		}
+	}
 	
+	private static final String SIZE_CAT = "size_cat";
+
+	@Override
+	public void storeInBundle(Bundle bundle) {
+		super.storeInBundle(bundle);
+		bundle.put(SIZE_CAT, sizeCat.name());
+	}
+
+	@Override
+	public void restoreFromBundle(Bundle bundle) {
+		super.restoreFromBundle(bundle);
+		if (bundle.contains(SIZE_CAT)) {
+			sizeCat = SizeCategory.valueOf(bundle.getString(SIZE_CAT));
+		} else {
+			// Fallback for old saves, though this shouldn't happen with our new system
+			sizeCat = SizeCategory.NORMAL;
+		}
+	}
+
 	//Note that if a room wishes to allow itself to be forced to a certain size category,
 	//but would (effectively) never roll that size category, consider using Float.MIN_VALUE
 	public float[] sizeCatProbs(){

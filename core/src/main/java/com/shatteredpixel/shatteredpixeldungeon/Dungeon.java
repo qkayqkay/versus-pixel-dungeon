@@ -650,6 +650,9 @@ public class Dungeon {
 	private static final String CHAPTERS	= "chapters";
 	private static final String QUESTS		= "quests";
 	private static final String BADGES		= "badges";
+
+	private static final String RNG_STACK	= "rng_stack";
+	private static final String RNG_VISUAL	= "rng_visual";
 	
 	public static void saveGame( int save ) {
 		try {
@@ -657,6 +660,11 @@ public class Dungeon {
 
 			bundle.put( INIT_VER, initialVersion );
 			bundle.put( VERSION, version = Game.versionCode );
+			
+			// Capture RNG state as early as possible to avoid pollution from other objects' storeInBundle
+			bundle.put( RNG_STACK, Random.getStackStates() );
+			bundle.put( RNG_VISUAL, Random.getVisualState() );
+
 			bundle.put( SEED, seed );
 			bundle.put( CUSTOM_SEED, customSeedText );
 			bundle.put( DAILY, daily );
@@ -735,7 +743,7 @@ public class Dungeon {
 	
 	public static void saveAll() throws IOException {
 		if (hero != null && (hero.isAlive() || WndResurrect.instance != null)) {
-			
+
 			Actor.fixTime();
 			updateLevelExplored();
 			saveGame( GamesInProgress.curSlot );
@@ -751,121 +759,135 @@ public class Dungeon {
 	}
 	
 	public static void loadGame( int save, boolean fullLoad ) throws IOException {
-		
-		Bundle bundle = FileUtils.bundleFromFile( GamesInProgress.gameFile( save ) );
+		com.watabou.utils.Random.loading = true;
+		try {
+			Bundle bundle = FileUtils.bundleFromFile( GamesInProgress.gameFile( save ) );
 
-		initialVersion = bundle.getInt( INIT_VER );
-		version = bundle.getInt( VERSION );
+			initialVersion = bundle.getInt( INIT_VER );
+			version = bundle.getInt( VERSION );
 
-		seed = bundle.contains( SEED ) ? bundle.getLong( SEED ) : DungeonSeed.randomSeed();
-		customSeedText = bundle.getString( CUSTOM_SEED );
-		daily = bundle.getBoolean( DAILY );
-		dailyReplay = bundle.getBoolean( DAILY_REPLAY );
+			seed = bundle.contains( SEED ) ? bundle.getLong( SEED ) : DungeonSeed.randomSeed();
+			customSeedText = bundle.getString( CUSTOM_SEED );
+			daily = bundle.getBoolean( DAILY );
+			dailyReplay = bundle.getBoolean( DAILY_REPLAY );
 
-		Actor.clear();
-		Actor.restoreNextID( bundle );
+			Actor.clear();
+			Actor.restoreNextID( bundle );
 
-		quickslot.reset();
-		QuickSlotButton.reset();
-		Toolbar.swappedQuickslots = false;
+			quickslot.reset();
+			QuickSlotButton.reset();
+			Toolbar.swappedQuickslots = false;
 
-		Dungeon.challenges = bundle.getInt( CHALLENGES );
-		Dungeon.mobsToChampion = bundle.getFloat( MOBS_TO_CHAMPION );
-		
-		Dungeon.level = null;
-		Dungeon.depth = -1;
-		
-		Scroll.restore( bundle );
-		Potion.restore( bundle );
-		Ring.restore( bundle );
-
-		quickslot.restorePlaceholders( bundle );
-		
-		if (fullLoad) {
+			Dungeon.challenges = bundle.getInt( CHALLENGES );
+			Dungeon.mobsToChampion = bundle.getFloat( MOBS_TO_CHAMPION );
 			
-			LimitedDrops.restore( bundle.getBundle(LIMDROPS) );
-
-			chapters = new HashSet<>();
-			int ids[] = bundle.getIntArray( CHAPTERS );
-			if (ids != null) {
-				for (int id : ids) {
-					chapters.add( id );
-				}
-			}
+			Dungeon.level = null;
+			Dungeon.depth = -1;
 			
-			Bundle quests = bundle.getBundle( QUESTS );
-			if (!quests.isNull()) {
-				Ghost.Quest.restoreFromBundle( quests );
-				Wandmaker.Quest.restoreFromBundle( quests );
-				Blacksmith.Quest.restoreFromBundle( quests );
-				Imp.Quest.restoreFromBundle( quests );
-			} else {
-				Ghost.Quest.reset();
-				Wandmaker.Quest.reset();
-				Blacksmith.Quest.reset();
-				Imp.Quest.reset();
-			}
+			Scroll.restore( bundle );
+			Potion.restore( bundle );
+			Ring.restore( bundle );
+
+			quickslot.restorePlaceholders( bundle );
 			
-			SpecialRoom.restoreRoomsFromBundle(bundle);
-			SecretRoom.restoreRoomsFromBundle(bundle);
+			if (fullLoad) {
+				
+				LimitedDrops.restore( bundle.getBundle(LIMDROPS) );
 
-			generatedLevels.clear();
-			for (int i : bundle.getIntArray(GENERATED_LEVELS)){
-				generatedLevels.add(i);
-			}
-
-			droppedItems = new SparseArray<>();
-			for (int i=1; i <= 26; i++) {
-
-				//dropped items
-				ArrayList<Item> items = new ArrayList<>();
-				if (bundle.contains(Messages.format( DROPPED, i )))
-					for (Bundlable b : bundle.getCollection( Messages.format( DROPPED, i ) ) ) {
-						items.add( (Item)b );
+				chapters = new HashSet<>();
+				int ids[] = bundle.getIntArray( CHAPTERS );
+				if (ids != null) {
+					for (int id : ids) {
+						chapters.add( id );
 					}
-				if (!items.isEmpty()) {
-					droppedItems.put( i, items );
+				}
+				
+				Bundle quests = bundle.getBundle( QUESTS );
+				if (!quests.isNull()) {
+					Ghost.Quest.restoreFromBundle( quests );
+					Wandmaker.Quest.restoreFromBundle( quests );
+					Blacksmith.Quest.restoreFromBundle( quests );
+					Imp.Quest.restoreFromBundle( quests );
+				} else {
+					Ghost.Quest.reset();
+					Wandmaker.Quest.reset();
+					Blacksmith.Quest.reset();
+					Imp.Quest.reset();
+				}
+				
+				SpecialRoom.restoreRoomsFromBundle(bundle);
+				SecretRoom.restoreRoomsFromBundle(bundle);
+
+				generatedLevels.clear();
+				for (int i : bundle.getIntArray(GENERATED_LEVELS)){
+					generatedLevels.add(i);
 				}
 
+				droppedItems = new SparseArray<>();
+				for (int i=1; i <= 26; i++) {
+
+					//dropped items
+					ArrayList<Item> items = new ArrayList<>();
+					if (bundle.contains(Messages.format( DROPPED, i )))
+						for (Bundlable b : bundle.getCollection( Messages.format( DROPPED, i ) ) ) {
+							items.add( (Item)b );
+						}
+					if (!items.isEmpty()) {
+						droppedItems.put( i, items );
+					}
+
+				}
 			}
+			
+			Bundle badges = bundle.getBundle(BADGES);
+			if (!badges.isNull()) {
+				Badges.loadLocal( badges );
+			} else {
+				Badges.reset();
+			}
+			
+			Notes.restoreFromBundle( bundle );
+			
+			hero = null;
+			hero = (Hero)bundle.get( HERO );
+			
+			depth = bundle.getInt( DEPTH );
+			branch = bundle.getInt( BRANCH );
+
+			gold = bundle.getInt( GOLD );
+			energy = bundle.getInt( ENERGY );
+
+			Statistics.restoreFromBundle( bundle );
+			Generator.restoreFromBundle( bundle );
+
+			if (bundle.contains( RNG_STACK )) {
+				Random.restoreStackStates( bundle.getLongArray( RNG_STACK ) );
+			}
+			if (bundle.contains( RNG_VISUAL )) {
+				Random.restoreVisualState( bundle.getLong( RNG_VISUAL ) );
+			}
+		} finally {
+			com.watabou.utils.Random.loading = false;
 		}
-		
-		Bundle badges = bundle.getBundle(BADGES);
-		if (!badges.isNull()) {
-			Badges.loadLocal( badges );
-		} else {
-			Badges.reset();
-		}
-		
-		Notes.restoreFromBundle( bundle );
-		
-		hero = null;
-		hero = (Hero)bundle.get( HERO );
-		
-		depth = bundle.getInt( DEPTH );
-		branch = bundle.getInt( BRANCH );
-
-		gold = bundle.getInt( GOLD );
-		energy = bundle.getInt( ENERGY );
-
-		Statistics.restoreFromBundle( bundle );
-		Generator.restoreFromBundle( bundle );
-
 	}
 	
 	public static Level loadLevel( int save ) throws IOException {
-		
-		Dungeon.level = null;
-		Actor.clear();
+		com.watabou.utils.Random.loading = true;
+		try {
+			Dungeon.level = null;
+			Actor.clear();
 
-		Bundle bundle = FileUtils.bundleFromFile( GamesInProgress.depthFile( save, depth, branch ));
+			Bundle bundle = FileUtils.bundleFromFile( GamesInProgress.depthFile( save, depth, branch ));
 
-		Level level = (Level)bundle.get( LEVEL );
+			Level level = (Level)bundle.get( LEVEL );
 
-		if (level == null){
-			throw new IOException();
-		} else {
-			return level;
+			if (level == null){
+				throw new IOException();
+			} else {
+				return level;
+			}
+		} finally {
+			com.watabou.utils.Random.loading = false;
 		}
 	}
 	

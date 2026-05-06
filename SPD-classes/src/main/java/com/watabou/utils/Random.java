@@ -63,6 +63,8 @@ public class Random {
 	private static ArrayDeque<LCG> generators;
 	
 	//visualGenerator is used for purely aesthetic effects that shouldn't affect gameplay determinism
+	public static boolean loading = false;
+
 	private static LCG visualGenerator = new LCG(System.currentTimeMillis());
 
 	private static long gameplayCount = 0;
@@ -114,6 +116,8 @@ public class Random {
 	}
 
 	private static void logRNG(boolean gameplay, String method, Object result) {
+		if (!gameplay) return;
+		
 		String caller = "unknown";
 		StackTraceElement[] stack = Thread.currentThread().getStackTrace();
 		for (int i = 0; i < stack.length; i++) {
@@ -123,9 +127,10 @@ public class Random {
 				break;
 			}
 		}
-		if (gameplay) {
-			System.out.println(String.format("[RNG_GAME #%d] %s -> %s (%s)", ++gameplayCount, method, result.toString(), caller));
-		}
+		
+		long currentSeed = generators.peekFirst().seed;
+		System.out.println(String.format("[RNG_GAME #%d] %s -> %s | Seed: %d (%s)", 
+			++gameplayCount, method, result.toString(), currentSeed, caller));
 	}
 
 	// --- Visual Generator Methods ---
@@ -455,6 +460,7 @@ public class Random {
 			LCG lcg = new LCG(0);
 			lcg.seed = states[i]; // Direct seed injection
 			generators.push(lcg);
+			System.out.println("[LOAD] "+lcg.seed);
 		}
 	}
 
