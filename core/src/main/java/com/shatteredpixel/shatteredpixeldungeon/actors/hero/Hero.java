@@ -150,6 +150,9 @@ public class Hero extends Char {
 		
 		alignment = Alignment.ALLY;
 	}
+
+	public Class<? extends Potion> lastPotionDrunk;
+	public Class<? extends Scroll> lastScrollRead;
 	
 	public static final int MAX_LEVEL = 30;
 
@@ -880,7 +883,8 @@ public class Hero extends Char {
 		if(hasTalent(Talent.BARKSKIN) && Dungeon.level.map[pos] == Terrain.FURROWED_GRASS){
 			Barkskin.conditionallyAppend(this, (lvl*pointsInTalent(Talent.BARKSKIN))/2, 1 );
 		}
-		
+
+		Gamemode.current.updateBingo();
 		return actResult;
 	}
 	

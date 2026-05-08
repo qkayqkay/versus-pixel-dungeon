@@ -168,6 +168,8 @@ public class Shopkeeper extends NPC {
 		GLog.newLine();
 		GLog.n(Messages.get(this, "flee"));
 
+		Statistics.shopkeepersFled++;
+
 		if (sprite != null) {
 			sprite.killAndErase();
 			CellEmitter.get(pos).burst(ElmoParticle.FACTORY, 6);

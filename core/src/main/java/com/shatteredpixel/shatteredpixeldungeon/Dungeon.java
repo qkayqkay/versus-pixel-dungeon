@@ -537,6 +537,10 @@ public class Dungeon {
 			/*This only catches IO errors. Yes, this means things can go wrong, and they can go wrong catastrophically.
 			But when they do the user will get a nice 'report this issue' dialogue, and I can fix the bug.*/
 		}
+		if (depth == 1) {
+			int entrancePos = level.getTransition(null).cell();
+			level.drop(new Amulet(), entrancePos+1).type = Heap.Type.HEAP;
+		}
 	}
 
 	public static void dropToChasm( Item item ) {

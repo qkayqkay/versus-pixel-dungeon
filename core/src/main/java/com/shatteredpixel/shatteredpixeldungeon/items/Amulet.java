@@ -30,6 +30,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AscensionChallenge;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.networking.Gamemode;
 import com.shatteredpixel.shatteredpixeldungeon.networking.NetworkManager;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.AmuletScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.VictoryScene;
@@ -67,16 +68,17 @@ public class Amulet extends Item {
 		super.execute( hero, action );
 
 		if (action.equals(AC_END)) {
-			showAmuletScene( false );
+			if(Gamemode.current.gamemodeID.equals("classic") || Gamemode.current.gamemodeID.equals("classic_rift")) {
+				showAmuletScene(false);
+			}
 		}
 	}
 	
 	@Override
 	public boolean doPickUp(Hero hero, int pos) {
 		if (super.doPickUp( hero, pos )) {
-			float finalTime = GameTimer.instance.stopTimer();
-			NetworkManager.INSTANCE.send("VICTORY:");
-			NetworkManager.INSTANCE.finalTime = finalTime;
+			Gamemode.current.pickUpAmulet();
+
 			if (!Statistics.amuletObtained) {
 				Statistics.amuletObtained = true;
 				hero.spend(-hero.cooldown());
@@ -91,8 +93,10 @@ public class Amulet extends Item {
 					@Override
 					protected boolean act() {
 						Actor.remove(this);
-						showAmuletScene( true );
-						return false;
+						if(Gamemode.current.gamemodeID.equals("classic") || Gamemode.current.gamemodeID.equals("classic_rift")) {
+							showAmuletScene(true);
+						}
+						return true;
 					}
 				});
 			}

@@ -76,6 +76,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.networking.ChatMessage;
 import com.shatteredpixel.shatteredpixeldungeon.networking.DataFetcher;
+import com.shatteredpixel.shatteredpixeldungeon.networking.Gamemode;
 import com.shatteredpixel.shatteredpixeldungeon.networking.NetworkManager;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
@@ -209,8 +210,10 @@ public class GameScene extends PixelScene {
 	private Signal.Listener<KeyEvent> chatKeyListener;
 	static ChatTab chatTab;
 	public static Boolean chatOpen = false;
-
 	private int lastChatIndex = 0;
+
+	private BingoBoard bingoBoard;
+
 
 	// ================================================================================
 	{
@@ -838,6 +841,13 @@ public class GameScene extends PixelScene {
 				});
 			}
 		});
+
+
+	bingoBoard = new BingoBoard(Gamemode.current.bingoTasks);
+	bingoBoard.camera = uiCamera;
+	bingoBoard.setRect(4, 4, 1, 1);
+	add(bingoBoard);
+
 	}
 	public static void destroyChatTab(){
 		if(chatTab != null){
@@ -1084,8 +1094,9 @@ public class GameScene extends PixelScene {
 			}
 		}
 
-
-
+		if(Gamemode.current.gamemodeID.equals("bingo") && bingoBoard != null) {
+			bingoBoard.updateButtons();
+		}
 		//=============================================================
 
 		if (updateTags){
