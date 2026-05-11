@@ -452,11 +452,21 @@ public abstract class Level implements Bundlable {
 			respawner = (MobSpawner) bundle.get("respawner");
 		}
 
+		if (bundle.contains(SPAWN_RNG)) {
+			spawnRNG = new Random.LCG(0);
+			spawnRNG.seed = bundle.getLong(SPAWN_RNG);
+		} else {
+			spawnRNG = new Random.LCG(Dungeon.seedForDepth(Dungeon.depth, Dungeon.branch));
+		}
+
 		buildFlagMaps();
 		cleanWalls();
 
 	}
 	
+	private Random.LCG spawnRNG;
+	private static final String SPAWN_RNG = "spawn_rng";
+
 	@Override
 	public void storeInBundle( Bundle bundle ) {
 		bundle.put( VERSION, Game.versionCode );
@@ -477,6 +487,8 @@ public abstract class Level implements Bundlable {
 		bundle.put( FEELING, feeling );
 		bundle.put( "mobs_to_spawn", mobsToSpawn.toArray(new Class[0]));
 		bundle.put( "respawner", respawner );
+
+		if (spawnRNG != null) bundle.put( SPAWN_RNG, spawnRNG.seed );
 	}
 	
 	public int tunnelTile() {
@@ -742,29 +754,52 @@ public abstract class Level implements Bundlable {
 	}
 
 	public boolean spawnMob(int disLimit){
+		if (spawnRNG == null) {
+			spawnRNG = new Random.LCG(Dungeon.seedForDepth(Dungeon.depth, Dungeon.branch));
+		}
+
 		PathFinder.buildDistanceMap(Dungeon.hero.pos, BArray.or(passable, avoid, null));
 
-		Mob mob = createMob();
-		if (mob.state != mob.PASSIVE) {
-			mob.state = mob.WANDERING;
-		}
-		int tries = 30;
-		do {
-			mob.pos = randomRespawnCell(mob);
-			tries--;
-		} while ((mob.pos == -1 || PathFinder.distance[mob.pos] < disLimit) && tries > 0);
-
-		if (Dungeon.hero.isAlive() && mob.pos != -1 && PathFinder.distance[mob.pos] >= disLimit) {
-			GameScene.add( mob );
-			if (!mob.buffs(ChampionEnemy.class).isEmpty()){
-				GLog.w(Messages.get(ChampionEnemy.class, "warn"));
+		Random.pushGenerator(spawnRNG);
+		try {
+			Mob mob = createMob();
+			if (mob.state != mob.PASSIVE) {
+				mob.state = mob.WANDERING;
 			}
-			return true;
-		} else {
-			return false;
+			
+			// Deterministic position search to prevent RNG desync based on FOV
+			mob.pos = randomRespawnCellDeterministic(mob, disLimit);
+
+			if (Dungeon.hero.isAlive() && mob.pos != -1) {
+				GameScene.add( mob );
+				if (!mob.buffs(ChampionEnemy.class).isEmpty()){
+					GLog.w(Messages.get(ChampionEnemy.class, "warn"));
+				}
+				return true;
+			} else {
+				return false;
+			}
+		} finally {
+			Random.popGenerator();
 		}
 	}
 	
+	private int randomRespawnCellDeterministic( Mob mob, int disLimit ) {
+		int start = Random.Int( length() ); // 1 RNG call
+		for (int i = 0; i < length(); i++) {
+			int cell = (start + i) % length();
+			
+			if (!(Dungeon.level == this && heroFOV[cell])
+					&& passable[cell]
+					&& (!Char.hasProp(mob, Char.Property.LARGE) || openSpace[cell])
+					&& Actor.findChar( cell ) == null
+					&& PathFinder.distance[cell] >= disLimit) {
+				return cell;
+			}
+		}
+		return -1;
+	}
+
 	public int randomRespawnCell( Char ch ) {
 		int cell;
 		int count = 0;

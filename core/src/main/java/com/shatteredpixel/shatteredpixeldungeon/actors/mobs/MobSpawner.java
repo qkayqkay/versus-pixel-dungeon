@@ -63,6 +63,7 @@ public class MobSpawner extends Actor {
 		ArrayList<Class<? extends Mob>> mobs = standardMobRotation( depth );
 		addRareMobs(depth, mobs);
 		swapMobAlts(mobs);
+		// This now uses spawnRNG if called inside Level.spawnMob()
 		Random.shuffle(mobs);
 		return mobs;
 	}

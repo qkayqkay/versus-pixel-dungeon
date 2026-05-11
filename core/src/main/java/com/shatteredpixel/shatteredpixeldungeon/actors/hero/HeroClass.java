@@ -114,6 +114,7 @@ public enum HeroClass {
 		Waterskin waterskin = new Waterskin();
 		waterskin.collect();
 
+		for(int iii=0;iii<10;iii++) new PotionOfMindVision().collect();
 		new ScrollOfIdentify().identify();
 
 		switch (this) {

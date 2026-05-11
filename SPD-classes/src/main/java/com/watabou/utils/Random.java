@@ -107,6 +107,10 @@ public class Random {
 		return seed;
 	}
 
+	public static synchronized void pushGenerator( LCG lcg ){
+		generators.push( lcg );
+	}
+
 	public static synchronized void popGenerator(){
 		if (generators.size() == 1){
 			Game.reportException( new RuntimeException("tried to pop the last random number generator!"));
