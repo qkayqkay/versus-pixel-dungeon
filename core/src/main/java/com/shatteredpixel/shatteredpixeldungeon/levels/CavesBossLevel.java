@@ -216,7 +216,7 @@ public class CavesBossLevel extends Level {
 
 	@Override
 	protected void createItems() {
-		Random.pushGenerator(Random.Long());
+		Random.pushGenerator(Random.getBonesGenerator());
 			ArrayList<Item> bonesItems = Bones.get();
 			if (bonesItems != null) {
 				int pos;

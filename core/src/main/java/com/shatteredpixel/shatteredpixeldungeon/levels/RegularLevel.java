@@ -489,10 +489,12 @@ public abstract class RegularLevel extends Level {
 			}
 		Random.popGenerator();
 
-		Random.pushGenerator( Random.Long() );
+		Random.pushGenerator( Random.getBonesGenerator() );
 			ArrayList<Item> bonesItems = Bones.get();
 			if (bonesItems != null) {
+				ArrayList<Room> backup = new ArrayList<>(rooms);
 				int cell = randomDropCell();
+				rooms = backup;
 				if (map[cell] == Terrain.HIGH_GRASS || map[cell] == Terrain.FURROWED_GRASS) {
 					map[cell] = Terrain.GRASS;
 					losBlocking[cell] = false;

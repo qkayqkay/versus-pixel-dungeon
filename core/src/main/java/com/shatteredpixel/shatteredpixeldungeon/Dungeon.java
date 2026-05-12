@@ -262,6 +262,10 @@ public class Dungeon {
 		//seed the base generator so that gameplay events are deterministic
 		Random.seedBaseGenerator( seed );
 
+		//Seed the visual and bones generator separately so that they don't affect gameplay RNG
+		Random.restoreVisualState( seed ^ 0x56495355414CL );  // "VISUAL" LOL
+		Random.restoreBonesState( seed ^ 0x424F4E4553L );    // "BONES" LOL
+
 		Statistics.reset();
 		Notes.reset();
 
@@ -653,7 +657,8 @@ public class Dungeon {
 
 	private static final String RNG_STACK	= "rng_stack";
 	private static final String RNG_VISUAL	= "rng_visual";
-	
+	private static final String RNG_BONES	= "rng_bones";
+
 	public static void saveGame( int save ) {
 		try {
 			Bundle bundle = new Bundle();
@@ -664,6 +669,7 @@ public class Dungeon {
 			// Capture RNG state as early as possible to avoid pollution from other objects' storeInBundle
 			bundle.put( RNG_STACK, Random.getStackStates() );
 			bundle.put( RNG_VISUAL, Random.getVisualState() );
+			bundle.put( RNG_BONES, Random.getBonesState() );
 
 			bundle.put( SEED, seed );
 			bundle.put( CUSTOM_SEED, customSeedText );
@@ -865,6 +871,9 @@ public class Dungeon {
 			}
 			if (bundle.contains( RNG_VISUAL )) {
 				Random.restoreVisualState( bundle.getLong( RNG_VISUAL ) );
+			}
+			if (bundle.contains( RNG_BONES )) {
+				Random.restoreBonesState( bundle.getLong( RNG_BONES ) );
 			}
 		} finally {
 			com.watabou.utils.Random.loading = false;

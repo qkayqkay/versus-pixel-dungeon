@@ -453,6 +453,7 @@ public abstract class Level implements Bundlable {
 		}
 
 		if (bundle.contains(SPAWN_RNG)) {
+
 			spawnRNG = new Random.LCG(0);
 			spawnRNG.seed = bundle.getLong(SPAWN_RNG);
 		} else {
@@ -761,26 +762,26 @@ public abstract class Level implements Bundlable {
 		PathFinder.buildDistanceMap(Dungeon.hero.pos, BArray.or(passable, avoid, null));
 
 		Random.pushGenerator(spawnRNG);
-		try {
-			Mob mob = createMob();
-			if (mob.state != mob.PASSIVE) {
-				mob.state = mob.WANDERING;
-			}
-			
-			// Deterministic position search to prevent RNG desync based on FOV
-			mob.pos = randomRespawnCellDeterministic(mob, disLimit);
+		Mob mob = createMob();
+		if (mob.state != mob.PASSIVE) {
+			mob.state = mob.WANDERING;
+		}
+		int tries = 30;
+		do {
+			mob.pos = randomRespawnCell(mob);
+			tries--;
+		} while ((mob.pos == -1 || PathFinder.distance[mob.pos] < disLimit) && tries > 0);
 
-			if (Dungeon.hero.isAlive() && mob.pos != -1) {
-				GameScene.add( mob );
-				if (!mob.buffs(ChampionEnemy.class).isEmpty()){
-					GLog.w(Messages.get(ChampionEnemy.class, "warn"));
-				}
-				return true;
-			} else {
-				return false;
+		if (Dungeon.hero.isAlive() && mob.pos != -1 && PathFinder.distance[mob.pos] >= disLimit) {
+			GameScene.add( mob );
+			if (!mob.buffs(ChampionEnemy.class).isEmpty()){
+				GLog.w(Messages.get(ChampionEnemy.class, "warn"));
 			}
-		} finally {
 			Random.popGenerator();
+			return true;
+		} else {
+			Random.popGenerator();
+			return false;
 		}
 	}
 	

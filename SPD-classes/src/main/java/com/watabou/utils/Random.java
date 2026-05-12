@@ -67,6 +67,9 @@ public class Random {
 
 	private static LCG visualGenerator = new LCG(System.currentTimeMillis());
 
+	//bonesGenerator is used for remains and floor item placement to prevent desyncing MainRNG
+	private static LCG bonesGenerator = new LCG(0);
+
 	private static long gameplayCount = 0;
 	private static long visualCount = 0;
 
@@ -474,5 +477,17 @@ public class Random {
 
 	public static synchronized void restoreVisualState(long state) {
 		visualGenerator.seed = state;
+	}
+
+	public static synchronized long getBonesState() {
+		return bonesGenerator.seed;
+	}
+
+	public static synchronized void restoreBonesState(long state) {
+		bonesGenerator.seed = state;
+	}
+
+	public static synchronized LCG getBonesGenerator() {
+		return bonesGenerator;
 	}
 }
