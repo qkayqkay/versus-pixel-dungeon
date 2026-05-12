@@ -57,7 +57,7 @@ public class Sheep extends NPC {
 
 	public void initialize(float lifespan){
 		this.lifespan = lifespan;
-		spend( lifespan + Random.FloatVisual(-2, 2) );
+		spend( lifespan + Random.Float(-2, 2) );
 	}
 
 	@Override
