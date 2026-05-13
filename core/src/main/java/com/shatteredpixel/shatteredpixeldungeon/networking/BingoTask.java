@@ -9,6 +9,7 @@ public class BingoTask {
     public final float random; // only used for some conditions
     private boolean completed = false;
     public String id;
+    public Player owner = null;
 
     public BingoTask(BingoCondition type, float random) {
         this.type = type;
@@ -18,11 +19,16 @@ public class BingoTask {
 
     public boolean check(Hero hero) {
         boolean status = type.check(hero, random);
-        if(status){
-            System.out.println("True!");
+        if(status && completed != true){
             completed = true;
+            NetworkManager.INSTANCE.completeBingoTask(this);
+            Gamemode.testVictoryCondition();
         } // we don't handle the else case as I don't want it to switch back if the condition isn't met later
         return status;
+    }
+
+    public void setCompleted(boolean value) {
+        this.completed = value;
     }
 
     public boolean isCompleted() {

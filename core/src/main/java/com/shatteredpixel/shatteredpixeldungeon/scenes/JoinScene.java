@@ -242,12 +242,12 @@ public class JoinScene extends PixelScene{
     }
 
 
-    private static float timer = -5;
+    private static float timer = -3;
 
     @Override
     public void update() {
         super.update();
-        if(Game.timeTotal-timer >= 5) {
+        if(Game.timeTotal-timer >= 3) {
             timer=Game.timeTotal;
             System.out.println("Refreshing lobby menu...");
             NetworkManager.INSTANCE.listLobbies(new Consumer<LinkedHashMap<String, Lobby>>() {

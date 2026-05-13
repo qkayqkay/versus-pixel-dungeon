@@ -83,7 +83,7 @@ public enum BingoCondition {
         @Override
         public boolean check(Hero hero, float random) {
             int required = (int) floor(random * 15) + 6;
-            return Statistics.hazardAssistedKills >= required;
+            return Statistics.enemiesSlain >= required;
         }
 
         @Override

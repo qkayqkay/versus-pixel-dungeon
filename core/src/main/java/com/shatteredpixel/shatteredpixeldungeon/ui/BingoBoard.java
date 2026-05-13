@@ -3,6 +3,7 @@ package com.shatteredpixel.shatteredpixeldungeon.ui;
 import com.shatteredpixel.shatteredpixeldungeon.Chrome;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.networking.BingoTask;
+import com.shatteredpixel.shatteredpixeldungeon.networking.Gamemode;
 import com.watabou.noosa.ColorBlock;
 import com.watabou.noosa.NinePatch;
 import com.watabou.noosa.ui.Component;
@@ -73,9 +74,9 @@ public class BingoBoard extends Component {
                 float cellY = y + MARGIN + row * (cellSize + BAR_THICKNESS);
 
                 BingoBtn btn = new BingoBtn();
-                btn.setCondition(bingoTasks[col][row]);
+                btn.setCondition(bingoTasks[row][col]);
                 btn.setRect(cellX, cellY, cellSize, cellSize);
-                buttons[col][row] = btn;
+                buttons[row][col] = btn;
                 add(btn);
             }
         }
@@ -95,11 +96,13 @@ public class BingoBoard extends Component {
     public class BingoBtn extends IconButton {
         private BingoTask task;
         boolean completed = false;
-        boolean hasCross = false;
+        boolean hasOverlay = false;
 
         public void setCondition(BingoTask t) {
             this.task = t;
-            this.icon(t.createIcon());
+            if(t!=null) {
+                this.icon(t.createIcon());
+            }
         }
 
         @Override
@@ -109,14 +112,19 @@ public class BingoBoard extends Component {
 
 
         public void updateButtonStatus() {
-            this.completed = task.isCompleted();
-            if(completed && !hasCross){
-                ColorBlock cross = new ColorBlock(this.width()-4, 4, 0xFF000000);
-                cross.x = this.x + 2;
-                cross.y = this.y+this.height()/2 - 2;
-                addToFront(cross);
-                System.out.println(task.id+" completed!");
-                hasCross = true;
+            if (Gamemode.current.bingoReady) {
+                this.completed = task.isCompleted();
+            }
+            if (completed && !hasOverlay) {
+                int color = 0x66FFFFFF; // fallback case, translucent white
+                if (task.owner != null) {
+                    color = task.owner.color;
+                }
+                ColorBlock overlay = new ColorBlock(this.width(), this.height(), color);
+                overlay.x = this.x;
+                overlay.y = this.y;
+                addToFront(overlay);
+                hasOverlay = true;
             }
         }
     }

@@ -47,8 +47,7 @@ public class InLobbyScene extends PixelScene {
     @Override
     protected void onBackPressed() {}
 
-    // Player list buttons(middle panel)
-
+    //player list buttons(middle panel)
     private class LobbyPlayerBtn extends StyledButton {
 
         static final int HEIGHT = 24;
@@ -99,7 +98,7 @@ public class InLobbyScene extends PixelScene {
         content.setSize(playersScroll.width(), y);
     }
 
-    // Class selector buttons(bottom-right panel)
+    // class selector buttons(bottom-right panel)
     private class ClassSelectBtn extends StyledButton {
 
         private HeroClass cl;
@@ -449,7 +448,7 @@ public class InLobbyScene extends PixelScene {
         }
     }
 
-    private static float timer = -4;
+    private static float timer = -4; // so it's instant
 
     @Override
     public void update() {

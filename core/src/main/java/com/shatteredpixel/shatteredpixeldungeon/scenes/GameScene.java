@@ -842,12 +842,6 @@ public class GameScene extends PixelScene {
 			}
 		});
 
-
-	bingoBoard = new BingoBoard(Gamemode.current.bingoTasks);
-	bingoBoard.camera = uiCamera;
-	bingoBoard.setRect(4, 4, 1, 1);
-	add(bingoBoard);
-
 	}
 	public static void destroyChatTab(){
 		if(chatTab != null){
@@ -1097,6 +1091,13 @@ public class GameScene extends PixelScene {
 		if(Gamemode.current.gamemodeID.equals("bingo") && bingoBoard != null) {
 			bingoBoard.updateButtons();
 		}
+
+		if(Gamemode.current.bingoReady && bingoBoard == null) {
+			bingoBoard = new BingoBoard(Gamemode.current.bingoTasks);
+			bingoBoard.camera = uiCamera;
+			bingoBoard.setRect(4, 4, 1, 1);
+			add(bingoBoard);
+		}
 		//=============================================================
 
 		if (updateTags){
@@ -1137,6 +1138,7 @@ public class GameScene extends PixelScene {
 			}
 			toDestroy.clear();
 		}
+
 	}
 
 	private static Point lastOffset = null;

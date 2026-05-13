@@ -160,7 +160,7 @@ public class HeroSelectScene extends PixelScene {
 
 				Dungeon.hero = null;
 				Dungeon.daily = Dungeon.dailyReplay = false;
-				//Dungeon.initSeed(); // qkay note: generated seed
+				//Dungeon.initSeed(); // the seed is created elsewhere.
 				ActionIndicator.clearAction();
 				InterlevelScene.mode = InterlevelScene.Mode.DESCEND;
 				Game.switchScene( InterlevelScene.class);

@@ -20,6 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.function.Consumer;
 
 import com.badlogic.gdx.Gdx;
+import com.shatteredpixel.shatteredpixeldungeon.ui.BingoBoard;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage;
@@ -63,6 +64,7 @@ public enum NetworkManager {
     public ArrayList<ChatMessage> chat = new ArrayList<>();
 
     public Player self; //self. Basically this represents the player of the client itself.
+    private String pendingLobbyID; // the lobby you're trying to join, when waiting on the server to respond yes or no to let you in
     public ArrayList<Player> players = new ArrayList<>();
 
     public volatile long freezeUntil = -1;
@@ -248,6 +250,15 @@ public enum NetworkManager {
 
         else if (header.equals("JOINNOTIFY")) {
             if (data.equals("canenter")) {
+                if (pendingLobbyID != null && lobbies.containsKey(pendingLobbyID)) {
+                    Lobby lobby = lobbies.get(pendingLobbyID);
+                    self.setLobby(lobby);
+                } else {
+                    System.err.println("JOINNOTIFY: pending lobby not found!");
+                }
+
+                pendingLobbyID = null;
+
                 Gdx.app.postRunnable(new Runnable() {
                     @Override
                     public void run() {
@@ -256,6 +267,7 @@ public enum NetworkManager {
                     }
                 });
             } else {
+                pendingLobbyID = null;
                 if (onJoinError != null) {
                     onJoinError.run();
                 }
@@ -280,6 +292,31 @@ public enum NetworkManager {
             if (onSettingsUpdate != null) {
                 onSettingsUpdate.run();
             }
+        }
+        else if (header.equals("BINGOCOMPLETE")) {
+            String[] entries = data.split("=");
+            String targetPlayer = entries[0];
+            String targetBingo = entries[1];
+
+            // this whole for loop basically looks through all the players to find the person who completed the task, then finds the corresponding task, and assigns that task to the player
+            for(Player player : self.getLobby().getPlayers()){
+                if(player.getID().equals(targetPlayer)){
+                    System.out.println("Found player!");
+                    BingoTask[][] tasks = Gamemode.current.bingoTasks;
+                    for(int i = 0; i<tasks.length; i++){
+                        for(int j = 0; j<tasks[0].length; j++){
+                            if(tasks[i][j].id.equals(targetBingo)){
+                                System.out.println("Found bingo+owner!");
+                                tasks[i][j].owner = player;
+                                tasks[i][j].setCompleted(true);
+                            }
+                        }
+                    }
+
+                }
+            }
+
+
         }
 
         else if (header.equals("LISTLOBBY")) { // for when outside a lobby. Some data can just not be sent.
@@ -366,6 +403,7 @@ public enum NetworkManager {
             boolean inGame = obj.get("ingame").getAsBoolean();
             int maxPlayers = obj.get("maxplayers").getAsInt();
 
+
             ArrayList<String> admins = new ArrayList<String>();
             for (JsonElement el : obj.getAsJsonArray("admins")) {
                 admins.add(el.getAsString());
@@ -381,6 +419,8 @@ public enum NetworkManager {
                 JsonObject playerObj = el.getAsJsonObject();
                 String id = playerObj.get("id").getAsString();
                 String name = playerObj.get("name").getAsString();
+                int color = playerObj.has("color") ? playerObj.get("color").getAsInt() : 0;
+
 
                 HeroClass heroClass = null;
                 if (playerObj.has("class") && !playerObj.get("class").isJsonNull()) {
@@ -412,6 +452,7 @@ public enum NetworkManager {
                     found.level = 0;
                 }
                 found.setClass(heroClass);
+                found.color = color;
                 lobbyPlayers.add(found);
             }
 
@@ -504,15 +545,21 @@ public enum NetworkManager {
             Game.switchScene(HeroSelectScene.class);
             System.out.println("Server is starting the game! Seed: " + seed);
             Dungeon.initSeed(seed);
-
         }
 
         else if (header.equals("STARTGAME")) {
-            long startTimeMs = (long) Double.parseDouble(data);
+            String[] parts = data.split(",", 2);
+            long startTimeMs = (long) Double.parseDouble(parts[0].replace("STARTTIME=", ""));
             freezeUntil = startTimeMs;
             countdownUntil = startTimeMs;
             shouldCountdown = true;
-            //shouldFreeze = true; I can't bother to figure out why but this doesn't work if I add it with 2+ players but works fine with 1 wtf.
+            shouldFreeze = true; //I can't bother to figure out why but this doesn't work if I add it with 2+ players but works fine with 1 wtf.
+
+            if (parts.length > 1 && parts[1].startsWith("BINGODATA:")) {
+                String bingoRaw = parts[1].replace("BINGODATA:", "");
+                String[] taskEntries = bingoRaw.split(";");
+                Gamemode.current.loadBingoFromNetwork(taskEntries);
+            }
         }
 
         else if (header.equals("GAMEEND")) {
@@ -537,6 +584,23 @@ public enum NetworkManager {
                             Game.switchScene(LossScene.class);
                             GLog.n(Messages.get("amuletloss"), winners[0]); // I can take the first elements since there should only be 1 in this case.
                             System.out.println("Someone has acquired the amulet of yendor before you!");
+                        }
+                    });
+                }
+            }
+            if (endType.equals("bingowin") || endType.equals("bingoblackout")) {
+                if (Arrays.asList(winners).contains(self.getID())) {
+                    Gdx.app.postRunnable(new Runnable() {
+                        @Override
+                        public void run() {
+                            Game.switchScene(VictoryScene.class);
+                        }
+                    });
+                } else {
+                    Gdx.app.postRunnable(new Runnable() {
+                        @Override
+                        public void run() {
+                            Game.switchScene(LossScene.class);
                         }
                     });
                 }
@@ -575,6 +639,10 @@ public enum NetworkManager {
         this.send("SETGAMEMODE:"+gamemode.gamemodeID);
     }
 
+    public void completeBingoTask(BingoTask task){
+        this.send("BINGOCOMPLETE:"+task.id);
+    }
+
     public void requestLobbyInfo(Consumer<Lobby> callback) {
         this.lobbyInfoCallback = callback;
         this.send("INFOLOBBY:");
@@ -583,13 +651,13 @@ public enum NetworkManager {
     public void login(String username, String password, Runnable onSuccess, Consumer<String> onFail) {
         this.onLoginSuccess = onSuccess;
         this.onLoginFail = onFail;
-        this.send("LOGIN:" + username + "," + password); // MAKE SURE TO MAKE COMMAS IMPOSSIBLE
+        this.send("LOGIN:" + username + "," + password); // TODO MAKE SURE TO MAKE COMMAS IMPOSSIBLE
     }
 
     public void register(String username, String password, Runnable onSuccess, Consumer<String> onFail) {
         this.onRegisterSuccess = onSuccess;
         this.onRegisterFail = onFail;
-        this.send("REGISTER:" + username + "," + password); // MAKE SURE TO MAKE COMMAS IMPOSSIBLE
+        this.send("REGISTER:" + username + "," + password); // TODO MAKE SURE TO MAKE COMMAS IMPOSSIBLE
     }
 
     public void listLobbies(Consumer<LinkedHashMap<String, Lobby>> callback) {
@@ -634,6 +702,8 @@ public enum NetworkManager {
     }
 
     public void joinLobby(String lobbyID, String lobbyPassword){
+        pendingLobbyID = lobbyID;
+
         StringBuilder msg = new StringBuilder("JOINLOBBY:");
         msg.append("id="+lobbyID+";password="+lobbyPassword);
         if (!lobbies.containsKey(lobbyID)) {
