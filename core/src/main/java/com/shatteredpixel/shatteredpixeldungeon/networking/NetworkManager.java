@@ -1,5 +1,6 @@
 package com.shatteredpixel.shatteredpixeldungeon.networking;
 
+
 import com.badlogic.gdx.utils.TimeUtils;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
@@ -29,9 +30,69 @@ import com.google.gson.*;
 
 import static com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene.add;
 
+/*
+ _     ___   ____ _  __  ___ _   _
+| |   / _ \ / ___| |/ / |_ _| \ | |
+| |  | | | | |   | ' /   | ||  \| |
+| |__| |_| | |___| . \   | || |\  |
+|_____\___/ \____|_|\_\ |___|_| \_|
+
+                            &
+      &&&&&&&&&&&&&&&&      &&
+      &&&&&&&&&&&&&&&&&&&&  &&
+       &&&&&&&&&&&&&&&&&&&&&&&&
+       &&                &&&&&&
+                        &&&&&&&
+                      &&&&         &&&&&&&&&&&&&
+              & &                 &&&&&&&&&&&&&&&
+         &&&&&&&&&&              &&&&&&&&&   &&&
+       &&&&&&    &               &&&&&&&&&    &
+      &&&&&&&   & &              &&&&& &&&  &&&
+      &&&&&&&&                   &&&&&        &
+       &&&&        &         &&&&&&&&&       &&&
+        &&&&       &       &&     &  & &&    &&
+         & &  &         &          &&&  &&&& &
+         &&     &     &         &   &&&&
+        &     &&  &  &        &&     &&
+          &  &   &&&&        &&      &
+       &       &   &&&       &&      &
+     &&&&      && &  &&      &&      &
+      &&&&      &&           &&      &&
+      &&&&      &        &   &&      &&
+      &&&&&    &          &   &      &&&&&&&
+      &&&&&   &   &         & &&   & &&&  &
+      &&&&&& &     &          &&&&&   &  &
+       &&&&&&       &       &&&&&&&&   &&&
+       &&&&&&&                &&&& &&   &    &&&    &&&&
+       &&&&&&&&&              && &&&&&&        &&&     &&&&
+        &&&&&&&&&&             &&&   &&&&&&&&&&&&&      &&
+        &&&&&&&&&&&&&&&&&&                        &&& &
+        &&&&&&&&&&&&&&&&                            &
+         &&&&&&&&&&&&&&&&&&&&&                       &
+         &&&&&&&&&&&&&&&&&&&&&&&&&&  &&&&&           &
+          &&&&&&&&&&&&&&&&&&&&&&&&&&&& &&&&&&        &&
+           &&&&&&&&&&&&&&&&&&&&&&&    &&& &&          &
+                 &&&&&&&&&&&           &&  &&         &
+                     &                 &&  &&         &
+                  & &                  &   &&         &&
+                  & &                 &&    &&         &
+                  & &                 &&    &&         &&
+                  & &                 &      &&         &
+                  & &                 &&&&&&&&&       &&
+              &&&   &&&&&            &   &&   &&&&&&
+           &&&          &&&         & &  & &  &&  &&&
+       &&  &  &&       &  && &        & &    &&&  & &
+       &&&&&             && &&&&   &         & &  &  &&
+     &&&                    &&  &       &  &&&          &&&
+     &&                        &&           &    &&          &&
+                               &&             &&&&  &&&&&&&&&&&
+
+
+
+ */
+
 
 public enum NetworkManager {
-
     INSTANCE;
 
     private Socket socket;
@@ -204,8 +265,9 @@ public enum NetworkManager {
         String[] headerData = message.split(":", 2);
         String header = headerData[0];
         String data = headerData[1];
-        System.out.println("Caught incoming data: "+message+", header is: "+header);
-
+        if(!header.equals("PONG")) { // or else this fills up the console
+            System.out.println("Caught incoming data: " + message + ", header is: " + header);
+        }
         if (header.equals("PONG")) {
             lastPongReceived = System.currentTimeMillis();
         }
@@ -545,6 +607,7 @@ public enum NetworkManager {
             Game.switchScene(HeroSelectScene.class);
             System.out.println("Server is starting the game! Seed: " + seed);
             Dungeon.initSeed(seed);
+            shouldFreeze = true;
         }
 
         else if (header.equals("STARTGAME")) {
@@ -553,7 +616,7 @@ public enum NetworkManager {
             freezeUntil = startTimeMs;
             countdownUntil = startTimeMs;
             shouldCountdown = true;
-            shouldFreeze = true; //I can't bother to figure out why but this doesn't work if I add it with 2+ players but works fine with 1 wtf.
+             //I can't bother to figure out why but this doesn't work if I add it with 2+ players but works fine with 1 wtf.
 
             if (parts.length > 1 && parts[1].startsWith("BINGODATA:")) {
                 String bingoRaw = parts[1].replace("BINGODATA:", "");

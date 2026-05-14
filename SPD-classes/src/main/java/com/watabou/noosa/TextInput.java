@@ -303,6 +303,17 @@ public class TextInput extends Component {
 		return null;
 	}
 
+	public void enable(boolean value) {
+		active = value;
+		bg.alpha(value ? 1.0f : 0.3f);
+		if(value == false){
+			this.looseFocus();
+		}
+		else{
+			this.gainFocus();
+		}
+	}
+
 	public boolean hasFocus() {
 		return hasFocus;
 	}

@@ -133,6 +133,8 @@ public abstract class Mob extends Char {
 
 	protected static final float TIME_TO_WAKE_UP = 1f;
 
+	public boolean givesRiftEnergy = true;
+
 	protected boolean firstAdded = true;
 	protected void onAdd(){
 		if (firstAdded) {
@@ -869,7 +871,7 @@ public abstract class Mob extends Char {
 					Buff.affect(Dungeon.hero, MonkEnergy.class).gainEnergy(this);
 				}
 				if(Dungeon.hero.belongings.riftStone != null){
-					Dungeon.hero.belongings.riftStone.onEnemyKilled();
+					Dungeon.hero.belongings.riftStone.onEnemyKilled(this);
 				}
 			}
 		}

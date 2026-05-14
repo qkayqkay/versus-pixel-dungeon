@@ -11,7 +11,7 @@ public class Player {
     public HeroClass cl;
     public int color = 0;
     public int level = 0; // touch this and system32 implodes.
-    private boolean isGuest = true; // this becomes false if you login or sign up.
+    private boolean isGuest = true; // Not implemented yet. Must do before leaderboards/social interacts. This *will*(once programmed) become false if you login or sign up.
 
 
     public Player(String ID, String name){

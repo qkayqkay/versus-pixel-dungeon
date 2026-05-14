@@ -53,18 +53,25 @@ public class LobbyCreationScene extends PixelScene{
 
 
 
-        TextInput nameInput = new TextInput(Chrome.get(Chrome.Type.TOAST_WHITE), false, 8,  uiCamera.zoom);
-        add(nameInput);
 
         TextInput passwordInput = new TextInput(Chrome.get(Chrome.Type.TOAST_WHITE), false, 8,  uiCamera.zoom);
         add(passwordInput);
 
+        TextInput nameInput = new TextInput(Chrome.get(Chrome.Type.TOAST_WHITE), false, 8,  uiCamera.zoom);
+        add(nameInput); //put second so focus starts here
 
-        CheckBox checkBox = new CheckBox("X");
+        passwordInput.enable(false);
+
+        CheckBox checkBox = new CheckBox("X"){
+            @Override
+            protected void onClick() {
+                super.onClick();
+                passwordInput.enable(this.checked());
+            }
+        };
         checkBox.checked(false);
         checkBox.active = true;
-        checkBox.setPos(3*w/4, 100);
-        //checkBox.setRect(3*w/4, 100, 150, 150);
+        checkBox.setRect(3*w/4-9, 100-9, 18, 18);
         add(checkBox);
 
 

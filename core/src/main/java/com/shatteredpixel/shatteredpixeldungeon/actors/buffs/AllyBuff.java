@@ -81,7 +81,7 @@ public abstract class AllyBuff extends Buff {
 				Buff.affect(hero, MonkEnergy.class).gainEnergy(enemy);
 			}
 			if(Dungeon.hero.belongings.riftStone != null){
-				Dungeon.hero.belongings.riftStone.onEnemyKilled();
+				Dungeon.hero.belongings.riftStone.onEnemyKilled(enemy);
 			}
 		}
 	}

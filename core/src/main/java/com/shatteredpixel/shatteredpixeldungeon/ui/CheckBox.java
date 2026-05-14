@@ -49,7 +49,7 @@ public class CheckBox extends RedButton {
 		PixelScene.align(icon);
 
 		int size = 9;
-		while (width > 0 && text.right() > icon.x){
+		while (width > 0 && text.right() > icon.x && size > 1){
 			size--;
 			remove(text);
 			text = PixelScene.renderTextBlock(text.text, size);

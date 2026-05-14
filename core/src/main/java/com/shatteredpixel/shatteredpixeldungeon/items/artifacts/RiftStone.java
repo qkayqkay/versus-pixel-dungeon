@@ -5,6 +5,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicImmune;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.rifts.Rift;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
@@ -74,11 +75,13 @@ public class RiftStone extends Artifact {
     // Charge/points
 
 
-    public void onEnemyKilled() { // modify to take in account enemy type maybe?
-        if (charge < chargeCap) {
-            charge++;
-            if (charge > chargeCap) charge = chargeCap;
-            updateQuickslot();
+    public void onEnemyKilled(Mob enemy) { // modify to take in account enemy type maybe?
+        if(enemy.givesRiftEnergy) {
+            if (charge < chargeCap) {
+                charge++;
+                if (charge > chargeCap) charge = chargeCap;
+                updateQuickslot();
+            }
         }
     }
 

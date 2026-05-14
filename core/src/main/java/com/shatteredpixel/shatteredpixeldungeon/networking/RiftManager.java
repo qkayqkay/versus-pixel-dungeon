@@ -226,6 +226,7 @@ public class RiftManager {
                     PathFinder.buildDistanceMap(hero.pos, Dungeon.level.passable);
                 } while (cell == -1 || PathFinder.distance[cell] < 7 || PathFinder.distance[cell] > 15 || Dungeon.level.heroFOV[cell]);
                 Rat rat = new Rat();
+                rat.givesRiftEnergy = false;
                 rat.pos = cell;
                 GameScene.add(rat);
                 Dungeon.level.occupyCell(rat);
