@@ -71,6 +71,7 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.networking.DataFetcher;
 import com.shatteredpixel.shatteredpixeldungeon.networking.Gamemode;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
+import com.shatteredpixel.shatteredpixeldungeon.ui.GameTimer;
 import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar;
 import com.shatteredpixel.shatteredpixeldungeon.utils.DungeonSeed;
@@ -293,7 +294,8 @@ public class Dungeon {
 		hero.HT = 100;
 		depth = 25;// DEBUG */
 		GamesInProgress.selectedClass.initHero( hero );
-		Gamemode.current.onGameStart();
+		Gamemode.current.onGameStart(); // this triggers game start conditions
+		GameTimer.reset(); // reset timer
 	}
 
 	public static boolean isChallenged( int mask ) {

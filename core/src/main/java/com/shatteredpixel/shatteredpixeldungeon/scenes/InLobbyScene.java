@@ -281,7 +281,7 @@ public class InLobbyScene extends PixelScene {
                 if (lobby != null && lobby.isAdmin()) {
                     NetworkManager.INSTANCE.initiateStart();
                 } else {
-                    NetworkManager.INSTANCE.isReady(); //isReadied is flipped in here
+                    NetworkManager.INSTANCE.isReady(); //isReadied is flipped in here already
                 }
             }
         };

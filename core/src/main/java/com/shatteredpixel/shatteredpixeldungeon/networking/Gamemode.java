@@ -18,9 +18,12 @@ public class Gamemode {
     private static Gamemode[] gamemodes = new Gamemode[]{Gamemode.classic(), Gamemode.classicRift(), Gamemode.bingo()};
     public String gamemodeID;
     public String gamemodeName;
-    public boolean equipRiftStone;
-    public boolean isTimed;
-    public boolean isBingo;
+
+    //gamemode conditions. These are false by default and must be set to true inside of the gamemode definitions!
+    public boolean equipRiftStone = false;
+    public boolean isTimed = false;
+    public boolean isBingo = false;
+
     private boolean hasAmulet = false;
     public boolean bingoReady = false;
 

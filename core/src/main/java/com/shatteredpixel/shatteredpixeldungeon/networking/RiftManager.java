@@ -215,7 +215,7 @@ public class RiftManager {
         }
         if(riftID.equals("rat_swarm_rift")){
             int random = (int) Math.round(Math.random() * 3);
-            GLog.n(Messages.get(this, "networking.riftmanager.rats_announce"+random));
+            GLog.n(Messages.get(this, "rats_announce"+random));
             int numRats = (int) Math.round(Math.random()*2 + 4); // between 4-6
             for(int i = 0 ; i < numRats; i++) {
                 int cell;

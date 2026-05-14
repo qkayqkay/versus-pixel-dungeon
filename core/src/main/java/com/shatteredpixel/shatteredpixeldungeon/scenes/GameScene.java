@@ -195,7 +195,6 @@ public class GameScene extends PixelScene {
 	Map<String, Integer> data = new HashMap<>();
 	Map<String, Integer> oldData = new HashMap<>();
 	private int HP;
-	private int oldHP = 0;
 	private int pos;
 	private int x;
 	private int y;
@@ -213,6 +212,8 @@ public class GameScene extends PixelScene {
 	private int lastChatIndex = 0;
 
 	private BingoBoard bingoBoard;
+	
+	private GameTimer gameTimer;
 
 
 	// ================================================================================
@@ -777,11 +778,11 @@ public class GameScene extends PixelScene {
 			System.out.println("\n\n\nShould freeze!\n\n\n");
 			freeze = Buff.affect(Dungeon.hero, StartFreeze.class);
 			NetworkManager.INSTANCE.shouldFreeze = false;
-		} else if (Dungeon.hero.buff(StartFreeze.class) == null) {
-			GameTimer gametimer = new GameTimer();
-			gametimer.setPos(0, 0);
-			gametimer.camera = uiCamera;
-			add(gametimer);
+		} else if (Dungeon.hero.buff(StartFreeze.class) == null && Gamemode.current.isTimed) {
+			gameTimer = new GameTimer();
+			gameTimer.setPos(0, 0);
+			gameTimer.camera = uiCamera;
+			add(gameTimer);
 		}
 
 		int w = (int) (Camera.main.width - insets.left + insets.right);
@@ -1016,10 +1017,12 @@ public class GameScene extends PixelScene {
 			StartFreeze freeze = Dungeon.hero.buff(StartFreeze.class);
 			if (freeze != null && freeze.shouldDetach()) {
 				freeze.detach();
-				GameTimer gametimer = new GameTimer();
-				gametimer.setPos(0, 0);
-				gametimer.camera = uiCamera;
-				add(gametimer);
+				if(gameTimer == null && Gamemode.current.isTimed) {
+					gameTimer = new GameTimer();
+					gameTimer.setPos(0, 0);
+					gameTimer.camera = uiCamera;
+					add(gameTimer);
+				}
 			}
 			RespawnCountdown respawn = Dungeon.hero.buff(RespawnCountdown.class);
 			if (respawn != null) {
