@@ -574,6 +574,7 @@ public enum NetworkManager {
                 if (onRegisterSuccess != null) onRegisterSuccess.run();
             } else {
                 if (onRegisterFail != null) {
+                    System.out.println("Failed to signup!");
                     final String reason = data;
                     Gdx.app.postRunnable(new Runnable() {
                         @Override

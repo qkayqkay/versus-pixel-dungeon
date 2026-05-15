@@ -72,15 +72,20 @@ public class TitleScene extends PixelScene {
 	private IconButton btnFade;
 	private ExitButton btnExit;
 
-	//String ip = "monorail.proxy.rlwy.net";
-	//int port = 34236;
+	String ip;
+	int port;
 
-	String ip = "127.0.0.1";
-	int port = 6000;
 
 	@Override
 	public void create() {
-		
+		if(DeviceCompat.isDebug()){
+			ip = "yamanote.proxy.rlwy.net";
+			port = 18602;
+		}
+		else{
+			ip = "monorail.proxy.rlwy.net";
+			port = 34236;
+		}
 		super.create();
 
 		Music.INSTANCE.playTracks(

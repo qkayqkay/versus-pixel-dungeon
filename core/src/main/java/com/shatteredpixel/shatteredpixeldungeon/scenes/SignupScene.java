@@ -72,6 +72,17 @@ public class SignupScene extends PixelScene {
                     errorText.setPos((w - errorText.width()) / 2, 185);
                     return;
                 }
+                String username = usernameInput.getText();
+                String password = passwordInput.getText();
+                String confirmPassword = confirmPasswordInput.getText();
+
+                //check for invalid characters
+                if (username.matches(".*[=;|,:\\n\\r].*") || password.matches(".*[=;|,:\\n\\r].*") || confirmPassword.matches(".*[=;|,:\\n\\r].*")) {
+                    errorText.text(Messages.get(SignupScene.class, "invalidusername"));
+                    errorText.setPos((w - errorText.width()) / 2, 185);
+                    return;
+                }
+
                 btnSignup.enable(false);
                 NetworkManager.INSTANCE.register(
                         usernameInput.getText(),

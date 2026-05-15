@@ -61,7 +61,20 @@ public class LoginScene extends PixelScene {
         btnLogin = new StyledButton(Chrome.Type.GREY_BUTTON_TR, Messages.get(this, "login") ) {
             @Override
             protected void onClick() {
-                System.out.println("username: "+usernameInput.getText()+" and password: "+passwordInput.getText());
+                String username = usernameInput.getText();
+                String password = passwordInput.getText();
+
+                System.out.println("username: " + username + " and password: " + password);
+
+                //check for invalid characters
+                if (username.matches(".*[=;|,:\\n\\r].*") ||
+                        password.matches(".*[=;|,:\\n\\r].*")) {
+
+                    errorText.text(Messages.get(LoginScene.this, "invalidusername"));
+                    errorText.setPos((w - errorText.width()) / 2, 185);
+                    return;
+                }
+
                 NetworkManager.INSTANCE.login(
                         usernameInput.getText(),
                         passwordInput.getText(),
