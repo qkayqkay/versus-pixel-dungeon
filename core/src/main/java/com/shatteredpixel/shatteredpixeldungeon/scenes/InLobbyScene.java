@@ -7,6 +7,7 @@ import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.networking.*;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.*;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage;
 import com.watabou.noosa.*;
@@ -66,7 +67,8 @@ public class InLobbyScene extends PixelScene {
         @Override
         protected void onClick() {
             super.onClick();
-            System.out.println(p.getName());
+            Dropdown dropdown = new Dropdown();
+
         }
     }
 
@@ -218,8 +220,8 @@ public class InLobbyScene extends PixelScene {
         settingsPanel.y = rightMidY;
         add(settingsPanel);
 
-        gamemodeButton = new StyledButton(Chrome.Type.GREY_BUTTON_TR, "Gamemode: "+Gamemode.current.gamemodeName) {
-            private Dropdown dropdown = null;
+        gamemodeButton = new StyledButton(Chrome.Type.GREY_BUTTON_TR, "Gamemode: " + Gamemode.current.gamemodeName) {
+            private GamemodeDropdown dropdown = null;
 
             @Override
             protected void onClick() {
@@ -228,23 +230,27 @@ public class InLobbyScene extends PixelScene {
                     dropdown = null;
                     return;
                 }
-                dropdown = new Dropdown(Gamemode.listGamemodes(), new Dropdown.OnGamemodeSelected() {
+
+                GamemodeDropdown.OnGamemodeSelected handler = new GamemodeDropdown.OnGamemodeSelected() {
                     @Override
                     public void onSelected(Gamemode g) {
                         Gamemode.current = g;
                         updateSettingButtons();
                         NetworkManager.INSTANCE.sendGamemode(g);
-                        if(dropdown != null) {
+                        if (dropdown != null) {
                             dropdown.close();
                             dropdown = null;
                         }
                     }
-                });
+                };
+
+                dropdown = new GamemodeDropdown(Gamemode.listGamemodes(), handler);
                 add(dropdown);
                 dropdown.layout(
                         settingsPanel.x + settingsPanel.marginLeft(),
                         settingsPanel.y + settingsPanel.marginTop() + 18f,
-                        settingsPanel.innerWidth());
+                        settingsPanel.innerWidth(),
+                        dropdown.pendingButtons);
             }
         };
         gamemodeButton.setRect(
@@ -422,11 +428,13 @@ public class InLobbyScene extends PixelScene {
                 if (!entry.isServerMessage) {
                     message = PixelScene.renderTextBlock(
                             entry.getAuthor().getID() + ": " + entry.getMessage(), 6);
+                    message.hardlight(CharSprite.CHAT);
                 } else {
                     message = PixelScene.renderTextBlock(
                             "SERVER: " + entry.getMessage(), 6);
                 }
                 message.maxWidth((int) chatScroll.width());
+
                 message.setPos(0, y);
                 content.add(message);
                 y += message.height() + 2;

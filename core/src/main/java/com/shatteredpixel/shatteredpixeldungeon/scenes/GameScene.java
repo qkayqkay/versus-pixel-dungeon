@@ -815,7 +815,7 @@ public class GameScene extends PixelScene {
 				GLog.h("[Server]: " + msg.getMessage());
 				GLog.newLine();
 			} else {
-				GLog.h(msg.getAuthor().getID() + ": " + msg.getMessage());
+				GLog.chat(msg.getAuthor().getID() + ": " + msg.getMessage());
 				GLog.newLine();
 			}
 			lastChatIndex++;
