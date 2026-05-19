@@ -48,7 +48,6 @@ public class Golem extends Mob {
 		EXP = 12;
 		maxLvl = 22;
 
-		loot = Random.oneOf(Generator.Category.WEAPON, Generator.Category.ARMOR);
 		lootChance = 0.2f; //initially, see lootChance()
 
 		properties.add(Property.INORGANIC);
@@ -88,8 +87,9 @@ public class Golem extends Mob {
 
 	public Item createLoot() {
 		Dungeon.LimitedDrops.GOLEM_EQUIP.count++;
+		Generator.Category category = Random.oneOf(Generator.Category.WEAPON, Generator.Category.ARMOR);
 		//uses probability tables for demon halls
-		if (loot == Generator.Category.WEAPON){
+		if (category == Generator.Category.WEAPON){
 			return Generator.randomWeapon(5, true);
 		} else {
 			return Generator.randomArmor(5);

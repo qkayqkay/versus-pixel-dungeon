@@ -74,6 +74,7 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.GameTimer;
 import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar;
+import com.shatteredpixel.shatteredpixeldungeon.utils.DropRNGManager;
 import com.shatteredpixel.shatteredpixeldungeon.utils.DungeonSeed;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndResurrect;
 import com.watabou.noosa.Game;
@@ -265,6 +266,7 @@ public class Dungeon {
 		//Seed the visual and bones generator separately so that they don't affect gameplay RNG
 		Random.restoreVisualState( seed ^ 0x56495355414CL );  // "VISUAL" LOL
 		Random.restoreBonesState( seed ^ 0x424F4E4553L );    // "BONES" LOL
+		DropRNGManager.reset( seed );
 
 		Statistics.reset();
 		Notes.reset();
@@ -658,6 +660,7 @@ public class Dungeon {
 	private static final String RNG_STACK	= "rng_stack";
 	private static final String RNG_VISUAL	= "rng_visual";
 	private static final String RNG_BONES	= "rng_bones";
+	private static final String RNG_DROPS	= "rng_drops";
 
 	public static void saveGame( int save ) {
 		try {
@@ -670,6 +673,9 @@ public class Dungeon {
 			bundle.put( RNG_STACK, Random.getStackStates() );
 			bundle.put( RNG_VISUAL, Random.getVisualState() );
 			bundle.put( RNG_BONES, Random.getBonesState() );
+			Bundle dropRNG = new Bundle();
+			DropRNGManager.storeInBundle( dropRNG );
+			bundle.put( RNG_DROPS, dropRNG );
 
 			bundle.put( SEED, seed );
 			bundle.put( CUSTOM_SEED, customSeedText );
@@ -776,6 +782,7 @@ public class Dungeon {
 			customSeedText = bundle.getString( CUSTOM_SEED );
 			daily = bundle.getBoolean( DAILY );
 			dailyReplay = bundle.getBoolean( DAILY_REPLAY );
+			DropRNGManager.reset( seed );
 
 			Actor.clear();
 			Actor.restoreNextID( bundle );
@@ -874,6 +881,9 @@ public class Dungeon {
 			}
 			if (bundle.contains( RNG_BONES )) {
 				Random.restoreBonesState( bundle.getLong( RNG_BONES ) );
+			}
+			if (bundle.contains( RNG_DROPS )) {
+				DropRNGManager.restoreFromBundle( bundle.getBundle( RNG_DROPS ), seed );
 			}
 		} finally {
 			com.watabou.utils.Random.loading = false;

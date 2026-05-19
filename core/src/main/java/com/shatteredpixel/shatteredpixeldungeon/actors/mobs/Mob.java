@@ -89,6 +89,7 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Swiftthistle;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
+import com.shatteredpixel.shatteredpixeldungeon.utils.DropRNGManager;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
@@ -957,8 +958,21 @@ public abstract class Mob extends Char {
 
 		MasterThievesArmband.StolenTracker stolen = buff(MasterThievesArmband.StolenTracker.class);
 		if (stolen == null || !stolen.itemWasStolen()) {
-			if (Random.Float() < lootChance()) {
-				Item loot = createLoot();
+			Random.pushGenerator( DropRNGManager.get( dropRNGKey( "check" ) ) );
+			boolean dropsLoot;
+			try {
+				dropsLoot = Random.Float() < lootChance();
+			} finally {
+				Random.popGenerator();
+			}
+			if (dropsLoot) {
+				Item loot;
+				Random.pushGenerator( DropRNGManager.get( dropRNGKey( "loot" ) ) );
+				try {
+					loot = createLoot();
+				} finally {
+					Random.popGenerator();
+				}
 				if (loot != null) {
 					Dungeon.level.drop(loot, pos).sprite.drop();
 				}
@@ -993,9 +1007,22 @@ public abstract class Mob extends Char {
 	
 	protected Object loot = null;
 	protected float lootChance = 0;
+
+	protected String dropRNGKey(){
+		return getClass().getName();
+	}
+
+	protected String dropRNGKey( String stream ){
+		return dropRNGKey() + ":" + stream;
+	}
 	
 	@SuppressWarnings("unchecked")
 	public Item createLoot() {
+		return createLoot( loot );
+	}
+
+	@SuppressWarnings("unchecked")
+	protected Item createLoot( Object loot ) {
 		Item item;
 		if (loot instanceof Generator.Category) {
 

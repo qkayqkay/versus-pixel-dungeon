@@ -147,6 +147,11 @@ public class Swarm extends Mob {
 		lootChance = 1f/(6 * (generation+1) );
 		return super.lootChance() * (5f - Dungeon.LimitedDrops.SWARM_HP.count) / 5f;
 	}
+
+	@Override
+	protected String dropRNGKey() {
+		return super.dropRNGKey() + ":generation=" + generation;
+	}
 	
 	@Override
 	public Item createLoot(){

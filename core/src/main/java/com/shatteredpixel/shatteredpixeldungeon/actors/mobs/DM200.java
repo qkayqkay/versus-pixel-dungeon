@@ -46,7 +46,6 @@ public class DM200 extends Mob {
 		EXP = 9;
 		maxLvl = 17;
 
-		loot = Random.oneOf(Generator.Category.WEAPON, Generator.Category.ARMOR);
 		lootChance = 0.2f; //initially, see lootChance()
 
 		properties.add(Property.INORGANIC);
@@ -79,8 +78,9 @@ public class DM200 extends Mob {
 
 	public Item createLoot() {
 		Dungeon.LimitedDrops.DM200_EQUIP.count++;
+		Generator.Category category = Random.oneOf(Generator.Category.WEAPON, Generator.Category.ARMOR);
 		//uses probability tables for dwarf city
-		if (loot == Generator.Category.WEAPON){
+		if (category == Generator.Category.WEAPON){
 			return Generator.randomWeapon(4, true);
 		} else {
 			return Generator.randomArmor(4);

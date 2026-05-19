@@ -49,7 +49,6 @@ public class Thief extends Mob {
 		EXP = 5;
 		maxLvl = 11;
 
-		loot = Random.oneOf(Generator.Category.RING, Generator.Category.ARTIFACT);
 		lootChance = 0.03f; //initially, see lootChance()
 
 		WANDERING = new Wandering();
@@ -109,7 +108,7 @@ public class Thief extends Mob {
 	@Override
 	public Item createLoot() {
 		Dungeon.LimitedDrops.THEIF_MISC.count++;
-		return super.createLoot();
+		return createLoot(Random.oneOf(Generator.Category.RING, Generator.Category.ARTIFACT));
 	}
 
 	@Override
