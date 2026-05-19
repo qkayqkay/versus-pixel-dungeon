@@ -32,6 +32,7 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.PurpleParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.Dewdrop;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
+import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfAggression;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfDisintegration;
@@ -41,10 +42,13 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.EyeSprite;
+import com.shatteredpixel.shatteredpixeldungeon.utils.DropRNGManager;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
+
+import java.util.ArrayList;
 
 public class Eye extends Mob {
 	
@@ -236,15 +240,7 @@ public class Eye extends Mob {
 		switch(Random.Int(4)){
 			case 0: case 1: default:
 				loot = new Dewdrop();
-				int ofs;
-				do {
-					ofs = PathFinder.NEIGHBOURS8[Random.Int(8)];
-				} while (Dungeon.level.solid[pos + ofs] && !Dungeon.level.passable[pos + ofs]);
-				if (Dungeon.level.heaps.get(pos+ofs) == null) {
-					Dungeon.level.drop(new Dewdrop(), pos + ofs).sprite.drop(pos);
-				} else {
-					Dungeon.level.drop(new Dewdrop(), pos + ofs).sprite.drop(pos + ofs);
-				}
+				dropExtraDewdrop();
 				break;
 			case 2:
 				loot = Generator.randomUsingDefaults(Generator.Category.SEED);
@@ -254,6 +250,34 @@ public class Eye extends Mob {
 				break;
 		}
 		return loot;
+	}
+
+	private void dropExtraDewdrop() {
+		// Keep Level.drop in this stream("drop_pos") too, as it can reroll positions when dropping onto chests.
+		Random.pushGenerator( DropRNGManager.get( dropRNGKey( "drop_pos" ) ) );
+		try {
+			int cell = extraDewdropCell();
+			boolean emptyTarget = Dungeon.level.heaps.get(cell) == null;
+			Heap heap = Dungeon.level.drop(new Dewdrop(), cell);
+			if (emptyTarget) {
+				heap.sprite.drop(pos);
+			} else {
+				heap.sprite.drop(cell);
+			}
+		} finally {
+			Random.popGenerator();
+		}
+	}
+
+	private int extraDewdropCell() {
+		ArrayList<Integer> candidates = new ArrayList<>();
+		for (int ofs : PathFinder.NEIGHBOURS8) {
+			int cell = pos + ofs;
+			if (!Dungeon.level.solid[cell] || Dungeon.level.passable[cell]) {
+				candidates.add(cell);
+			}
+		}
+		return candidates.isEmpty() ? pos : Random.element(candidates);
 	}
 
 	private static final String BEAM_TARGET     = "beamTarget";
