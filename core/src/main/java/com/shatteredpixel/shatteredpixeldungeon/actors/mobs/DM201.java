@@ -29,6 +29,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Corruption;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.MetalShard;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.DM201Sprite;
+import com.shatteredpixel.shatteredpixeldungeon.utils.DropRNGManager;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 
@@ -101,11 +102,13 @@ public class DM201 extends DM200 {
 
 		super.rollToDropLoot();
 
-		int ofs;
-		do {
-			ofs = PathFinder.NEIGHBOURS8[Random.Int(8)];
-		} while (Dungeon.level.solid[pos + ofs] && !Dungeon.level.passable[pos + ofs]);
-		Dungeon.level.drop( new MetalShard(), pos + ofs ).sprite.drop( pos );
+		Random.pushGenerator( DropRNGManager.get( dropRNGKey( "drop_pos" ) ) );
+		try {
+			int cell = randomValidDropCell( PathFinder.NEIGHBOURS8 );
+			Dungeon.level.drop( new MetalShard(), cell ).sprite.drop( pos );
+		} finally {
+			Random.popGenerator();
+		}
 	}
 
 	private class Hunting extends Mob.Hunting {

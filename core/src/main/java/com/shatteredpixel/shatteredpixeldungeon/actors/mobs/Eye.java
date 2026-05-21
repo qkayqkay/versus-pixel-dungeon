@@ -48,8 +48,6 @@ import com.watabou.utils.Bundle;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 
-import java.util.ArrayList;
-
 public class Eye extends Mob {
 	
 	{
@@ -256,7 +254,7 @@ public class Eye extends Mob {
 		// Keep Level.drop in this stream("drop_pos") too, as it can reroll positions when dropping onto chests.
 		Random.pushGenerator( DropRNGManager.get( dropRNGKey( "drop_pos" ) ) );
 		try {
-			int cell = extraDewdropCell();
+			int cell = randomValidDropCell( PathFinder.NEIGHBOURS8 );
 			boolean emptyTarget = Dungeon.level.heaps.get(cell) == null;
 			Heap heap = Dungeon.level.drop(new Dewdrop(), cell);
 			if (emptyTarget) {
@@ -267,17 +265,6 @@ public class Eye extends Mob {
 		} finally {
 			Random.popGenerator();
 		}
-	}
-
-	private int extraDewdropCell() {
-		ArrayList<Integer> candidates = new ArrayList<>();
-		for (int ofs : PathFinder.NEIGHBOURS8) {
-			int cell = pos + ofs;
-			if (!Dungeon.level.solid[cell] || Dungeon.level.passable[cell]) {
-				candidates.add(cell);
-			}
-		}
-		return candidates.isEmpty() ? pos : Random.element(candidates);
 	}
 
 	private static final String BEAM_TARGET     = "beamTarget";

@@ -1015,6 +1015,19 @@ public abstract class Mob extends Char {
 	protected String dropRNGKey( String stream ){
 		return dropRNGKey() + ":" + stream;
 	}
+
+	protected int randomValidDropCell( int[] offsets ){
+		ArrayList<Integer> candidates = new ArrayList<>();
+
+		for (int offset : offsets){
+			int cell = pos + offset;
+			if (!Dungeon.level.solid[cell] || Dungeon.level.passable[cell]){
+				candidates.add( cell );
+			}
+		}
+
+		return candidates.isEmpty() ? pos : Random.element( candidates );
+	}
 	
 	@SuppressWarnings("unchecked")
 	public Item createLoot() {

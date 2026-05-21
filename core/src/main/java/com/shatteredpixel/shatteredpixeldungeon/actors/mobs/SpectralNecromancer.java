@@ -30,6 +30,7 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.Pushing;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRemoveCurse;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.SpectralNecromancerSprite;
+import com.shatteredpixel.shatteredpixeldungeon.utils.DropRNGManager;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.PathFinder;
@@ -62,11 +63,13 @@ public class SpectralNecromancer extends Necromancer {
 
 		super.rollToDropLoot();
 
-		int ofs;
-		do {
-			ofs = PathFinder.NEIGHBOURS8[Random.Int(8)];
-		} while (Dungeon.level.solid[pos + ofs] && !Dungeon.level.passable[pos + ofs]);
-		Dungeon.level.drop( new ScrollOfRemoveCurse(), pos + ofs ).sprite.drop( pos );
+		Random.pushGenerator( DropRNGManager.get( dropRNGKey( "drop_pos" ) ) );
+		try {
+			int cell = randomValidDropCell( PathFinder.NEIGHBOURS8 );
+			Dungeon.level.drop( new ScrollOfRemoveCurse(), cell ).sprite.drop( pos );
+		} finally {
+			Random.popGenerator();
+		}
 	}
 
 	@Override
