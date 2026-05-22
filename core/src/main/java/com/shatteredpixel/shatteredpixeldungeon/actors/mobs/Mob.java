@@ -1028,6 +1028,19 @@ public abstract class Mob extends Char {
 
 		return candidates.isEmpty() ? pos : Random.element( candidates );
 	}
+
+	protected int randomPassableDropCell( int[] offsets ){
+		ArrayList<Integer> candidates = new ArrayList<>();
+
+		for (int offset : offsets){
+			int cell = pos + offset;
+			if (Dungeon.level.passable[cell]){
+				candidates.add( cell );
+			}
+		}
+
+		return candidates.isEmpty() ? pos : Random.element( candidates );
+	}
 	
 	@SuppressWarnings("unchecked")
 	public Item createLoot() {

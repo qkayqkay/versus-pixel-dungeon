@@ -30,6 +30,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.GnollExileSprite;
+import com.shatteredpixel.shatteredpixeldungeon.utils.DropRNGManager;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.BArray;
 import com.watabou.utils.PathFinder;
@@ -102,16 +103,23 @@ public class GnollExile extends Gnoll {
 
 		//drops 2 or 3 random items
 		ArrayList<Item> items = new ArrayList<>();
-		items.add(Generator.randomUsingDefaults());
-		items.add(Generator.randomUsingDefaults());
-		if (Random.Int(2) == 0) items.add(Generator.randomUsingDefaults());
+		Random.pushGenerator( DropRNGManager.get( dropRNGKey( "extra_loot" ) ) );
+		try {
+			items.add(Generator.randomUsingDefaults());
+			items.add(Generator.randomUsingDefaults());
+			if (Random.Int(2) == 0) items.add(Generator.randomUsingDefaults());
+		} finally {
+			Random.popGenerator();
+		}
 
-		for (Item item : items){
-			int ofs;
-			do {
-				ofs = PathFinder.NEIGHBOURS9[Random.Int(9)];
-			} while (Dungeon.level.solid[pos + ofs] && !Dungeon.level.passable[pos + ofs]);
-			Dungeon.level.drop( item, pos + ofs ).sprite.drop( pos );
+		Random.pushGenerator( DropRNGManager.get( dropRNGKey( "drop_pos" ) ) );
+		try {
+			for (Item item : items){
+				int cell = randomValidDropCell( PathFinder.NEIGHBOURS9 );
+				Dungeon.level.drop( item, cell ).sprite.drop( pos );
+			}
+		} finally {
+			Random.popGenerator();
 		}
 
 	}

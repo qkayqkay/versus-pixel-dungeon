@@ -62,6 +62,7 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.DM300Sprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BossHealthBar;
+import com.shatteredpixel.shatteredpixeldungeon.utils.DropRNGManager;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.audio.Music;
@@ -577,13 +578,22 @@ public class DM300 extends Mob {
 		Dungeon.level.unseal();
 
 		//60% chance of 2 shards, 30% chance of 3, 10% chance for 4. Average of 2.5
-		int shards = Random.chances(new float[]{0, 0, 6, 3, 1});
-		for (int i = 0; i < shards; i++){
-			int ofs;
-			do {
-				ofs = PathFinder.NEIGHBOURS8[Random.Int(8)];
-			} while (!Dungeon.level.passable[pos + ofs]);
-			Dungeon.level.drop( new MetalShard(), pos + ofs ).sprite.drop( pos );
+		int shards;
+		Random.pushGenerator( DropRNGManager.get( dropRNGKey( "extra_count" ) ) );
+		try {
+			shards = Random.chances(new float[]{0, 0, 6, 3, 1});
+		} finally {
+			Random.popGenerator();
+		}
+
+		Random.pushGenerator( DropRNGManager.get( dropRNGKey( "drop_pos" ) ) );
+		try {
+			for (int i = 0; i < shards; i++){
+				int cell = randomPassableDropCell( PathFinder.NEIGHBOURS8 );
+				Dungeon.level.drop( new MetalShard(), cell ).sprite.drop( pos );
+			}
+		} finally {
+			Random.popGenerator();
 		}
 
 		Badges.validateBossSlain();
