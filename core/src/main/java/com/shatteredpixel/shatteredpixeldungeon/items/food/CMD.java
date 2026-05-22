@@ -27,21 +27,24 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndTextInput;
+import com.watabou.noosa.Game;
 import com.watabou.utils.DeviceCompat;
 import com.watabou.utils.PathFinder;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class CMD extends Item {
 
-	public static final String AC_SUMMON = "SUMMON";
+	public static final String AC_COMMAND = "COMMAND";
 
 	{
 		image = ItemSpriteSheet.PHANTOM_MEAT;
-		defaultAction = AC_SUMMON;
+		defaultAction = AC_COMMAND;
 		unique = true;
 		bones = false;
 	}
@@ -55,27 +58,27 @@ public class CMD extends Item {
 	public ArrayList<String> actions( Hero hero ) {
 		ArrayList<String> actions = super.actions( hero );
 		if (DeviceCompat.isDebug()) {
-			actions.add( AC_SUMMON );
+			actions.add( AC_COMMAND );
 		}
 		return actions;
 	}
 
 	@Override
 	public void execute( Hero hero, String action ) {
-		if (action.equals( AC_SUMMON ) && !DeviceCompat.isDebug()) {
+		if (action.equals( AC_COMMAND ) && !DeviceCompat.isDebug()) {
 			return;
 		}
 
 		super.execute( hero, action );
 
-		if (action.equals( AC_SUMMON )) {
+		if (action.equals( AC_COMMAND )) {
 			GameScene.show( new WndTextInput(
-					"SUMMON",
-					"Enter a mob class name, e.g. Eye or /summon Eye.",
+					"COMMAND",
+					"Enter a command, e.g. Eye, /summon Eye, or /floor 5.",
 					"",
 					1000,
 					true,
-					"SUMMON",
+					"RUN",
 					"CANCEL" ) {
 				@Override
 				public void onSelect( boolean positive, String text ) {
@@ -84,7 +87,7 @@ public class CMD extends Item {
 					}
 
 					for (String line : text.split( "\\r?\\n" )) {
-						summonFromInput( line );
+						runCommand( line );
 					}
 				}
 			} );
@@ -106,15 +109,63 @@ public class CMD extends Item {
 		return 0;
 	}
 
-	private static void summonFromInput( String input ) {
-		String mobName = input.trim();
-		if (mobName.startsWith( "/summon " )) {
-			mobName = mobName.substring( "/summon ".length() ).trim();
+	private static void runCommand( String input ) {
+		String command = input.trim();
+		if (command.isEmpty()) {
+			return;
 		}
 
-		if (!mobName.isEmpty()) {
-			summonMob( mobName );
+		if (!command.startsWith( "/" )) {
+			summonMob( command );
+			return;
 		}
+
+		String[] parts = command.substring( 1 ).trim().split( "\\s+", 2 );
+		String commandName = parts[0].toLowerCase( Locale.ROOT );
+		String args = parts.length > 1 ? parts[1].trim() : "";
+
+		switch (commandName) {
+			case "summon":
+				if (args.isEmpty()) {
+					GLog.w( "Usage: /summon Eye" );
+				} else {
+					summonMob( args );
+				}
+				break;
+			case "floor":
+				goToFloor( args );
+				break;
+			default:
+				GLog.w( "Unknown command: /%s", commandName );
+				break;
+		}
+	}
+
+	private static void goToFloor( String depthText ) {
+		int depth;
+		try {
+			depth = Integer.parseInt( depthText );
+		} catch (NumberFormatException e) {
+			GLog.w( "Usage: /floor 5" );
+			return;
+		}
+
+		if (depth < 1 || depth > 26) {
+			GLog.w( "Floor must be between 1 and 26." );
+			return;
+		}
+
+		if (Dungeon.branch == 0 && Dungeon.depth == depth) {
+			GLog.i( "Already on floor %d.", depth );
+			return;
+		}
+
+		InterlevelScene.mode = InterlevelScene.Mode.RETURN;
+		InterlevelScene.returnDepth = depth;
+		InterlevelScene.returnBranch = 0;
+		InterlevelScene.returnPos = -1;
+		InterlevelScene.generateMissingMainPath = true;
+		Game.switchScene( InterlevelScene.class );
 	}
 
 	private static void summonMob( String mobName ) {

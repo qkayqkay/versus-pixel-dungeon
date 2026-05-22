@@ -89,6 +89,7 @@ public class InterlevelScene extends PixelScene {
 	public static int returnDepth;
 	public static int returnBranch;
 	public static int returnPos;
+	public static boolean generateMissingMainPath;
 
 	public static boolean fallIntoPit;
 	
@@ -720,8 +721,17 @@ public class InterlevelScene extends PixelScene {
 	}
 	
 	private void returnTo() throws IOException {
+		boolean generateMissingMainPath = InterlevelScene.generateMissingMainPath;
+		InterlevelScene.generateMissingMainPath = false;
+
 		Mob.holdAllies( Dungeon.level );
 		Dungeon.saveAll();
+
+		//CMD /floor uses this after the current floor is saved, so skipped main floors
+		//can advance levelgen/global item state before the target floor is loaded.
+		if (DeviceCompat.isDebug() && generateMissingMainPath && returnBranch == 0) {
+			generateMissingMainPathTo( returnDepth );
+		}
 
 		Level level;
 		Dungeon.depth = returnDepth;
@@ -733,6 +743,25 @@ public class InterlevelScene extends PixelScene {
 		}
 
 		Dungeon.switchLevel( level, returnPos );
+	}
+
+	private void generateMissingMainPathTo( int targetDepth ) throws IOException {
+		int trueDepth = Dungeon.depth;
+		int trueBranch = Dungeon.branch;
+
+		try {
+			for (int depth = 1; depth < targetDepth; depth++) {
+				if (!Dungeon.levelHasBeenGenerated( depth, 0 )) {
+					Dungeon.depth = depth;
+					Dungeon.branch = 0;
+					Dungeon.level = Dungeon.newLevel();
+					Dungeon.saveLevel( GamesInProgress.curSlot );
+				}
+			}
+		} finally {
+			Dungeon.depth = trueDepth;
+			Dungeon.branch = trueBranch;
+		}
 	}
 	
 	private void restore() throws IOException {
