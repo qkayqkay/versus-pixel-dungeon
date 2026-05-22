@@ -53,6 +53,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.armor.ClothArmor;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HolyTome;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.VelvetPouch;
+import com.shatteredpixel.shatteredpixeldungeon.items.food.CMD;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfInvisibility;
@@ -60,6 +61,9 @@ import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfLiquidFlam
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfMindVision;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfPurity;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHaste;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfMight;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTenacity;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfIdentify;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfLullaby;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping;
@@ -67,6 +71,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMirrorImag
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRage;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRemoveCurse;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfBlastWave;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.SpiritBow;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Cudgel;
@@ -108,13 +113,16 @@ public enum HeroClass {
 		i = new Food();
 		if (!Challenges.isItemBlocked(i)) i.collect();
 
+		if (DeviceCompat.isDebug()) {
+			giveDebugItems();
+		}
+
 		new VelvetPouch().collect();
 		Dungeon.LimitedDrops.VELVET_POUCH.drop();
 
 		Waterskin waterskin = new Waterskin();
 		waterskin.collect();
 
-		for(int iii=0;iii<10;iii++) new PotionOfMindVision().collect();
 		new ScrollOfIdentify().identify();
 
 		switch (this) {
@@ -152,6 +160,27 @@ public enum HeroClass {
 			}
 		}
 
+	}
+
+	private static void giveDebugItems() {
+		new CMD().quantity(100).collect();
+		collectDebugLeveledItem( new RingOfHaste(), 100 );
+		collectDebugLeveledItem( new RingOfMight(), 100 );
+		collectDebugLeveledItem( new RingOfTenacity(), 100 );
+
+		WandOfBlastWave blastWave = new WandOfBlastWave();
+		blastWave.identify();
+		blastWave.curCharges = blastWave.maxCharges;
+		blastWave.collect();
+
+		new PotionOfMindVision().identify();
+		new PotionOfMindVision().quantity( 10 ).collect();
+	}
+
+	private static void collectDebugLeveledItem( Item item, int level ) {
+		item.identify();
+		item.level( level );
+		item.collect();
 	}
 
 	public Badges.Badge masteryBadge() {
