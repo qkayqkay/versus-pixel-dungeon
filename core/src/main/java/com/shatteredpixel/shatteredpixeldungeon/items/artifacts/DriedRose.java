@@ -565,19 +565,19 @@ public class DriedRose extends Artifact {
 
 		@Override
 		public void defendPos(int cell) {
-			yell(Messages.get(this, "directed_position_" + Random.IntRange(1, 5)));
+			yell(Messages.get(this, "directed_position_" + Random.IntRangeVisual(1, 5)));
 			super.defendPos(cell);
 		}
 
 		@Override
 		public void followHero() {
-			yell(Messages.get(this, "directed_follow_" + Random.IntRange(1, 5)));
+			yell(Messages.get(this, "directed_follow_" + Random.IntRangeVisual(1, 5)));
 			super.followHero();
 		}
 
 		@Override
 		public void targetChar(Char ch) {
-			yell(Messages.get(this, "directed_attack_" + Random.IntRange(1, 5)));
+			yell(Messages.get(this, "directed_attack_" + Random.IntRangeVisual(1, 5)));
 			super.targetChar(ch);
 		}
 
@@ -784,7 +784,7 @@ public class DriedRose extends Artifact {
 				int depth = (Dungeon.depth - 1) / 5;
 
 				//only some lines are said on the first floor of a depth
-				int variant = Dungeon.depth % 5 == 1 ? Random.IntRange(1, 3) : Random.IntRangeVisual(1, 6);
+				int variant = Dungeon.depth % 5 == 1 ? Random.IntRangeVisual(1, 3) : Random.IntRangeVisual(1, 6);
 
 				switch (depth) {
 					case 0:
@@ -815,19 +815,19 @@ public class DriedRose extends Artifact {
 			
 			switch(depth){
 				case 0:
-					yell( Messages.get( this, "seen_goo_" + Random.IntRange(1, 3) ));
+					yell( Messages.get( this, "seen_goo_" + Random.IntRangeVisual(1, 3) ));
 					break;
 				case 1:
-					yell( Messages.get( this, "seen_tengu_" + Random.IntRange(1, 3) ));
+					yell( Messages.get( this, "seen_tengu_" + Random.IntRangeVisual(1, 3) ));
 					break;
 				case 2:
-					yell( Messages.get( this, "seen_dm300_" + Random.IntRange(1, 3) ));
+					yell( Messages.get( this, "seen_dm300_" + Random.IntRangeVisual(1, 3) ));
 					break;
 				case 3:
-					yell( Messages.get( this, "seen_king_" + Random.IntRange(1, 3) ));
+					yell( Messages.get( this, "seen_king_" + Random.IntRangeVisual(1, 3) ));
 					break;
 				case 4: default:
-					yell( Messages.get( this, "seen_yog_" + Random.IntRange(1, 3) ));
+					yell( Messages.get( this, "seen_yog_" + Random.IntRangeVisual(1, 3) ));
 					break;
 			}
 			Sample.INSTANCE.play( Assets.Sounds.GHOST );
@@ -835,21 +835,21 @@ public class DriedRose extends Artifact {
 		
 		public void sayDefeated(){
 			if (BossHealthBar.isAssigned()){
-				yell( Messages.get( this, "defeated_by_boss_" + Random.IntRange(1, 3) ));
+				yell( Messages.get( this, "defeated_by_boss_" + Random.IntRangeVisual(1, 3) ));
 			} else {
-				yell( Messages.get( this, "defeated_by_enemy_" + Random.IntRange(1, 3) ));
+				yell( Messages.get( this, "defeated_by_enemy_" + Random.IntRangeVisual(1, 3) ));
 			}
 			Sample.INSTANCE.play( Assets.Sounds.GHOST );
 		}
 		
 		public void sayHeroKilled(){
-			yell( Messages.get( this, "player_killed_" + Random.IntRange(1, 3) ));
+			yell( Messages.get( this, "player_killed_" + Random.IntRangeVisual(1, 3) ));
 			GLog.newLine();
 			Sample.INSTANCE.play( Assets.Sounds.GHOST );
 		}
 		
 		public void sayAnhk(){
-			yell( Messages.get( this, "blessed_ankh_" + Random.IntRange(1, 3) ));
+			yell( Messages.get( this, "blessed_ankh_" + Random.IntRangeVisual(1, 3) ));
 			Sample.INSTANCE.play( Assets.Sounds.GHOST );
 		}
 		

@@ -134,7 +134,7 @@ public class WandOfFrost extends DamageWand {
 			float procChance = ((int)Math.floor(chill.cooldown()) - 1)/9f;
 			procChance *= procChanceMultiplier(attacker);
 
-			if (Random.FloatVisual() < procChance) {
+			if (Random.Float() < procChance) {
 
 				float powerMulti = Math.max(1f, procChance);
 

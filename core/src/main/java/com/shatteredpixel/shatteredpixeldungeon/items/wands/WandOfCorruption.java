@@ -177,7 +177,7 @@ public class WandOfCorruption extends Wand {
 				corruptEnemy( enemy );
 			} else {
 				float debuffChance = corruptingPower / enemyResist;
-				if (Random.FloatVisual() < debuffChance){
+				if (Random.Float() < debuffChance){
 					debuffEnemy( enemy, MAJOR_DEBUFFS);
 				} else {
 					debuffEnemy( enemy, MINOR_DEBUFFS);
@@ -243,7 +243,7 @@ public class WandOfCorruption extends Wand {
 		// lvl 1 - 28.5%
 		// lvl 2 - 37.5%
 		float procChance = (level+1f)/(level+6f) * procChanceMultiplier(attacker);
-		if (Random.FloatVisual() < procChance) {
+		if (Random.Float() < procChance) {
 
 			float powerMulti = Math.max(1f, procChance);
 
