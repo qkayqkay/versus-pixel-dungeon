@@ -1,4 +1,3 @@
-// Dropdown.java
 package com.shatteredpixel.shatteredpixeldungeon.ui;
 
 import com.watabou.noosa.ColorBlock;
@@ -8,13 +7,25 @@ import java.util.ArrayList;
 
 public class Dropdown extends Component {
 
+    private static final ArrayList<Dropdown> openDropdowns = new ArrayList<>();
+
     private ArrayList<StyledButton> buttons = new ArrayList<>();
+    private Runnable onClosed = null;
+
 
     public Dropdown() {
-        // Empty — caller adds buttons, then calls layout()
     }
 
     public void layout(float x, float y, float w, ArrayList<StyledButton> btns) {
+        // Close all other open dropdowns first
+        for (int i = openDropdowns.size() - 1; i >= 0; i--) {
+            Dropdown other = openDropdowns.get(i);
+            if (other != this) {
+                other.close();
+            }
+        }
+        openDropdowns.add(this);
+
         float btnH = 16f;
         float gap = 2f;
         float currentY = y;
@@ -36,11 +47,21 @@ public class Dropdown extends Component {
         setSize(w, totalH);
     }
 
+    public void setOnClosed(Runnable onClosed) {
+        this.onClosed = onClosed;
+    }
+
     public void close() {
+        openDropdowns.remove(this);
         for (StyledButton btn : buttons) {
+            btn.enable(false);
             btn.killAndErase();
         }
         buttons.clear();
+        if (onClosed != null) {
+            onClosed.run();
+        }
         killAndErase();
     }
+
 }

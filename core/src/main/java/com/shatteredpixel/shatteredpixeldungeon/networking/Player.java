@@ -36,4 +36,5 @@ public class Player {
     public void setInGame(boolean inGame) { this.inGame = inGame; }
     public void setLobby(Lobby lobby) { this.lobby = lobby; }
     public boolean isAdmin() { return level >= 1; }
+    public boolean isHigherLevel(Player target) { return level > target.level; }
 }

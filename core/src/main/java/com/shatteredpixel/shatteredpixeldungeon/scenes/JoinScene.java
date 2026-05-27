@@ -5,6 +5,7 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.networking.Lobby;
 import com.shatteredpixel.shatteredpixeldungeon.networking.NetworkManager;
 import com.shatteredpixel.shatteredpixeldungeon.ui.*;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndTextInput;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.Game;
@@ -140,13 +141,15 @@ public class JoinScene extends PixelScene{
         lobbyList.scrollTo(0, 0);
 
 
-        NetworkManager.INSTANCE.setJoinErrorCallback(new Runnable() {
+        NetworkManager.INSTANCE.setJoinErrorCallback(new Consumer<String>() {
             @Override
-            public void run() {
+            public void accept(String reason) {
                 Gdx.app.postRunnable(new Runnable() {
                     @Override
                     public void run() {
-                        System.out.println("Wrong password!"); // replace with your popup later
+                        if(ShatteredPixelDungeon.scene() == JoinScene.this) {
+                            add(new WndMessage(Messages.get(JoinScene.class, reason)));
+                        }
                     }
                 });
             }

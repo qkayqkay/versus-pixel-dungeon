@@ -15,11 +15,11 @@ public class GamemodeDropdown extends Dropdown {
     public GamemodeDropdown(Gamemode[] gamemodes, OnGamemodeSelected callback) {
         super();
         ArrayList<StyledButton> btns = buildButtons(gamemodes, callback);
-        // Store them so layout() can be called by the caller with these
+        // stored here for layout later()
         this.pendingButtons = btns;
     }
 
-    // Held here so the caller can pass them to layout()
+    // held here as theyre passed in layout()
     public ArrayList<StyledButton> pendingButtons;
 
     private ArrayList<StyledButton> buildButtons(Gamemode[] gamemodes, OnGamemodeSelected callback) {

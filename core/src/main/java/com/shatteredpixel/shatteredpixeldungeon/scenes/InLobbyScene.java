@@ -10,6 +10,8 @@ import com.shatteredpixel.shatteredpixeldungeon.networking.*;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.*;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndOptions;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndTextInput;
 import com.watabou.noosa.*;
 import com.watabou.noosa.ui.Component;
 import com.watabou.utils.PlatformSupport;
@@ -39,7 +41,9 @@ public class InLobbyScene extends PixelScene {
     private NinePatch classPanel;
     private ArrayList<ClassSelectBtn> classBtns = new ArrayList<>();
 
+    // settings
     private StyledButton gamemodeButton;
+    private StyledButton maxPlayerCountButton;
 
     private float w;
     private float h;
@@ -54,6 +58,7 @@ public class InLobbyScene extends PixelScene {
         static final int HEIGHT = 24;
 
         private Player p;
+        private LobbyPlayerBtnDropdown dropdown = null;
 
         LobbyPlayerBtn(Player p) {
             super(Chrome.Type.GREY_BUTTON_TR, p.getName());
@@ -67,8 +72,96 @@ public class InLobbyScene extends PixelScene {
         @Override
         protected void onClick() {
             super.onClick();
-            Dropdown dropdown = new Dropdown();
+            if (dropdown != null) {
+                LobbyPlayerBtnDropdown old = dropdown;
+                dropdown = null;
+                old.close();
+                return;
+            }
+            dropdown = new LobbyPlayerBtnDropdown(p);
+            dropdown.setOnClosed(new Runnable() {
+                @Override
+                public void run() {
+                    dropdown = null;
+                }
+            });
+            InLobbyScene.this.add(dropdown);
 
+            float sceneX = playersScroll.left() + playersPanel.marginLeft();
+            float sceneY = this.top() + playersScroll.top() + this.height();
+
+            ArrayList<StyledButton> btns = new ArrayList<>();
+            for (StyledButton btn : dropdown.pendingButtons) {
+                btns.add(btn);
+            }
+            dropdown.layout(sceneX, sceneY, this.width(), dropdown.pendingButtons);
+            dropdown.camera = uiCamera;
+        }
+    }
+
+    private static class ConfirmPromoteWnd extends WndOptions {
+        private final Player target;
+
+        ConfirmPromoteWnd(Player target, String title, String desc, String decline, String confirm) {
+            super(title, desc, decline, confirm);
+            this.target = target;
+        }
+
+        @Override
+        protected void onSelect(int index) {
+            if (index == 1) {
+                NetworkManager.INSTANCE.promotePlayer(target);
+            }
+        }
+    }
+
+    private class LobbyPlayerBtnDropdown extends Dropdown{
+        Player target; // the player this button corresponds to
+        ArrayList<StyledButton> pendingButtons = new ArrayList<>(); //buttons to be added in layout
+
+        public LobbyPlayerBtnDropdown(Player target){
+            this.target = target;
+            StyledButton kick = new StyledButton(Chrome.Type.TOAST, Messages.get(this, "kick_button")){
+                @Override
+                protected void onClick() {
+                    NetworkManager.INSTANCE.kickPlayer(target);
+                    super.onClick();
+                }
+            };
+            StyledButton ban = new StyledButton(Chrome.Type.TOAST, Messages.get(this, "ban_button")){
+                @Override
+                protected void onClick() {
+                    NetworkManager.INSTANCE.banPlayer(target);
+                    super.onClick();
+                }
+            };
+            StyledButton promote = new StyledButton(Chrome.Type.TOAST, Messages.get(this, "promote_button")) {
+                @Override
+                protected void onClick() {
+                    if (NetworkManager.INSTANCE.self.level == 2 && target.level == 1) {
+                        ConfirmPromoteWnd confirm = new ConfirmPromoteWnd(
+                                target,
+                                Messages.get(LobbyPlayerBtnDropdown.class, "confirm_promote_title"),
+                                Messages.get(LobbyPlayerBtnDropdown.class, "confirm_promote_desc"),
+                                Messages.get(LobbyPlayerBtnDropdown.class, "confirm_promote_decline"),
+                                Messages.get(LobbyPlayerBtnDropdown.class, "confirm_promote_confirm")
+                        );
+                        ShatteredPixelDungeon.scene().addToFront(confirm);
+                    } else {
+                        NetworkManager.INSTANCE.promotePlayer(target);
+                    }
+                    super.onClick();
+                }
+            };
+            // basically: I'm admin, and I'm higher level than this person and im not that person
+            if(NetworkManager.INSTANCE.self.isAdmin() && (NetworkManager.INSTANCE.self.level > target.level && target != NetworkManager.INSTANCE.self)) {
+                pendingButtons.add(promote);
+                pendingButtons.add(kick);
+                pendingButtons.add(ban);
+            }
+            else{
+                 // nothing for now....
+            }
         }
     }
 
@@ -245,6 +338,12 @@ public class InLobbyScene extends PixelScene {
                 };
 
                 dropdown = new GamemodeDropdown(Gamemode.listGamemodes(), handler);
+                dropdown.setOnClosed(new Runnable() {
+                    @Override
+                    public void run() {
+                        dropdown = null;
+                    }
+                });
                 add(dropdown);
                 dropdown.layout(
                         settingsPanel.x + settingsPanel.marginLeft(),
@@ -259,6 +358,44 @@ public class InLobbyScene extends PixelScene {
                 settingsPanel.innerWidth(),
                 16f);
         add(gamemodeButton);
+
+
+        maxPlayerCountButton = new StyledButton(Chrome.Type.GREY_BUTTON_TR, Messages.get(this, "max_player_count_title")) {
+            @Override
+            protected void onClick() {
+                int currentMax = lobby != null ? lobby.getMaxPlayers() : 0;
+                WndTextInput wnd = new WndTextInput(
+                        Messages.get(InLobbyScene.class, "max_player_count_desc"),
+                        Messages.get(InLobbyScene.class, "max_player_count_desc2"),
+                        String.valueOf(currentMax),
+                        8,
+                        false,
+                        Messages.get(InLobbyScene.class, "max_player_count_set_value"),
+                        Messages.get(InLobbyScene.class, "max_player_count_cancel")
+                ) {
+                    @Override
+                    public void onSelect(boolean positive, String text) {
+                        if (positive) {
+                            int value = Integer.parseInt(text);
+                            if (value >= 2 && value <= 8) {
+                                NetworkManager.INSTANCE.changeMaxPlayers(value);
+                            }
+
+                        }
+                    }
+                };
+                ShatteredPixelDungeon.scene().addToFront(wnd);
+            }
+        };
+        maxPlayerCountButton.setRect(
+                settingsPanel.x + settingsPanel.marginLeft(),
+                settingsPanel.y + settingsPanel.marginTop() + 16f + 4f,
+                settingsPanel.innerWidth(),
+                16f);
+        add(maxPlayerCountButton);
+
+
+
 
         classPanel = Chrome.get(Chrome.Type.TOAST);
         classPanel.size(rightWidth, halfHeight);
@@ -447,12 +584,12 @@ public class InLobbyScene extends PixelScene {
 
     private void updateSettingButtons() {
         gamemodeButton.text("Gamemode: " + Gamemode.current.gamemodeName);
-        if(!NetworkManager.INSTANCE.self.isAdmin()){
-            gamemodeButton.enable(false);
+        if (lobby != null) {
+            maxPlayerCountButton.text(Messages.get(InLobbyScene.class, "max_player_count_title") + ": " + lobby.getMaxPlayers());
         }
-        else{
-            gamemodeButton.enable(true);
-        }
+        boolean isAdmin = NetworkManager.INSTANCE.self.isAdmin();
+        gamemodeButton.enable(isAdmin);
+        maxPlayerCountButton.enable(isAdmin);
     }
 
     private static float timer = -4; // so it's instant

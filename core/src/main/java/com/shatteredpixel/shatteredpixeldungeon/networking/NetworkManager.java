@@ -22,11 +22,14 @@ import java.util.function.Consumer;
 
 import com.badlogic.gdx.Gdx;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BingoBoard;
+import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndTitledMessage;
 import com.watabou.noosa.Game;
 import com.google.gson.*;
+import com.watabou.noosa.Scene;
 
 import static com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene.add;
 
@@ -99,20 +102,21 @@ public enum NetworkManager {
     private PrintWriter out;
     private BufferedReader in;
     private boolean isListening = false;
-    private Consumer<LinkedHashMap<String, Lobby>> lobbyListCallback;
-    private Runnable onChatReceived;
-    private Runnable onJoinError;
-    private Runnable onLevelChanged;
+
+    // These are essentially a bunch of callbacks for a variety of things. When the server responds with info,
+    // I need to be able to access it later down the line(most of the time this occurs in a scene script)
+    private Consumer<LinkedHashMap<String, Lobby>> lobbyListCallback; // when I recieve the list of lobbies
+    private Runnable onChatReceived; // when I recieve a chat message(this includes server messages btw)
+    private Consumer<String> onJoinError; // when I fail to join a server(eg: wrong password)
+    private Runnable onLevelChanged; // when the level changes(used to send announcements if I remember correctly?)
     private Runnable onDisconnected; // callback for when keepalive detects a timeout
-    private Runnable onClassUpdate;
-    private Runnable onLoginSuccess;
-    private Runnable onLobbyCreated;
-    private Runnable onSettingsUpdate;
-
-
-    private Consumer<String> onLoginFail;
-    private Runnable onRegisterSuccess;
-    private Consumer<String> onRegisterFail;
+    private Runnable onClassUpdate; // when I change class(must notify others)
+    private Runnable onLobbyCreated; // when I create an accuont
+    private Runnable onSettingsUpdate; // when I recieve setting changes
+    private Runnable onLoginSuccess; // when I successfully login
+    private Consumer<String> onLoginFail; // when I fail to login
+    private Runnable onRegisterSuccess; // when I succeed in registering
+    private Consumer<String> onRegisterFail; // when I fail in registering
 
 
     public long countdownUntil = -1;
@@ -310,6 +314,34 @@ public enum NetworkManager {
             }
         }
 
+        else if (header.equals("KICKED")){
+            self.setLobby(null);
+            Gdx.app.postRunnable(new Runnable() {
+                @Override
+                public void run() {
+                    Scene currentScene = Game.scene();
+                    if(currentScene != null) {
+                        currentScene.add(new WndTitledMessage(Icons.WARNING.get(), Messages.get(this, "wnd_kicked_title"), Messages.get(this, "wnd_kicked_desc")));
+                    }
+                    Game.switchScene(JoinScene.class);
+                }
+            });
+        }
+
+        else if (header.equals("BANNED")){
+            self.setLobby(null);
+            Gdx.app.postRunnable(new Runnable() {
+                @Override
+                public void run() {
+                    Scene currentScene = Game.scene();
+                    if(currentScene != null) {
+                        currentScene.add(new WndTitledMessage(Icons.WARNING.get(), Messages.get(this, "wnd_banned_title"), Messages.get(this, "wnd_banned_desc")));
+                    }
+                    Game.switchScene(JoinScene.class);
+                }
+            });
+        }
+
         else if (header.equals("JOINNOTIFY")) {
             if (data.equals("canenter")) {
                 if (pendingLobbyID != null && lobbies.containsKey(pendingLobbyID)) {
@@ -331,7 +363,13 @@ public enum NetworkManager {
             } else {
                 pendingLobbyID = null;
                 if (onJoinError != null) {
-                    onJoinError.run();
+                    final String reason = data; // "wrongpassword", "isbanned", "lobbynotfound", "maxcapacity". Im not updating this list so check the server.
+                    Gdx.app.postRunnable(new Runnable() {
+                        @Override
+                        public void run() {
+                            onJoinError.accept(reason);
+                        }
+                    });
                 }
             }
         }
@@ -351,6 +389,15 @@ public enum NetworkManager {
         }
         else if (header.equals("GAMEMODEUPDATE")) {
             Gamemode.current = Gamemode.fromID(data);
+            if (onSettingsUpdate != null) {
+                onSettingsUpdate.run();
+            }
+        }
+        else if (header.equals("CHANGEMAXPLAYERCOUNT")) {
+            int newMax = Integer.parseInt(data);
+            if (self.getLobby() != null) {
+                self.getLobby().setMaxPlayers(newMax);
+            }
             if (onSettingsUpdate != null) {
                 onSettingsUpdate.run();
             }
@@ -447,7 +494,13 @@ public enum NetworkManager {
             newLobby.setID(newLobbyID);
             lobbies.put(newLobbyID, newLobby);
             self.setLobby(newLobby);
-            joinLobby(newLobbyID);
+
+            Gdx.app.postRunnable(new Runnable() {
+                @Override
+                public void run() {
+                    Game.switchScene(InLobbyScene.class);
+                }
+            });
 
             if (onLobbyCreated != null) {
                 Gdx.app.postRunnable(new Runnable() {
@@ -699,6 +752,27 @@ public enum NetworkManager {
         } catch (Exception e) { /* ignore */ }
     }
 
+    public void kickPlayer(Player target){
+        if(self.isAdmin() && self.isHigherLevel(target)){
+            send("KICKPLAYER:"+target.getID());
+        }
+    }
+
+    public void banPlayer(Player target){
+        if(self.isAdmin() && self.isHigherLevel(target)){
+            send("BANPLAYER:"+target.getID());
+        }
+    }
+
+    public void promotePlayer(Player target){
+        if(self.isAdmin() && self.isHigherLevel(target)){
+            send("PROMOTEPLAYER:"+target.getID());
+        }
+    }
+
+    public void changeMaxPlayers(float maxPlayers){
+        this.send("CHANGEMAXPLAYERCOUNT:"+ (int) maxPlayers);
+    }
     public void sendGamemode(Gamemode gamemode){
         this.send("SETGAMEMODE:"+gamemode.gamemodeID);
     }
@@ -739,7 +813,7 @@ public enum NetworkManager {
     public void setChatCallback(Runnable callback) {
         this.onChatReceived = callback;
     }
-    public void setJoinErrorCallback(Runnable callback) {
+    public void setJoinErrorCallback(Consumer<String> callback) {
         this.onJoinError = callback;
     }
     public void setLevelChangedCallback(Runnable callback) {

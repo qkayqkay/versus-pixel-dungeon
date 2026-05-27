@@ -81,6 +81,9 @@ public class TitleScene extends PixelScene {
 		if(DeviceCompat.isDebug()){
 			ip = "yamanote.proxy.rlwy.net";
 			port = 18602;
+			//ip = "127.0.0.1";
+			//port = 6000;
+
 		}
 		else{
 			ip = "monorail.proxy.rlwy.net";
