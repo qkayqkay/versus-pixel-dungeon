@@ -27,7 +27,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Ooze;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.GooBlob;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CausticSlimeSprite;
-import com.shatteredpixel.shatteredpixeldungeon.utils.DropRNGManager;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 
@@ -55,12 +54,9 @@ public class CausticSlime extends Slime {
 		
 		super.rollToDropLoot();
 		
-		Random.pushGenerator( DropRNGManager.get( dropRNGKey( "drop_pos" ) ) );
-		try {
+		try (Random.Scope ignored = useDropRNG( "drop_pos" )) {
 			int cell = randomValidDropCell( PathFinder.NEIGHBOURS8 );
 			Dungeon.level.drop( new GooBlob(), cell ).sprite.drop( pos );
-		} finally {
-			Random.popGenerator();
 		}
 	}
 }

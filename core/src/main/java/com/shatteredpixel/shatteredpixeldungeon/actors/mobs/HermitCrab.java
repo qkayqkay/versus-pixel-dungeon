@@ -25,7 +25,6 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.HermitCrabSprite;
-import com.shatteredpixel.shatteredpixeldungeon.utils.DropRNGManager;
 import com.watabou.utils.Random;
 
 public class HermitCrab extends Crab {
@@ -46,18 +45,12 @@ public class HermitCrab extends Crab {
 
 		if (Dungeon.hero.lvl <= maxLvl + 2){
 			Item armor;
-			Random.pushGenerator( DropRNGManager.get( dropRNGKey( "extra_loot" ) ) );
-			try {
+			try (Random.Scope ignored = useDropRNG( "extra_loot" )) {
 				armor = Generator.randomArmor();
-			} finally {
-				Random.popGenerator();
 			}
 
-			Random.pushGenerator( DropRNGManager.get( dropRNGKey( "drop_pos" ) ) );
-			try {
+			try (Random.Scope ignored = useDropRNG( "drop_pos" )) {
 				Dungeon.level.drop( armor, pos ).sprite.drop();
-			} finally {
-				Random.popGenerator();
 			}
 		}
 	}

@@ -42,7 +42,6 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.EyeSprite;
-import com.shatteredpixel.shatteredpixeldungeon.utils.DropRNGManager;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.PathFinder;
@@ -252,8 +251,7 @@ public class Eye extends Mob {
 
 	private void dropExtraDewdrop() {
 		// Keep Level.drop in this stream("drop_pos") too, as it can reroll positions when dropping onto chests.
-		Random.pushGenerator( DropRNGManager.get( dropRNGKey( "drop_pos" ) ) );
-		try {
+		try (Random.Scope ignored = useDropRNG( "drop_pos" )) {
 			int cell = randomValidDropCell( PathFinder.NEIGHBOURS8 );
 			boolean emptyTarget = Dungeon.level.heaps.get(cell) == null;
 			Heap heap = Dungeon.level.drop(new Dewdrop(), cell);
@@ -262,8 +260,6 @@ public class Eye extends Mob {
 			} else {
 				heap.sprite.drop(cell);
 			}
-		} finally {
-			Random.popGenerator();
 		}
 	}
 

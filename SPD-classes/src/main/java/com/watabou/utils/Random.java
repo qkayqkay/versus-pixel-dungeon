@@ -114,6 +114,46 @@ public class Random {
 		generators.push( lcg );
 	}
 
+	public static synchronized Scope useGenerator( long seed ){
+		LCG lcg = new LCG( scrambleSeed( seed ) );
+		generators.push( lcg );
+		return new Scope( lcg );
+	}
+
+	public static synchronized Scope useGenerator( LCG lcg ){
+		generators.push( lcg );
+		return new Scope( lcg );
+	}
+
+	public static class Scope implements AutoCloseable {
+		private final LCG expected;
+		private boolean closed;
+
+		private Scope( LCG expected ){
+			this.expected = expected;
+		}
+
+		@Override
+		public void close(){
+			synchronized (Random.class){
+				if (closed){
+					return;
+				}
+				if (generators.size() == 1){
+					closed = true;
+					Game.reportException( new RuntimeException("tried to pop the last random number generator!") );
+					return;
+				}
+				if (generators.peekFirst() != expected){
+					Game.reportException( new RuntimeException("random generator stack closed out of order!") );
+					return;
+				}
+				closed = true;
+				generators.pop();
+			}
+		}
+	}
+
 	public static synchronized void popGenerator(){
 		if (generators.size() == 1){
 			Game.reportException( new RuntimeException("tried to pop the last random number generator!"));

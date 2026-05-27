@@ -42,7 +42,6 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.GooSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BossHealthBar;
-import com.shatteredpixel.shatteredpixeldungeon.utils.DropRNGManager;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.GameMath;
@@ -291,22 +290,16 @@ public class Goo extends Mob {
 		
 		//60% chance of 2 blobs, 30% chance of 3, 10% chance for 4. Average of 2.5
 		int blobs;
-		Random.pushGenerator( DropRNGManager.get( dropRNGKey( "extra_count" ) ) );
-		try {
+		try (Random.Scope ignored = useDropRNG( "extra_count" )) {
 			blobs = Random.chances(new float[]{0, 0, 6, 3, 1});
-		} finally {
-			Random.popGenerator();
 		}
 
-		Random.pushGenerator( DropRNGManager.get( dropRNGKey( "drop_pos" ) ) );
-		try {
+		try (Random.Scope ignored = useDropRNG( "drop_pos" )) {
 			Dungeon.level.drop( new WornKey( Dungeon.depth ), pos ).sprite.drop();
 			for (int i = 0; i < blobs; i++){
 				int cell = randomPassableDropCell( PathFinder.NEIGHBOURS8 );
 				Dungeon.level.drop( new GooBlob(), cell ).sprite.drop( pos );
 			}
-		} finally {
-			Random.popGenerator();
 		}
 		
 		Badges.validateBossSlain();

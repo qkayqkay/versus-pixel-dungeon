@@ -29,7 +29,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Corruption;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.MetalShard;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.DM201Sprite;
-import com.shatteredpixel.shatteredpixeldungeon.utils.DropRNGManager;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 
@@ -102,12 +101,9 @@ public class DM201 extends DM200 {
 
 		super.rollToDropLoot();
 
-		Random.pushGenerator( DropRNGManager.get( dropRNGKey( "drop_pos" ) ) );
-		try {
+		try (Random.Scope ignored = useDropRNG( "drop_pos" )) {
 			int cell = randomValidDropCell( PathFinder.NEIGHBOURS8 );
 			Dungeon.level.drop( new MetalShard(), cell ).sprite.drop( pos );
-		} finally {
-			Random.popGenerator();
 		}
 	}
 

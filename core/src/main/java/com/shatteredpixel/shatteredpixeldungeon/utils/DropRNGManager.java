@@ -50,6 +50,10 @@ public class DropRNGManager {
 		return rng;
 	}
 
+	public static Random.Scope use( String key ){
+		return Random.useGenerator( get( key ) );
+	}
+
 	public static void storeInBundle( Bundle bundle ){
 		ArrayList<String> keys = new ArrayList<>( rngs.keySet() );
 		Collections.sort( keys );

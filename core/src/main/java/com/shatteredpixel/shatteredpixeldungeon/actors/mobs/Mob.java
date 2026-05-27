@@ -958,20 +958,14 @@ public abstract class Mob extends Char {
 
 		MasterThievesArmband.StolenTracker stolen = buff(MasterThievesArmband.StolenTracker.class);
 		if (stolen == null || !stolen.itemWasStolen()) {
-			Random.pushGenerator( DropRNGManager.get( dropRNGKey( "check" ) ) );
 			boolean dropsLoot;
-			try {
+			try (Random.Scope ignored = useDropRNG( "check" )) {
 				dropsLoot = Random.Float() < lootChance();
-			} finally {
-				Random.popGenerator();
 			}
 			if (dropsLoot) {
 				Item loot;
-				Random.pushGenerator( DropRNGManager.get( dropRNGKey( "loot" ) ) );
-				try {
+				try (Random.Scope ignored = useDropRNG( "loot" )) {
 					loot = createLoot();
-				} finally {
-					Random.popGenerator();
 				}
 				if (loot != null) {
 					Dungeon.level.drop(loot, pos).sprite.drop();
@@ -1014,6 +1008,10 @@ public abstract class Mob extends Char {
 
 	protected String dropRNGKey( String stream ){
 		return dropRNGKey() + ":" + stream;
+	}
+
+	protected Random.Scope useDropRNG( String stream ){
+		return DropRNGManager.use( dropRNGKey( stream ) );
 	}
 
 	protected int randomValidDropCell( int[] offsets ){
