@@ -681,6 +681,14 @@ public enum NetworkManager {
                 String bingoRaw = parts[1].replace("BINGODATA:", "");
                 String[] taskEntries = bingoRaw.split(";");
                 Gamemode.current.loadBingoFromNetwork(taskEntries);
+                Gdx.app.postRunnable(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (Game.scene() instanceof GameScene) {
+                            GameScene.resetBingoBoard();
+                        }
+                    }
+                });
             }
         }
 

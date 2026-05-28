@@ -774,6 +774,7 @@ public class GameScene extends PixelScene {
 			}
 		}
 
+		resetBingoBoard();
 		if(NetworkManager.INSTANCE.shouldFreeze) {
 			System.out.println("\n\n\nShould freeze!\n\n\n");
 			freeze = Buff.affect(Dungeon.hero, StartFreeze.class);
@@ -1097,6 +1098,7 @@ public class GameScene extends PixelScene {
 
 		if(Gamemode.current.bingoReady && bingoBoard == null) {
 			bingoBoard = new BingoBoard(Gamemode.current.bingoTasks);
+			System.out.println("Creating new BingoBoard. bingoReady=" + Gamemode.current.bingoReady + ", tasks[0][0] completed=" + Gamemode.current.bingoTasks[0][0].isCompleted());
 			bingoBoard.camera = uiCamera;
 			bingoBoard.setRect(4, 4, 1, 1);
 			add(bingoBoard);
@@ -2075,4 +2077,13 @@ public class GameScene extends PixelScene {
 			return null;
 		}
 	};
+
+	public static void resetBingoBoard() {
+		GameScene instance = (GameScene) Game.scene();
+		if (instance == null) return;
+		if (instance.bingoBoard != null) {
+			instance.bingoBoard.killAndErase();
+			instance.bingoBoard = null;
+		}
+	}
 }
