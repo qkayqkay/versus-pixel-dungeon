@@ -116,7 +116,7 @@ public class BingoBoard extends Component {
                 this.completed = task.isCompleted();
             }
             if (completed && !hasOverlay) {
-                int color = 0x66FFFFFF; // fallback case, translucent white
+                int color = 0x66FFFFFF; //fallback case, translucent white. Im pretty sure my python library never generates a white color, so white = bad
                 if (task.owner != null) {
                     color = task.owner.color;
                 }

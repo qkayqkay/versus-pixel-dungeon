@@ -267,6 +267,10 @@ public enum NetworkManager {
 
     private void handleIncomingMessage(String message) { // im ngl this got so boring to write that some of this is just AI. Serialization booo.
         String[] headerData = message.split(":", 2);
+        if (headerData.length < 2) {
+            System.err.println("Malformed message (no colon): " + message);
+            return;
+        }
         String header = headerData[0];
         String data = headerData[1];
         if(!header.equals("PONG")) { // or else this fills up the console
@@ -672,6 +676,7 @@ public enum NetworkManager {
             shouldCountdown = true;
              //I can't bother to figure out why but this doesn't work if I add it with 2+ players but works fine with 1 wtf.
 
+            Gamemode.current = Gamemode.fromID(Gamemode.current.gamemodeID);
             if (parts.length > 1 && parts[1].startsWith("BINGODATA:")) {
                 String bingoRaw = parts[1].replace("BINGODATA:", "");
                 String[] taskEntries = bingoRaw.split(";");

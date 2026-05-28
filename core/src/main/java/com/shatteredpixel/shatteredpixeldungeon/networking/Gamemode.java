@@ -14,7 +14,7 @@ import java.util.Random;
 public class Gamemode {
     private final static int[] bingoDims = new int[] {3,3};
 
-    public static Gamemode current = Gamemode.classic(); //TODO set this
+    public static Gamemode current = Gamemode.classic();
     private static Gamemode[] gamemodes = new Gamemode[]{Gamemode.classic(), Gamemode.classicRift(), Gamemode.bingo()};
     public String gamemodeID;
     public String gamemodeName;
@@ -85,9 +85,7 @@ public class Gamemode {
                 for (int j = 0; j < current.bingoTasks[i].length; j++) {
 
                     if (current.bingoTasks[i][j].isCompleted()) {
-
                         Player owner = current.bingoTasks[i][j].owner;
-
                         counts.put(owner, counts.getOrDefault(owner, 0) + 1);
                     }
                 }
@@ -98,13 +96,11 @@ public class Gamemode {
 
             for (Object player : counts.keySet()) {
                 if (player == NetworkManager.INSTANCE.self) continue;
-
                 int other = counts.get(player);
 
                 if (other > myCount) {
                     isWinner = false;
                 }
-
                 if (other == myCount) {
                     isDraw = true;
                 }
